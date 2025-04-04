@@ -1,14 +1,15 @@
-import React from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  IconButton, 
-  Avatar, 
-  Box 
-} from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
+import {
+  AppBar,
+  Avatar,
+  Box,
+  IconButton,
+  Toolbar,
+  Typography
+} from '@mui/material';
+import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import ThemeToggle from '../ThemeToggle';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -35,7 +36,8 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
         {/* User info */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="body1" sx={{ mr: 1 }}>
+          <ThemeToggle />
+          <Typography variant="body1" sx={{ mx: 1 }}>
             {user?.username || 'Guest'}
           </Typography>
           <Avatar sx={{ width: 32, height: 32 }}>

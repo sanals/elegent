@@ -1,6 +1,6 @@
+import { Box, Container, Grid, Typography } from '@mui/material';
 import React from 'react';
-import { Box, Typography, Grid, Container } from '@mui/material';
-import { Statistics, SystemHealth, RecentActivity, QuickActions } from '../../components/dashboard';
+import { QuickActions, RecentActivity, Statistics, SystemHealth } from '../../components/dashboard';
 
 const DashboardPage: React.FC = () => {
   // This is mock data - in a real application, this would come from API calls

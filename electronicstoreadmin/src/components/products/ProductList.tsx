@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-import { 
-  Box, 
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import ToggleOffIcon from '@mui/icons-material/ToggleOff';
+import ToggleOnIcon from '@mui/icons-material/ToggleOn';
+import {
+  Box,
   Button,
-  Card,
-  CardActions,
-  CardContent,
   Chip,
-  Divider,
-  Grid,
+  CircularProgress,
   IconButton,
   Paper,
   Stack,
@@ -17,17 +16,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
-  CircularProgress
+  Typography
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ToggleOnIcon from '@mui/icons-material/ToggleOn';
-import ToggleOffIcon from '@mui/icons-material/ToggleOff';
-import { Link, useNavigate } from 'react-router-dom';
-import { ProductService } from '../../services/product.service';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApiRequest } from '../../hooks/useApiRequest';
+import { ProductService } from '../../services/product.service';
 import { ProductResponse } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
 import ConfirmDialog from '../shared/ConfirmDialog';
@@ -67,11 +61,11 @@ const ProductList = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
-  
-  const { 
-    loading, 
-    error, 
-    execute: fetchProducts 
+
+  const {
+    loading,
+    error,
+    execute: fetchProducts
   } = useApiRequest<PaginatedResponse<ProductResponse>, []>(
     ProductService.getAllProducts,
     false
@@ -82,10 +76,10 @@ const ProductList = () => {
       console.log('Fetching products...');
       const response = await fetchProducts();
       console.log('API Response:', response);
-      
+
       if (response && response.status === 'SUCCESS') {
         console.log('Product data:', response.data);
-        
+
         // Extract products from the paginated response
         if (response.data && response.data.content) {
           console.log('Setting products from paginated data:', response.data.content);
@@ -99,7 +93,7 @@ const ProductList = () => {
         setProducts([]);
       }
     };
-    
+
     loadProducts();
   }, [fetchProducts]);
 
@@ -110,10 +104,10 @@ const ProductList = () => {
 
   const confirmDelete = async () => {
     if (!selectedProduct) return;
-    
+
     try {
       const result = await ProductService.deleteProduct(selectedProduct.id);
-      
+
       if (result && result.status === 'SUCCESS') {
         showNotification('Product deleted successfully', 'success');
         // Just remove the product from local state for immediate UI update
@@ -132,18 +126,18 @@ const ProductList = () => {
 
   const handleStatusChange = async (product: ProductResponse) => {
     const newStatus = product.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    
+
     try {
       const result = await ProductService.updateProductStatus(
-        product.id, 
+        product.id,
         newStatus
       );
-      
+
       if (result && result.status === 'SUCCESS') {
         showNotification(`Product ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`, 'success');
         // Update status in local state for immediate UI update
-        setProducts(prev => 
-          prev.map(p => 
+        setProducts(prev =>
+          prev.map(p =>
             p.id === product.id ? { ...p, status: newStatus } : p
           )
         );
@@ -168,9 +162,9 @@ const ProductList = () => {
     return (
       <Paper sx={{ p: 3, bgcolor: '#fff8f8' }}>
         <Typography color="error">Error: {error}</Typography>
-        <Button 
-          variant="outlined" 
-          color="primary" 
+        <Button
+          variant="outlined"
+          color="primary"
           onClick={() => fetchProducts()}
           sx={{ mt: 2 }}
         >
@@ -184,39 +178,19 @@ const ProductList = () => {
     return (
       <Paper sx={{ p: 3 }}>
         <Typography variant="h6" gutterBottom>No products found</Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          component={Link} 
-          to="/products/new"
-        >
-          Add Product
-        </Button>
       </Paper>
     );
   }
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Products</Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          component={Link} 
-          to="/products/new"
-        >
-          Add Product
-        </Button>
-      </Box>
-      
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Category</TableCell>
-              <TableCell align="right">Price</TableCell>
+              <TableCell align="right">Price (₹)</TableCell>
               <TableCell align="right">Stock</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Created By</TableCell>
@@ -229,11 +203,11 @@ const ProductList = () => {
               <TableRow key={product.id}>
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.category?.name || 'Uncategorized'}</TableCell>
-                <TableCell align="right">${product.price.toFixed(2)}</TableCell>
+                <TableCell align="right">₹{product.price.toFixed(2)}</TableCell>
                 <TableCell align="right">{product.stock}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={product.status} 
+                  <Chip
+                    label={product.status}
                     color={product.status === 'ACTIVE' ? 'success' : 'default'}
                     size="small"
                   />
@@ -242,25 +216,25 @@ const ProductList = () => {
                 <TableCell>{product.lastModifiedBy || 'Unknown'}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1} justifyContent="center">
-                    <IconButton 
-                      size="small" 
+                    <IconButton
+                      size="small"
                       color="primary"
                       onClick={() => navigate(`/products/${product.id}`)}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton 
-                      size="small" 
+                    <IconButton
+                      size="small"
                       onClick={() => handleStatusChange(product)}
                       color={product.status === 'ACTIVE' ? 'success' : 'default'}
                     >
-                      {product.status === 'ACTIVE' ? 
-                        <ToggleOnIcon fontSize="small" /> : 
+                      {product.status === 'ACTIVE' ?
+                        <ToggleOnIcon fontSize="small" /> :
                         <ToggleOffIcon fontSize="small" />
                       }
                     </IconButton>
-                    <IconButton 
-                      size="small" 
+                    <IconButton
+                      size="small"
                       color="error"
                       onClick={() => handleDelete(product)}
                     >
@@ -273,7 +247,7 @@ const ProductList = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      
+
       <ConfirmDialog
         open={deleteDialogOpen}
         title="Delete Product"

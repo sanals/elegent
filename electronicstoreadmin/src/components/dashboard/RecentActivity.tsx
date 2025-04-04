@@ -1,5 +1,5 @@
+import { Card, CardContent, Divider, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React from 'react';
-import { Card, CardContent, Typography, List, ListItem, ListItemText, Divider } from '@mui/material';
 
 interface Product {
   id: number;
@@ -34,7 +34,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ recentProducts }) => {
         <Typography variant="h6" gutterBottom>
           Recent Activity
         </Typography>
-        
+
         {recentProducts.length === 0 ? (
           <Typography variant="body2" color="textSecondary">
             No recent activity to display

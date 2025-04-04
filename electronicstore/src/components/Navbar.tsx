@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  IconButton,
-  Menu,
-  MenuItem,
-  Button,
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText
-} from '@mui/material';
-import { 
+import {
   Menu as MenuIcon
 } from '@mui/icons-material';
+import {
+  AppBar,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Toolbar
+} from '@mui/material';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { categories } from '../data/categories';
-import { useProducts } from '../context/ProductContext';
 import Logo from './Logo';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -42,7 +41,7 @@ const Navbar: React.FC = () => {
 
   return (
     <AppBar position="static">
-      <Toolbar sx={{ 
+      <Toolbar sx={{
         justifyContent: 'space-between',
         px: { xs: 1, sm: 2 },
         gap: 2
@@ -60,8 +59,8 @@ const Navbar: React.FC = () => {
           {/* Updated Logo Section */}
           <Link
             to="/"
-            style={{ 
-              textDecoration: 'none', 
+            style={{
+              textDecoration: 'none',
               display: 'flex',
               alignItems: 'center'
             }}
@@ -71,7 +70,7 @@ const Navbar: React.FC = () => {
         </Box>
 
         {/* Desktop Navigation */}
-        <Box sx={{ 
+        <Box sx={{
           display: { xs: 'none', md: 'flex' },
           alignItems: 'center',
           gap: 2,
@@ -80,6 +79,16 @@ const Navbar: React.FC = () => {
           <Button color="inherit" onClick={handleClick}>
             Categories
           </Button>
+          <ThemeToggle />
+        </Box>
+
+        {/* Mobile Navigation Icons */}
+        <Box sx={{
+          display: { xs: 'flex', md: 'none' },
+          alignItems: 'center',
+          gap: 1
+        }}>
+          <ThemeToggle />
         </Box>
 
         {/* Mobile Menu Drawer */}
@@ -90,7 +99,7 @@ const Navbar: React.FC = () => {
         >
           <List sx={{ width: 250 }}>
             {categories.map((category) => (
-              <ListItem 
+              <ListItem
                 key={category.name}
                 onClick={() => {
                   handleCategorySelect(category.name);
@@ -112,7 +121,7 @@ const Navbar: React.FC = () => {
           sx={{ display: { xs: 'none', md: 'block' } }}
         >
           {categories.map((category) => (
-            <MenuItem 
+            <MenuItem
               key={category.name}
               onClick={() => handleCategorySelect(category.name)}
             >

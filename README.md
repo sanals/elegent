@@ -11,10 +11,10 @@ This workspace contains three interrelated applications that together form a com
 
 ### Communication Flow
 ```
-┌──────────────────┐    ┌───────────────────────┐
-│  ElectronicStore │    │ ElectronicsStoreAdmin │
-│    (Frontend)    │    │     (Admin UI)        │
-└────────┬─────────┘    └────────┬──────────────┘
+┌────────────────┐      ┌────────────────┐
+│  ElectronicStore │      │ ElectronicsStoreAdmin │
+│    (Frontend)   │      │     (Admin UI)    │
+└────────┬───────┘      └────────┬───────┘
          │                       │
          │                       │
          │ HTTP/REST             │ HTTP/REST
@@ -59,6 +59,17 @@ npm run dev
 ```
 The customer UI will be available at http://localhost:3000
 
+### 4. Start All Applications
+For Windows:
+```
+start-all.bat
+```
+
+For Linux/Mac:
+```
+sh start-all.sh
+```
+
 ## Configuration
 
 Each application has its own configuration files:
@@ -73,6 +84,18 @@ All applications share the following resources:
 - Common domain models (represented as TypeScript interfaces in frontends)
 - API endpoints documentation (via SpringDoc OpenAPI)
 - Authentication mechanism (JWT tokens)
+- Shared theme colors (`types/colors.ts`)
+
+## Theme Customization
+
+Both React applications share a common color scheme, with the primary brand color set to `#203120`. To update the theme colors:
+
+1. Edit the `update-theme.js` script to adjust the color values
+2. Run the script using Node.js:
+   ```
+   node update-theme.js
+   ```
+3. This will update the color scheme across all applications
 
 ## Project Objectives
 

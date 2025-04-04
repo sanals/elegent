@@ -1,25 +1,28 @@
+import { Box } from '@mui/material';
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Box } from '@mui/material';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import AppRoutes from './routes';
-import { ProductProvider } from './context/ProductContext';
 import './App.css';
+import Footer from './components/Footer';
+import Navbar from './components/Navbar';
+import { ProductProvider } from './context/ProductContext';
+import { CustomThemeProvider } from './context/ThemeContext';
+import AppRoutes from './routes';
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <ProductProvider>
-        <Box className="app">
-          <Navbar />
-          <Box component="main" className="main-content">
-            <AppRoutes />
+    <CustomThemeProvider>
+      <Router>
+        <ProductProvider>
+          <Box className="app">
+            <Navbar />
+            <Box component="main" className="main-content">
+              <AppRoutes />
+            </Box>
+            <Footer />
           </Box>
-          <Footer />
-        </Box>
-      </ProductProvider>
-    </Router>
+        </ProductProvider>
+      </Router>
+    </CustomThemeProvider>
   );
 };
 
