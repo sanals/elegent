@@ -1,11 +1,11 @@
-import React from 'react';
 import { Container } from '@mui/material';
-import CategoryList from '../../components/categories/CategoryList';
+import React from 'react';
+import CategoryListV2 from '../../components/categories/CategoryListV2';
 
 const CategoriesPage: React.FC = () => {
   return (
     <Container>
-      <CategoryList />
+      <CategoryListV2 />
     </Container>
   );
 };

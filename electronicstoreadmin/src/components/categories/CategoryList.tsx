@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react';
-import { 
-  Button, 
-  Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow,
-  IconButton,
-  Chip,
-  Typography,
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  CircularProgress,
-  Tooltip
-} from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { Link, useNavigate } from 'react-router-dom';
-import { CategoryResponse, CategoryCreateRequest } from '../../types/api-responses';
-import { CategoryService } from '../../services/category.service';
-import { useApiRequest } from '../../hooks/useApiRequest';
-import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
+import { useApiRequest } from '../../hooks/useApiRequest';
+import { CategoryService } from '../../services/category.service';
+import { CategoryCreateRequest, CategoryResponse } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
 import ConfirmDialog from '../shared/ConfirmDialog';
 
@@ -42,7 +42,7 @@ const CategoryList = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  
+
   // Form setup - MOVED HERE BEFORE ANY CONDITIONALS
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CategoryCreateRequest>({
     resolver: yupResolver(schema),
@@ -51,18 +51,18 @@ const CategoryList = () => {
       description: ''
     }
   });
-  
+
   // Get categories
-  const { 
-    data: categories, 
-    loading, 
-    error, 
-    execute: fetchCategories 
+  const {
+    data: categories,
+    loading,
+    error,
+    execute: fetchCategories
   } = useApiRequest<CategoryResponse[], []>(
     CategoryService.getAllCategories,
     false
   );
-  
+
   // Create category
   const {
     loading: creating,
@@ -72,12 +72,12 @@ const CategoryList = () => {
     true,
     'Category created successfully'
   );
-  
+
   // Load categories on mount
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
-  
+
   // Handle opening the create dialog
   const handleOpenDialog = () => {
     setSelectedCategory(null);
@@ -87,12 +87,12 @@ const CategoryList = () => {
     });
     setOpenDialog(true);
   };
-  
+
   // Handle closing the dialog
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
-  
+
   // Handle form submission
   const onSubmit = async (data: CategoryCreateRequest) => {
     const result = await createCategory(data);
@@ -101,7 +101,7 @@ const CategoryList = () => {
       fetchCategories();
     }
   };
-  
+
   // Handle category deletion
   const handleDelete = async (category: CategoryResponse) => {
     setSelectedCategory(category);
@@ -110,10 +110,10 @@ const CategoryList = () => {
 
   const confirmDelete = async () => {
     if (!selectedCategory) return;
-    
+
     try {
       const result = await CategoryService.deleteCategory(selectedCategory.id);
-      
+
       if (result && result.status === 'SUCCESS') {
         showNotification('Category deleted successfully', 'success');
         fetchCategories();
@@ -128,7 +128,7 @@ const CategoryList = () => {
       setSelectedCategory(null);
     }
   };
-  
+
   // Show loading
   if (loading) {
     return (
@@ -137,15 +137,15 @@ const CategoryList = () => {
       </Box>
     );
   }
-  
+
   // Show error
   if (error) {
     return (
       <Paper sx={{ p: 3, bgcolor: '#fff8f8' }}>
         <Typography color="error">Error: {error}</Typography>
-        <Button 
-          variant="outlined" 
-          color="primary" 
+        <Button
+          variant="outlined"
+          color="primary"
           onClick={() => fetchCategories()}
           sx={{ mt: 2 }}
         >
@@ -154,7 +154,7 @@ const CategoryList = () => {
       </Paper>
     );
   }
-  
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
@@ -169,7 +169,7 @@ const CategoryList = () => {
           New Category
         </Button>
       </Box>
-      
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -189,8 +189,8 @@ const CategoryList = () => {
                   <TableCell>{category.name}</TableCell>
                   <TableCell>{category.description}</TableCell>
                   <TableCell>
-                    <Chip 
-                      label={category.status} 
+                    <Chip
+                      label={category.status}
                       color={category.status === 'ACTIVE' ? 'success' : 'default'}
                       size="small"
                     />
@@ -206,17 +206,17 @@ const CategoryList = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell align="center">
-                    <IconButton 
+                    <IconButton
                       size="small"
-                      color="primary" 
-                      component={Link} 
+                      color="primary"
+                      component={Link}
                       to={`/categories/${category.id}`}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton 
+                    <IconButton
                       size="small"
-                      color="error" 
+                      color="error"
                       onClick={() => handleDelete(category)}
                     >
                       <DeleteIcon fontSize="small" />
@@ -234,7 +234,7 @@ const CategoryList = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      
+
       {/* Create Category Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
@@ -256,7 +256,7 @@ const CategoryList = () => {
                 />
               )}
             />
-            
+
             <Controller
               name="description"
               control={control}
@@ -276,9 +276,9 @@ const CategoryList = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button 
-              type="submit" 
-              variant="contained" 
+            <Button
+              type="submit"
+              variant="contained"
               color="primary"
               disabled={creating}
             >
@@ -287,7 +287,7 @@ const CategoryList = () => {
           </DialogActions>
         </form>
       </Dialog>
-      
+
       <ConfirmDialog
         open={deleteDialogOpen}
         title="Delete Category"

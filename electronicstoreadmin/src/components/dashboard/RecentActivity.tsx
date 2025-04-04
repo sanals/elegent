@@ -1,5 +1,6 @@
 import { Card, CardContent, Divider, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React from 'react';
+import { formatDate } from '../../utils/date-utils';
 
 interface Product {
   id: number;
@@ -8,7 +9,7 @@ interface Product {
   category: {
     name: string;
   };
-  updatedAt: string;
+  updatedAt: string | any[]; // Handles both string and array formats
 }
 
 interface RecentActivityProps {
@@ -16,18 +17,6 @@ interface RecentActivityProps {
 }
 
 const RecentActivity: React.FC<RecentActivityProps> = ({ recentProducts }) => {
-  // Format date string
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
-
   return (
     <Card>
       <CardContent>
@@ -35,19 +24,19 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ recentProducts }) => {
           Recent Activity
         </Typography>
 
-        {recentProducts.length === 0 ? (
+        {!recentProducts || recentProducts.length === 0 ? (
           <Typography variant="body2" color="textSecondary">
             No recent activity to display
           </Typography>
         ) : (
           <List>
-            {recentProducts?.map((product, index) => (
-              <React.Fragment key={product.id}>
+            {recentProducts.map((product, index) => (
+              <React.Fragment key={product.id || index}>
                 {index > 0 && <Divider />}
                 <ListItem>
                   <ListItemText
                     primary={product.name}
-                    secondary={`${product.category.name} - $${product.price.toFixed(2)} - ${formatDate(product.updatedAt)}`}
+                    secondary={`${product.category?.name || 'Uncategorized'} - ₹${(product.price || 0).toFixed(2)} - ${formatDate(product.updatedAt)}`}
                   />
                 </ListItem>
               </React.Fragment>
