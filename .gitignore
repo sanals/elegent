@@ -1,0 +1,17 @@
+electronicstoreapi/target/
+electronicstoreapi/uploads/
+
+electronicstore/node_modules/
+electronicstore/dist/
+
+electronicstoreadmin/node_modules/
+electronicstoreadmin/dist/
+electronicstoreadmin/.env
+electronicstoreadmin/.env.local
+electronicstoreadmin/.env.development.local
+electronicstoreadmin/.env.test.local
+electronicstoreadmin/.env.production.local
+
+electronicstoreadmin/.env.development
+electronicstoreadmin/.env.test
+electronicstoreadmin/.env.production
