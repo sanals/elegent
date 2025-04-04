@@ -1,0 +1,72 @@
+{
+	"folders": [
+		{
+			"name": "Root",
+			"path": "."
+		},
+		{
+			"name": "Customer Frontend",
+			"path": "electronicstore"
+		},
+		{
+			"name": "Admin Dashboard",
+			"path": "electronicstoreadmin"
+		},
+		{
+			"name": "Backend API",
+			"path": "electronicstoreapi"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic",
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": "explicit"
+		},
+		"java.compile.nullAnalysis.mode": "automatic",
+		"files.exclude": {
+			"**/.git": true,
+			"**/.DS_Store": true,
+			"**/node_modules": true,
+			"**/target": true
+		},
+		"typescript.tsdk": "node_modules/typescript/lib"
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"type": "java",
+				"name": "Launch Backend API",
+				"request": "launch",
+				"cwd": "${workspaceFolder:Backend API}",
+				"mainClass": "com.company.project.ElectronicStoreApiApplication",
+				"projectName": "electronics-store-admin"
+			},
+			{
+				"type": "chrome",
+				"name": "Launch Customer Frontend",
+				"request": "launch",
+				"url": "http://localhost:3000",
+				"webRoot": "${workspaceFolder:Customer Frontend}/src"
+			},
+			{
+				"type": "chrome",
+				"name": "Launch Admin Dashboard",
+				"request": "launch",
+				"url": "http://localhost:3003",
+				"webRoot": "${workspaceFolder:Admin Dashboard}/src"
+			}
+		],
+		"compounds": [
+			{
+				"name": "Full Stack",
+				"configurations": [
+					"Launch Backend API",
+					"Launch Customer Frontend",
+					"Launch Admin Dashboard"
+				]
+			}
+		]
+	}
+}
