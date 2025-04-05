@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Grid, 
-  Typography, 
-  Container, 
-  Card, 
-  CardContent, 
-  Box, 
-  CardMedia,
-  IconButton,
-  Paper,
-  CircularProgress,
-  Pagination
-} from '@mui/material';
-import { 
-  ChevronLeft, 
+import {
+  ChevronLeft,
   ChevronRight,
-  Download,
   LocationOn
 } from '@mui/icons-material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  CircularProgress,
+  Container,
+  Grid,
+  IconButton,
+  Pagination,
+  Paper,
+  Typography
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useProducts } from '../context/ProductContext';
 import Button from '../components/Button';
-import { locations } from '../data/locations';
 import ProductCard from '../components/ProductCard';
+import { useProducts } from '../context/ProductContext';
+import { locations } from '../data/locations';
 
 // Category images mapping
 const categoryImages: Record<string, string> = {
@@ -35,17 +34,17 @@ const categoryImages: Record<string, string> = {
 const AUTOPLAY_DELAY = 5000; // 5 seconds
 
 const HomePage: React.FC = () => {
-  const { 
-    products, 
+  const {
+    products,
     categories,
-    loading, 
+    loading,
     error,
     totalPages,
-    currentPage, 
+    currentPage,
     setPage,
     fetchProducts
   } = useProducts();
-  
+
   const featuredProducts = products.slice(0, 5); // Get first 5 products as featured
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedState, setSelectedState] = useState('');
@@ -53,7 +52,7 @@ const HomePage: React.FC = () => {
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Function to handle search
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -71,9 +70,9 @@ const HomePage: React.FC = () => {
   // Auto-slide functionality
   useEffect(() => {
     if (featuredProducts.length === 0) return;
-    
+
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => 
+      setCurrentSlide((prev) =>
         prev === featuredProducts.length - 1 ? 0 : prev + 1
       );
     }, AUTOPLAY_DELAY);
@@ -82,13 +81,13 @@ const HomePage: React.FC = () => {
   }, [featuredProducts.length]);
 
   const handlePrevSlide = () => {
-    setCurrentSlide((prev) => 
+    setCurrentSlide((prev) =>
       prev === 0 ? featuredProducts.length - 1 : prev - 1
     );
   };
 
   const handleNextSlide = () => {
-    setCurrentSlide((prev) => 
+    setCurrentSlide((prev) =>
       prev === featuredProducts.length - 1 ? 0 : prev + 1
     );
   };
@@ -99,11 +98,11 @@ const HomePage: React.FC = () => {
 
   const states = Object.keys(locations);
   const cities = selectedState ? Object.keys(locations[selectedState as keyof typeof locations]) : [];
-  const localities = selectedState && selectedCity ? 
+  const localities = selectedState && selectedCity ?
     locations[selectedState as keyof typeof locations][selectedCity] : [];
 
   return (
-    <Container maxWidth="lg" sx={{ 
+    <Container maxWidth="lg" sx={{
       px: { xs: 1, sm: 2, md: 3 },
       mx: 'auto'
     }}>
@@ -122,15 +121,15 @@ const HomePage: React.FC = () => {
           </Button>
         </Box>
       ) : featuredProducts.length > 0 ? (
-        <Box sx={{ 
+        <Box sx={{
           position: 'relative',
           mb: 6,
           mt: 2,
           height: { xs: '200px', sm: '300px', md: '400px' }
         }}>
-          <Paper 
+          <Paper
             elevation={3}
-            sx={{ 
+            sx={{
               position: 'relative',
               height: '100%',
               overflow: 'hidden',
@@ -177,12 +176,12 @@ const HomePage: React.FC = () => {
                     {product.name}
                   </Typography>
                   <Typography variant="body1">
-                    ${product.price.toFixed(2)}
+                    ₹{product.price.toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
             ))}
-            
+
             <IconButton
               onClick={handlePrevSlide}
               sx={{
@@ -196,7 +195,7 @@ const HomePage: React.FC = () => {
             >
               <ChevronLeft />
             </IconButton>
-            
+
             <IconButton
               onClick={handleNextSlide}
               sx={{
@@ -238,11 +237,11 @@ const HomePage: React.FC = () => {
       ) : null}
 
       {/* Categories Section */}
-      <Typography 
-        variant="h4" 
-        component="h2" 
-        sx={{ 
-          my: 4, 
+      <Typography
+        variant="h4"
+        component="h2"
+        sx={{
+          my: 4,
           fontWeight: 'bold',
           textAlign: 'center'
         }}
@@ -253,10 +252,10 @@ const HomePage: React.FC = () => {
       <Grid container spacing={3} sx={{ mb: 6 }}>
         {categories.filter(cat => cat.status === 'ACTIVE').map((category) => (
           <Grid item xs={6} sm={4} md={3} key={category.id}>
-            <Card 
-              component={Link} 
+            <Card
+              component={Link}
               to={`/category/${category.id}`}
-              sx={{ 
+              sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -284,25 +283,25 @@ const HomePage: React.FC = () => {
       </Grid>
 
       {/* Store Message Section */}
-      <Box sx={{ 
-        textAlign: 'center', 
+      <Box sx={{
+        textAlign: 'center',
         my: { xs: 4, md: 6 },
         px: { xs: 2, md: 4 }
       }}>
-        <Typography 
-          variant="h3" 
-          component="h1" 
+        <Typography
+          variant="h3"
+          component="h1"
           gutterBottom
-          sx={{ 
+          sx={{
             fontWeight: 'bold',
             fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' }
           }}
         >
           Your Trusted Source for Quality Electronics
         </Typography>
-        <Typography 
-          variant="body1" 
-          sx={{ 
+        <Typography
+          variant="body1"
+          sx={{
             mb: 3,
             fontSize: { xs: '1rem', md: '1.1rem' },
             maxWidth: '800px',
@@ -312,13 +311,13 @@ const HomePage: React.FC = () => {
           With over 10,000 products and 15 years of experience, we offer the best selection of electronic components and devices for professionals and hobbyists alike.
         </Typography>
       </Box>
-        
+
       {/* Latest Products Section */}
-      <Typography 
-        variant="h4" 
-        component="h2" 
-        sx={{ 
-          mb: 4, 
+      <Typography
+        variant="h4"
+        component="h2"
+        sx={{
+          mb: 4,
           mt: 6,
           fontWeight: 'bold',
           textAlign: 'center'
@@ -349,15 +348,15 @@ const HomePage: React.FC = () => {
               </Grid>
             ))}
           </Grid>
-        
+
           {/* Pagination */}
           {totalPages > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-              <Pagination 
-                count={totalPages} 
-                page={currentPage + 1} 
-                onChange={handlePageChange} 
-                color="primary" 
+              <Pagination
+                count={totalPages}
+                page={currentPage + 1}
+                onChange={handlePageChange}
+                color="primary"
               />
             </Box>
           )}
@@ -365,18 +364,18 @@ const HomePage: React.FC = () => {
       )}
 
       {/* Location Section */}
-      <Box sx={{ 
-        textAlign: 'center', 
+      <Box sx={{
+        textAlign: 'center',
         my: { xs: 4, md: 6 },
         py: 6,
         bgcolor: 'grey.100',
         borderRadius: 2
       }}>
         <LocationOn sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
-        <Typography 
-          variant="h4" 
+        <Typography
+          variant="h4"
           gutterBottom
-          sx={{ 
+          sx={{
             fontWeight: 'bold',
             mb: 3
           }}
@@ -386,14 +385,14 @@ const HomePage: React.FC = () => {
         <Grid container spacing={2} maxWidth="md" sx={{ mx: 'auto', px: 2 }}>
           <Grid item xs={12} sm={4}>
             <Box sx={{ width: '100%' }}>
-              <select 
+              <select
                 value={selectedState}
                 onChange={(e) => {
                   setSelectedState(e.target.value);
                   setSelectedCity('');
                 }}
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   padding: '10px',
                   borderRadius: '4px',
                   border: '1px solid #ccc'
@@ -410,12 +409,12 @@ const HomePage: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Box sx={{ width: '100%' }}>
-              <select 
+              <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
                 disabled={!selectedState}
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   padding: '10px',
                   borderRadius: '4px',
                   border: '1px solid #ccc',
@@ -433,10 +432,10 @@ const HomePage: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Box sx={{ width: '100%' }}>
-              <select 
+              <select
                 disabled={!selectedCity}
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   padding: '10px',
                   borderRadius: '4px',
                   border: '1px solid #ccc',

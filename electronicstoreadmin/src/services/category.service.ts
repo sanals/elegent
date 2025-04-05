@@ -1,13 +1,13 @@
-import { ApiService } from './api.service';
-import { API_ENDPOINTS } from '../utils/api-endpoints';
-import { 
-  ApiResponse, 
-  Category, 
-  CategoryCreateRequest, 
-  CategoryUpdateRequest,
-  CategoryResponse
+import {
+  ApiResponse,
+  Category,
+  CategoryCreateRequest,
+  CategoryResponse,
+  CategoryUpdateRequest
 } from '../types/api-responses';
+import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { apiFetch } from '../utils/api-fetch';
+import { ApiService } from './api.service';
 
 // Define base URL for direct API calls
 const DIRECT_API_BASE_URL = 'http://localhost:8090';
@@ -29,7 +29,7 @@ export class CategoryService {
       return await ApiService.get<Category[]>(API_ENDPOINTS.CATEGORIES);
     }
   }
-  
+
   /**
    * Get a category by ID with proper authentication
    * @param id - Category ID
@@ -47,7 +47,7 @@ export class CategoryService {
       return await ApiService.get<Category>(API_ENDPOINTS.CATEGORY_BY_ID(id));
     }
   }
-  
+
   /**
    * Create a new category with proper authentication
    * @param category - Category create request data
@@ -68,7 +68,7 @@ export class CategoryService {
       return await ApiService.post<CategoryResponse>(API_ENDPOINTS.CATEGORIES, category);
     }
   }
-  
+
   /**
    * Update an existing category with proper authentication
    * @param id - Category ID
@@ -90,7 +90,7 @@ export class CategoryService {
       return await ApiService.put<null>(API_ENDPOINTS.CATEGORY_BY_ID(id), category);
     }
   }
-  
+
   /**
    * Delete a category with proper authentication
    * @param id - Category ID
@@ -153,6 +153,70 @@ export class CategoryService {
     } catch (error) {
       console.error('Update category with image API call error:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Update category status with proper authentication
+   * @param id - Category ID
+   * @param status - New status
+   * @returns Promise with API response
+   */
+  static async updateCategoryStatus(id: number, status: 'ACTIVE' | 'INACTIVE'): Promise<ApiResponse<null>> {
+    try {
+      console.log(`Updating category ${id} status to ${status}`);
+
+      // Use the dedicated status endpoint with status as a query parameter
+      const response = await apiFetch(`${API_ENDPOINTS.UPDATE_CATEGORY_STATUS(id)}?status=${status}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Improve error handling
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server error updating category status:', response.status, errorText);
+        throw new Error(`Server returned ${response.status}: ${errorText}`);
+      }
+
+      try {
+        const data = await response.json();
+        return data;
+      } catch (parseError) {
+        console.error('Error parsing JSON response for category status update:', parseError);
+        // If response is ok but JSON parsing failed, return a success response
+        if (response.ok) {
+          return {
+            status: 'SUCCESS',
+            code: response.status,
+            message: 'Category status updated successfully',
+            data: null,
+            timestamp: new Date().toISOString()
+          };
+        } else {
+          throw parseError;
+        }
+      }
+    } catch (error) {
+      console.error('Update category status API call error:', error);
+      // Fallback to proxy in case of issues
+      console.log('Falling back to proxy for update category status');
+
+      try {
+        // Try the proxy approach, also using query parameters
+        return await ApiService.put<null>(`${API_ENDPOINTS.UPDATE_CATEGORY_STATUS(id)}?status=${status}`, null);
+      } catch (fallbackError) {
+        console.error('Fallback for update category status also failed:', fallbackError);
+        return {
+          status: 'ERROR',
+          code: 500,
+          message: `Error updating category status: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`,
+          data: null,
+          timestamp: new Date().toISOString()
+        };
+      }
     }
   }
 } 

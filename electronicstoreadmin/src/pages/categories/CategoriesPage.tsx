@@ -1,5 +1,5 @@
-import React from 'react';
 import { Container } from '@mui/material';
+import React from 'react';
 import CategoryList from '../../components/categories/CategoryList';
 
 const CategoriesPage: React.FC = () => {

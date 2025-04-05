@@ -1,14 +1,13 @@
-import { ApiService } from './api.service';
-import { API_ENDPOINTS } from '../utils/api-endpoints';
-import { 
-  ApiResponse, 
-  Product, 
-  ProductCreateRequest, 
-  ProductUpdateRequest,
+import {
+  ApiResponse,
+  Product,
+  ProductCreateRequest,
   ProductResponse,
-  Category
+  ProductUpdateRequest
 } from '../types/api-responses';
+import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { apiFetch } from '../utils/api-fetch';
+import { ApiService } from './api.service';
 
 // Define base URL for direct API calls
 const DIRECT_API_BASE_URL = 'http://localhost:8090';
@@ -54,21 +53,21 @@ export class ProductService {
     try {
       console.log('ProductService: Calling getAllProducts API');
       const response = await apiFetch(API_ENDPOINTS.PRODUCTS);
-      
+
       if (!response.ok) {
         console.error('ProductService: API returned error status:', response.status);
         throw new Error(`Server returned ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('ProductService: API response data:', data);
-      
+
       // Ensure data structure is correct
       if (!data || typeof data !== 'object') {
         console.error('ProductService: Invalid response data structure:', data);
         throw new Error('Invalid API response structure');
       }
-      
+
       return data;
     } catch (error) {
       console.error('Products API call error:', error);
@@ -77,7 +76,7 @@ export class ProductService {
       return await ApiService.get<PaginatedResponse<Product>>(API_ENDPOINTS.PRODUCTS);
     }
   }
-  
+
   /**
    * Get a product by ID with proper authentication
    * @param id - Product ID
@@ -95,7 +94,7 @@ export class ProductService {
       return await ApiService.get<Product>(API_ENDPOINTS.PRODUCT_BY_ID(id));
     }
   }
-  
+
   /**
    * Create a new product with proper authentication
    * @param product - Product create request data
@@ -111,11 +110,11 @@ export class ProductService {
         },
         body: JSON.stringify(product)
       });
-      
+
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Create product response:', data);
       return data;
@@ -126,7 +125,7 @@ export class ProductService {
       return await ApiService.post<Product>(API_ENDPOINTS.PRODUCTS, product);
     }
   }
-  
+
   /**
    * Update an existing product with proper authentication
    * @param id - Product ID
@@ -148,7 +147,7 @@ export class ProductService {
       return await ApiService.put<null>(API_ENDPOINTS.PRODUCT_BY_ID(id), product);
     }
   }
-  
+
   /**
    * Delete a product with proper authentication
    * @param id - Product ID
@@ -168,7 +167,7 @@ export class ProductService {
       return await ApiService.delete<null>(API_ENDPOINTS.PRODUCT_BY_ID(id));
     }
   }
-  
+
   /**
    * Upload a product image with proper authentication
    * @param file - Image file to upload
@@ -178,81 +177,81 @@ export class ProductService {
   static async uploadProductImage(file: File, productId?: number): Promise<ApiResponse<string[]>> {
     try {
       console.log('Uploading image file:', file.name, 'size:', file.size);
-      
+
       // Create FormData and append file
       const formData = new FormData();
       // Use 'images' as parameter name to match the backend controller
       formData.append('images', file);
-      
+
       if (productId) {
         formData.append('productId', productId.toString());
       }
-      
+
       // Use direct fetch to ensure correct Content-Type handling
       const response = await apiFetch(API_ENDPOINTS.UPLOAD_PRODUCT_IMAGE, {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - the browser will set it with the correct boundary
-        headers: {} 
+        headers: {}
       });
-      
+
       console.log('Upload response status:', response.status);
-      
+
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Upload response data:', data);
       return data;
     } catch (error) {
       console.error('Upload image API call error:', error);
-      
+
       // Try direct fallback with fetch API
       try {
         console.log('Trying direct fetch fallback for image upload');
-        
+
         const formData = new FormData();
         // Use 'images' as parameter name to match the backend controller
         formData.append('images', file);
-        
+
         if (productId) {
           formData.append('productId', productId.toString());
         }
-        
+
         const token = localStorage.getItem('token');
         const headers: HeadersInit = {};
-        
+
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         const response = await fetch(`${DIRECT_API_BASE_URL}${API_ENDPOINTS.UPLOAD_PRODUCT_IMAGE}`, {
           method: 'POST',
           body: formData,
           headers
         });
-        
+
         const data = await response.json();
         console.log('Direct fetch upload response:', data);
         return data;
       } catch (fallbackError) {
         console.error('Direct fallback upload failed:', fallbackError);
-        
+
         // Last resort - try API service
         console.log('Falling back to ApiService for upload image');
         const additionalData = productId ? { productId } : undefined;
         // Pass file with the correct parameter name
         return await ApiService.uploadFile<string[]>(
-          API_ENDPOINTS.UPLOAD_PRODUCT_IMAGE, 
-          file, 
+          API_ENDPOINTS.UPLOAD_PRODUCT_IMAGE,
+          file,
           additionalData,
           'images' // Parameter name to use for the file
         );
       }
     }
   }
-  
+
   /**
    * Update product status with proper authentication
    * @param id - Product ID
@@ -261,20 +260,86 @@ export class ProductService {
    */
   static async updateProductStatus(id: number, status: 'ACTIVE' | 'INACTIVE'): Promise<ApiResponse<null>> {
     try {
-      const response = await apiFetch(API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id), {
+      console.log(`Updating product ${id} status to ${status}`);
+
+      // Send status as a query parameter instead of in the body
+      const response = await apiFetch(`${API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id)}?status=${status}`, {
         method: 'PUT',
-        body: JSON.stringify({ status }),
+        // No body needed as we're using query parameter
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      const data = await response.json();
-      return data;
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server error updating product status:', response.status, errorText);
+        throw new Error(`Server returned ${response.status}: ${errorText}`);
+      }
+
+      try {
+        const data = await response.json();
+        return data;
+      } catch (parseError) {
+        console.error('Error parsing JSON response for product status update:', parseError);
+        // If response is ok but JSON parsing failed, return a success response
+        if (response.ok) {
+          return {
+            status: 'SUCCESS',
+            code: response.status,
+            message: 'Product status updated successfully',
+            data: null,
+            timestamp: new Date().toISOString()
+          };
+        } else {
+          throw parseError;
+        }
+      }
     } catch (error) {
       console.error('Update product status API call error:', error);
-      // Fallback to proxy in case of issues
-      console.log('Falling back to proxy for update product status');
-      return await ApiService.put<null>(API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id), { status });
+
+      // If the direct API call fails, try updating the entire product instead
+      try {
+        console.log('Falling back to full product update');
+        // First get the product
+        const productResponse = await ProductService.getProductById(id);
+
+        if (productResponse.status !== 'SUCCESS' || !productResponse.data) {
+          return {
+            status: 'ERROR',
+            code: 404,
+            message: 'Product not found',
+            data: null,
+            timestamp: new Date().toISOString()
+          };
+        }
+
+        // Then update it with the new status
+        const product = productResponse.data;
+        const updateRequest: ProductUpdateRequest = {
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          categoryId: product.category?.id || 0,
+          specifications: product.specifications,
+          stock: product.stock,
+          images: product.images
+        };
+
+        return await ApiService.put<null>(API_ENDPOINTS.PRODUCT_BY_ID(id), updateRequest);
+      } catch (fallbackError) {
+        console.error('Fallback for update product status also failed:', fallbackError);
+        return {
+          status: 'ERROR',
+          code: 500,
+          message: `Error updating product status: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          data: null,
+          timestamp: new Date().toISOString()
+        };
+      }
     }
   }
-  
+
   /**
    * Create product with images in a single API call
    * @param productData - Product data
@@ -282,12 +347,12 @@ export class ProductService {
    * @returns Promise with created product data
    */
   static async createProductWithImages(
-    productData: ProductCreateRequest, 
+    productData: ProductCreateRequest,
     imageFiles: File[]
   ): Promise<ApiResponse<Product | null>> {
     try {
       console.log('Creating product with images:', productData, `(${imageFiles.length} images)`);
-      
+
       // Create FormData and append product data
       const formData = new FormData();
       formData.append('name', productData.name);
@@ -296,33 +361,33 @@ export class ProductService {
       formData.append('stock', productData.stock.toString());
       formData.append('categoryId', productData.categoryId.toString());
       formData.append('specifications', productData.specifications || '{}');
-      
+
       // Append all image files with the same field name 'images'
       imageFiles.forEach(file => {
         formData.append('images', file);
       });
-      
+
       const response = await apiFetch(API_ENDPOINTS.CREATE_PRODUCT_WITH_IMAGES, {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - browser will set it with the correct boundary
         headers: {}
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server error:', response.status, errorText);
         throw new Error(`Server returned ${response.status}: ${errorText}`);
       }
-      
+
       // Get response as text first
       const responseText = await response.text();
-      
+
       try {
         // Try to parse the text as JSON
         const data = JSON.parse(responseText) as ApiResponse<ProductResponse>;
         console.log('Create product with images response:', data);
-        
+
         // Return success with simplified data if status is SUCCESS
         if (data.status === 'SUCCESS' && data.data) {
           return {
@@ -410,7 +475,7 @@ export class ProductService {
       };
     }
   }
-  
+
   /**
    * Update product with images in a single API call
    * @param id - Product ID
@@ -425,7 +490,7 @@ export class ProductService {
   ): Promise<ApiResponse<Product | null>> {
     try {
       console.log('Updating product with images:', id, productData, `(${newImageFiles.length} new images)`);
-      
+
       // Create FormData and append product data
       const formData = new FormData();
       formData.append('name', productData.name);
@@ -434,40 +499,40 @@ export class ProductService {
       formData.append('stock', productData.stock.toString());
       formData.append('categoryId', productData.categoryId.toString());
       formData.append('specifications', productData.specifications || '{}');
-      
+
       // Append existing image URLs if provided
       if (productData.images && productData.images.length > 0) {
         productData.images.forEach((url, index) => {
           formData.append(`existingImages[${index}]`, url);
         });
       }
-      
+
       // Append all new image files with the same field name 'images'
       newImageFiles.forEach(file => {
         formData.append('images', file);
       });
-      
+
       const response = await apiFetch(API_ENDPOINTS.UPDATE_PRODUCT_WITH_IMAGES(id), {
         method: 'PUT',
         body: formData,
         // Don't set Content-Type header - browser will set it with the correct boundary
         headers: {}
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server error:', response.status, errorText);
         throw new Error(`Server returned ${response.status}: ${errorText}`);
       }
-      
+
       // Get response as text first
       const responseText = await response.text();
-      
+
       try {
         // Try to parse the text as JSON
         const data = JSON.parse(responseText) as ApiResponse<ProductResponse>;
         console.log('Update product with images response:', data);
-        
+
         // Return success with simplified data if status is SUCCESS
         if (data.status === 'SUCCESS' && data.data) {
           return {

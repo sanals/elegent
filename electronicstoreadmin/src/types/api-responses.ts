@@ -136,7 +136,13 @@ export interface CategoryCreateRequest {
   imageUrl?: string;
 }
 
-export interface CategoryUpdateRequest extends CategoryCreateRequest {}
+export interface CategoryUpdateRequest {
+  name: string;
+  description?: string;
+  parentCategoryId?: number;
+  imageUrl?: string;
+  status?: "ACTIVE" | "INACTIVE";
+}
 
 export interface CategoryResponse {
   id: number;
