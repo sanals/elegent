@@ -1,11 +1,11 @@
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, CircularProgress, Button } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CategoryForm from '../../components/categories/CategoryForm';
 import { CategoryService } from '../../services/category.service';
 import { CategorySummary } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
-import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
 const CategoryEditPage: React.FC = () => {
   const { id } = useParams();
@@ -20,7 +20,17 @@ const CategoryEditPage: React.FC = () => {
     CategoryService.getAllCategories()
       .then(response => {
         if (response?.status === 'SUCCESS' && response.data) {
-          setCategories(response.data);
+          // Extract the content array from the paginated response
+          if (response.data.content && Array.isArray(response.data.content)) {
+            console.log('Setting categories from paginated response content');
+            setCategories(response.data.content);
+          } else if (Array.isArray(response.data)) {
+            console.log('Setting categories from direct array response');
+            setCategories(response.data);
+          } else {
+            console.error('Unexpected categories response format:', response.data);
+            setCategories([]);
+          }
         }
       })
       .catch(error => {
@@ -59,11 +69,11 @@ const CategoryEditPage: React.FC = () => {
             {isNewCategory ? 'Add New Category' : `Edit Category #${id}`}
           </Typography>
         </Box>
-        
-        <CategoryForm 
-          categories={categories} 
-          mode={isNewCategory ? 'create' : 'edit'} 
-          categoryId={!isNewCategory && id ? parseInt(id) : undefined} 
+
+        <CategoryForm
+          categories={categories}
+          mode={isNewCategory ? 'create' : 'edit'}
+          categoryId={!isNewCategory && id ? parseInt(id) : undefined}
         />
       </Box>
     </Container>

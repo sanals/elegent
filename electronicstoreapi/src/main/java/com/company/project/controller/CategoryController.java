@@ -2,6 +2,9 @@ package com.company.project.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,7 @@ import com.company.project.dto.response.ApiResponse;
 import com.company.project.dto.response.CategoryResponse;
 import com.company.project.entity.Category;
 import com.company.project.service.CategoryService;
+import com.company.project.service.ResponseService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,23 +36,28 @@ import lombok.RequiredArgsConstructor;
 public class CategoryController {
 
         private final CategoryService categoryService;
+        private final ResponseService responseService;
 
         @GetMapping
-        public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories() {
+        public ResponseEntity<ApiResponse<Page<CategoryResponse>>> getAllCategories(
+                        @PageableDefault(size = 10) Pageable pageable) {
                 List<Category> categories = categoryService.getAllCategories();
                 List<CategoryResponse> responseList = categories.stream()
                                 .map(CategoryResponse::fromEntity)
                                 .toList();
-                return ResponseEntity.ok(new ApiResponse<>("SUCCESS", HttpStatus.OK.value(),
-                                "Categories retrieved successfully", responseList));
+
+                return ResponseEntity.ok(
+                                responseService.createPageResponse(responseList, pageable,
+                                                "Categories retrieved successfully"));
         }
 
         @GetMapping("/{id}")
         public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id) {
                 Category category = categoryService.getCategoryById(id);
                 CategoryResponse response = CategoryResponse.fromEntity(category);
-                return ResponseEntity.ok(new ApiResponse<>("SUCCESS", HttpStatus.OK.value(),
-                                "Category retrieved successfully", response));
+
+                return ResponseEntity.ok(
+                                responseService.createSingleResponse(response, "Category retrieved successfully"));
         }
 
         @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -59,8 +68,7 @@ public class CategoryController {
                 CategoryResponse response = CategoryResponse.fromEntity(category);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(new ApiResponse<>("SUCCESS", HttpStatus.CREATED.value(),
-                                                "Category created successfully", response));
+                                .body(responseService.createCreatedResponse(response, "Category created successfully"));
         }
 
         @PostMapping(value = "/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -72,8 +80,8 @@ public class CategoryController {
                 CategoryResponse response = CategoryResponse.fromEntity(category);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(new ApiResponse<>("SUCCESS", HttpStatus.CREATED.value(),
-                                                "Category created successfully with image", response));
+                                .body(responseService.createCreatedResponse(response,
+                                                "Category created successfully with image"));
         }
 
         @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -85,8 +93,8 @@ public class CategoryController {
                 Category updatedCategory = categoryService.updateCategory(id, request);
                 CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
 
-                return ResponseEntity.ok(new ApiResponse<>("SUCCESS", HttpStatus.OK.value(),
-                                "Category updated successfully", response));
+                return ResponseEntity.ok(
+                                responseService.createSingleResponse(response, "Category updated successfully"));
         }
 
         @PutMapping(value = "/{id}/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -98,16 +106,18 @@ public class CategoryController {
                 Category updatedCategory = categoryService.updateCategory(id, request);
                 CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
 
-                return ResponseEntity.ok(new ApiResponse<>("SUCCESS", HttpStatus.OK.value(),
-                                "Category updated successfully with image", response));
+                return ResponseEntity.ok(
+                                responseService.createSingleResponse(response,
+                                                "Category updated successfully with image"));
         }
 
         @DeleteMapping("/{id}")
         @PreAuthorize("hasRole('SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
                 categoryService.deleteCategory(id);
-                return ResponseEntity.ok(new ApiResponse<>("SUCCESS", HttpStatus.OK.value(),
-                                "Category deleted successfully", null));
+
+                return ResponseEntity.ok(
+                                responseService.createEmptyResponse("Category deleted successfully"));
         }
 
         /**
@@ -128,7 +138,7 @@ public class CategoryController {
                 Category updatedCategory = categoryService.updateCategory(id, CategoryRequest.fromEntity(category));
                 CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
 
-                return ResponseEntity.ok(new ApiResponse<>("SUCCESS", HttpStatus.OK.value(),
-                                "Category status updated successfully", response));
+                return ResponseEntity.ok(
+                                responseService.createSingleResponse(response, "Category status updated successfully"));
         }
 }

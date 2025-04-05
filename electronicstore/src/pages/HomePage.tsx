@@ -250,36 +250,46 @@ const HomePage: React.FC = () => {
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 6 }}>
-        {categories?.filter(cat => cat?.status === 'ACTIVE')?.map((category) => (
-          <Grid item xs={6} sm={4} md={3} key={category?.id}>
-            <Card
-              component={Link}
-              to={`/category/${category?.id}`}
-              sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                textDecoration: 'none',
-                transition: 'transform 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.03)'
-                },
-              }}
-            >
-              <CardMedia
-                component="img"
-                height="140"
-                image={category?.imageUrl || `https://picsum.photos/400/300?random=${category?.id}`}
-                alt={category?.name}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h6" component="div" sx={{ textAlign: 'center' }}>
-                  {category?.name}
-                </Typography>
-              </CardContent>
-            </Card>
+        {Array.isArray(categories) ? (
+          categories
+            .filter(cat => cat && cat.status === 'ACTIVE')
+            .map((category) => (
+              <Grid item xs={6} sm={4} md={3} key={category?.id}>
+                <Card
+                  component={Link}
+                  to={`/category/${category?.id}`}
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    textDecoration: 'none',
+                    transition: 'transform 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.03)'
+                    },
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={category?.imageUrl || `https://picsum.photos/400/300?random=${category?.id}`}
+                    alt={category?.name}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h6" component="div" sx={{ textAlign: 'center' }}>
+                      {category?.name}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+        ) : (
+          <Grid item xs={12}>
+            <Typography textAlign="center" color="text.secondary">
+              Loading categories...
+            </Typography>
           </Grid>
-        ))}
+        )}
       </Grid>
 
       {/* Store Message Section */}

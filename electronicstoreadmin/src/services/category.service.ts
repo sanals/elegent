@@ -3,7 +3,8 @@ import {
   Category,
   CategoryCreateRequest,
   CategoryResponse,
-  CategoryUpdateRequest
+  CategoryUpdateRequest,
+  Page
 } from '../types/api-responses';
 import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { apiFetch } from '../utils/api-fetch';
@@ -15,18 +16,174 @@ const DIRECT_API_BASE_URL = 'http://localhost:8090';
 export class CategoryService {
   /**
    * Get all categories with proper authentication
-   * @returns Promise with list of categories
+   * @returns Promise with paginated list of categories
    */
-  static async getAllCategories(): Promise<ApiResponse<Category[]>> {
+  static async getAllCategories(): Promise<ApiResponse<Page<CategoryResponse>>> {
     try {
       const response = await apiFetch(API_ENDPOINTS.CATEGORIES);
       const data = await response.json();
-      return data;
+
+      // Check if data is already in Page format
+      if (data?.data?.content && Array.isArray(data.data.content)) {
+        return data;
+      }
+
+      // Convert array response to Page format if needed
+      if (data?.data && Array.isArray(data.data)) {
+        const categories = data.data;
+        const pageData: Page<CategoryResponse> = {
+          content: categories,
+          pageable: {
+            pageNumber: 0,
+            pageSize: categories.length,
+            sort: { sorted: false, empty: true, unsorted: true },
+            offset: 0,
+            paged: true,
+            unpaged: false
+          },
+          last: true,
+          totalElements: categories.length,
+          totalPages: 1,
+          first: true,
+          size: categories.length,
+          number: 0,
+          sort: { sorted: false, empty: true, unsorted: true },
+          numberOfElements: categories.length,
+          empty: categories.length === 0
+        };
+
+        return {
+          ...data,
+          data: pageData
+        };
+      }
+
+      // If response is an array directly
+      if (Array.isArray(data)) {
+        const categories = data;
+        return {
+          status: 'SUCCESS',
+          code: 200,
+          message: 'Categories fetched successfully',
+          data: {
+            content: categories,
+            pageable: {
+              pageNumber: 0,
+              pageSize: categories.length,
+              sort: { sorted: false, empty: true, unsorted: true },
+              offset: 0,
+              paged: true,
+              unpaged: false
+            },
+            last: true,
+            totalElements: categories.length,
+            totalPages: 1,
+            first: true,
+            size: categories.length,
+            number: 0,
+            sort: { sorted: false, empty: true, unsorted: true },
+            numberOfElements: categories.length,
+            empty: categories.length === 0
+          },
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      // Default to empty page if unable to parse
+      console.error('Unexpected category API response format:', data);
+      return {
+        status: 'SUCCESS',
+        code: 200,
+        message: 'Unable to parse categories data',
+        data: {
+          content: [],
+          pageable: {
+            pageNumber: 0,
+            pageSize: 0,
+            sort: { sorted: false, empty: true, unsorted: true },
+            offset: 0,
+            paged: true,
+            unpaged: false
+          },
+          last: true,
+          totalElements: 0,
+          totalPages: 0,
+          first: true,
+          size: 0,
+          number: 0,
+          sort: { sorted: false, empty: true, unsorted: true },
+          numberOfElements: 0,
+          empty: true
+        },
+        timestamp: new Date().toISOString()
+      };
     } catch (error) {
       console.error('Categories API call error:', error);
       // Fallback to proxy in case of issues
       console.log('Falling back to proxy for categories');
-      return await ApiService.get<Category[]>(API_ENDPOINTS.CATEGORIES);
+
+      try {
+        const response = await ApiService.get<Category[]>(API_ENDPOINTS.CATEGORIES);
+
+        // Convert the response to Page format
+        if (response?.data && Array.isArray(response.data)) {
+          const categories = response.data;
+          return {
+            ...response,
+            data: {
+              content: categories,
+              pageable: {
+                pageNumber: 0,
+                pageSize: categories.length,
+                sort: { sorted: false, empty: true, unsorted: true },
+                offset: 0,
+                paged: true,
+                unpaged: false
+              },
+              last: true,
+              totalElements: categories.length,
+              totalPages: 1,
+              first: true,
+              size: categories.length,
+              number: 0,
+              sort: { sorted: false, empty: true, unsorted: true },
+              numberOfElements: categories.length,
+              empty: categories.length === 0
+            }
+          };
+        }
+
+        // Return empty page if no data
+        return {
+          status: 'SUCCESS',
+          code: 200,
+          message: 'No categories found',
+          data: {
+            content: [],
+            pageable: {
+              pageNumber: 0,
+              pageSize: 0,
+              sort: { sorted: false, empty: true, unsorted: true },
+              offset: 0,
+              paged: true,
+              unpaged: false
+            },
+            last: true,
+            totalElements: 0,
+            totalPages: 0,
+            first: true,
+            size: 0,
+            number: 0,
+            sort: { sorted: false, empty: true, unsorted: true },
+            numberOfElements: 0,
+            empty: true
+          },
+          timestamp: new Date().toISOString()
+        };
+      } catch (fallbackError) {
+        console.error('Fallback for categories also failed:', fallbackError);
+        throw fallbackError;
+      }
     }
   }
 

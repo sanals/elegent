@@ -15,9 +15,9 @@ import {
   DialogTitle,
   Typography
 } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApiRequest } from '../../hooks/useApiRequest';
+import { usePagedApiRequest } from '../../hooks/usePagedApiRequest';
 import { CategoryService } from '../../services/category.service';
 import { CategoryResponse } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
@@ -28,7 +28,6 @@ const CategoryList = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
 
   // Memoize the API request function to prevent infinite rerenders
   const fetchCategoriesApi = useCallback(async () => {
@@ -42,89 +41,17 @@ const CategoryList = () => {
     }
   }, []);
 
-  // Setup API request hook with memoized function
+  // Setup paged API request hook with memoized function
   const {
-    data,
+    items: categories,
+    pagination,
     loading,
     error,
-    execute: fetchCategories
-  } = useApiRequest<any, []>(
+    refetch: fetchCategories
+  } = usePagedApiRequest<CategoryResponse, []>(
     fetchCategoriesApi,
-    false
+    true
   );
-
-  // Fetch categories on component mount
-  useEffect(() => {
-    console.log("Fetching categories...");
-    fetchCategories();
-  }, [fetchCategories]);
-
-  // Update categories state when data changes
-  useEffect(() => {
-    console.log("Raw category data from API hook:", data);
-
-    try {
-      if (data) {
-        // Type assertion to handle any response structure
-        const responseData = data as any;
-
-        // Try various data extraction approaches based on your API structure
-        if (responseData.data && Array.isArray(responseData.data)) {
-          console.log("Found category data.data array:", responseData.data);
-          setCategories(responseData.data);
-        } else if (Array.isArray(responseData)) {
-          console.log("Found category data array:", responseData);
-          setCategories(responseData);
-        } else if (typeof responseData === 'object') {
-          // Last resort, try to find any array in the response
-          console.log("Searching for arrays in the response object");
-          let foundCategories = false;
-
-          for (const key in responseData) {
-            if (Array.isArray(responseData[key])) {
-              console.log(`Found array at data.${key}:`, responseData[key]);
-
-              if (responseData[key].length > 0 && responseData[key][0].id) {
-                console.log(`Using array at data.${key} as categories list`);
-                setCategories(responseData[key]);
-                foundCategories = true;
-                break;
-              }
-            } else if (typeof responseData[key] === 'object' && responseData[key] !== null) {
-              for (const nestedKey in responseData[key]) {
-                if (Array.isArray(responseData[key][nestedKey])) {
-                  console.log(`Found array at data.${key}.${nestedKey}:`, responseData[key][nestedKey]);
-
-                  if (responseData[key][nestedKey].length > 0 && responseData[key][nestedKey][0].id) {
-                    console.log(`Using array at data.${key}.${nestedKey} as categories list`);
-                    setCategories(responseData[key][nestedKey]);
-                    foundCategories = true;
-                    break;
-                  }
-                }
-              }
-
-              if (foundCategories) break;
-            }
-          }
-
-          if (!foundCategories) {
-            console.error("Could not find a suitable array in the response object");
-            setCategories([]);
-          }
-        } else {
-          console.error("Unexpected category data structure:", responseData);
-          setCategories([]);
-        }
-      } else {
-        console.log("No category data returned from API");
-        setCategories([]);
-      }
-    } catch (error) {
-      console.error("Error processing category API response:", error);
-      setCategories([]);
-    }
-  }, [data]);
 
   // Handle category deletion
   const handleDeleteCategory = async () => {
@@ -136,8 +63,6 @@ const CategoryList = () => {
       if (response && response.status === 'SUCCESS') {
         showNotification('Category deleted successfully', 'success');
         setDeleteDialogOpen(false);
-        // Remove deleted category from state
-        setCategories(prev => prev.filter(c => c.id !== selectedCategory.id));
         // Refetch categories
         fetchCategories();
       } else {
@@ -155,35 +80,18 @@ const CategoryList = () => {
       const newStatus = category.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
       console.log(`Toggling category ${category.id} status from ${category.status} to ${newStatus}`);
 
-      // Optimistically update the UI
-      setCategories(prev =>
-        prev.map(c => c.id === category.id ? { ...c, status: newStatus } : c)
-      );
-
       // Use the dedicated method for updating category status
       const response = await CategoryService.updateCategoryStatus(category.id, newStatus);
 
       if (response && response.status === 'SUCCESS') {
         showNotification(`Category ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`, 'success');
-        // No need to update state again as we already did it optimistically
-
         // Refetch categories to ensure our state is synced with the backend
-        setTimeout(() => {
-          fetchCategories();
-        }, 1000); // Small delay to avoid race conditions
+        fetchCategories();
       } else {
-        // Revert the optimistic update since the API call failed
-        setCategories(prev =>
-          prev.map(c => c.id === category.id ? { ...c, status: category.status } : c)
-        );
         showNotification(`Failed to update category status: ${response?.message || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('Error updating category status:', error);
-      // Revert the optimistic update since an error occurred
-      setCategories(prev =>
-        prev.map(c => c.id === category.id ? { ...c, status: category.status } : c)
-      );
       showNotification(`Error updating status: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
   };
@@ -259,8 +167,8 @@ const CategoryList = () => {
     },
   ];
 
-  // Debug the categories state
-  console.log("Categories state:", categories);
+  // Debug pagination information
+  console.log("Categories pagination:", pagination);
   console.log("Categories length:", categories?.length);
 
   return (

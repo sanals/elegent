@@ -1,5 +1,6 @@
 import {
   ApiResponse,
+  Page,
   Product,
   ProductCreateRequest,
   ProductResponse,
@@ -12,44 +13,12 @@ import { ApiService } from './api.service';
 // Define base URL for direct API calls
 const DIRECT_API_BASE_URL = 'http://localhost:8090';
 
-/**
- * Paginated response from the API
- */
-interface PaginatedResponse<T> {
-  content: T[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-      sorted: boolean;
-      empty: boolean;
-      unsorted: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  last: boolean;
-  totalElements: number;
-  totalPages: number;
-  first: boolean;
-  size: number;
-  number: number;
-  sort: {
-    sorted: boolean;
-    empty: boolean;
-    unsorted: boolean;
-  };
-  numberOfElements: number;
-  empty: boolean;
-}
-
 export class ProductService {
   /**
    * Get all products with proper authentication
    * @returns Promise with paginated list of products
    */
-  static async getAllProducts(): Promise<ApiResponse<PaginatedResponse<Product>>> {
+  static async getAllProducts(): Promise<ApiResponse<Page<ProductResponse>>> {
     try {
       console.log('ProductService: Calling getAllProducts API');
       const response = await apiFetch(API_ENDPOINTS.PRODUCTS);
@@ -68,12 +37,140 @@ export class ProductService {
         throw new Error('Invalid API response structure');
       }
 
+      // Check if data is already in Page format
+      if (data?.data?.content && Array.isArray(data.data.content)) {
+        return data;
+      }
+
+      // Convert array response to Page format if needed
+      if (data?.data && Array.isArray(data.data)) {
+        const products = data.data;
+        const pageData: Page<ProductResponse> = {
+          content: products,
+          pageable: {
+            pageNumber: 0,
+            pageSize: products.length,
+            sort: { sorted: false, empty: true, unsorted: true },
+            offset: 0,
+            paged: true,
+            unpaged: false
+          },
+          last: true,
+          totalElements: products.length,
+          totalPages: 1,
+          first: true,
+          size: products.length,
+          number: 0,
+          sort: { sorted: false, empty: true, unsorted: true },
+          numberOfElements: products.length,
+          empty: products.length === 0
+        };
+
+        return {
+          ...data,
+          data: pageData
+        };
+      }
+
+      // If response is an array directly
+      if (Array.isArray(data)) {
+        const products = data;
+        return {
+          status: 'SUCCESS',
+          code: 200,
+          message: 'Products fetched successfully',
+          data: {
+            content: products,
+            pageable: {
+              pageNumber: 0,
+              pageSize: products.length,
+              sort: { sorted: false, empty: true, unsorted: true },
+              offset: 0,
+              paged: true,
+              unpaged: false
+            },
+            last: true,
+            totalElements: products.length,
+            totalPages: 1,
+            first: true,
+            size: products.length,
+            number: 0,
+            sort: { sorted: false, empty: true, unsorted: true },
+            numberOfElements: products.length,
+            empty: products.length === 0
+          },
+          timestamp: new Date().toISOString()
+        };
+      }
+
       return data;
     } catch (error) {
       console.error('Products API call error:', error);
       // Fallback to proxy in case of issues
       console.log('Falling back to proxy for products');
-      return await ApiService.get<PaginatedResponse<Product>>(API_ENDPOINTS.PRODUCTS);
+
+      try {
+        const response = await ApiService.get<Product[]>(API_ENDPOINTS.PRODUCTS);
+
+        // Convert the response to Page format
+        if (response?.data && Array.isArray(response.data)) {
+          const products = response.data;
+          return {
+            ...response,
+            data: {
+              content: products,
+              pageable: {
+                pageNumber: 0,
+                pageSize: products.length,
+                sort: { sorted: false, empty: true, unsorted: true },
+                offset: 0,
+                paged: true,
+                unpaged: false
+              },
+              last: true,
+              totalElements: products.length,
+              totalPages: 1,
+              first: true,
+              size: products.length,
+              number: 0,
+              sort: { sorted: false, empty: true, unsorted: true },
+              numberOfElements: products.length,
+              empty: products.length === 0
+            }
+          };
+        }
+
+        // Return empty page if no data
+        return {
+          status: 'SUCCESS',
+          code: 200,
+          message: 'No products found',
+          data: {
+            content: [],
+            pageable: {
+              pageNumber: 0,
+              pageSize: 0,
+              sort: { sorted: false, empty: true, unsorted: true },
+              offset: 0,
+              paged: true,
+              unpaged: false
+            },
+            last: true,
+            totalElements: 0,
+            totalPages: 0,
+            first: true,
+            size: 0,
+            number: 0,
+            sort: { sorted: false, empty: true, unsorted: true },
+            numberOfElements: 0,
+            empty: true
+          },
+          timestamp: new Date().toISOString()
+        };
+      } catch (fallbackError) {
+        console.error('Fallback for products also failed:', fallbackError);
+        throw fallbackError;
+      }
     }
   }
 

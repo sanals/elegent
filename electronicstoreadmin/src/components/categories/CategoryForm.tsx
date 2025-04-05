@@ -1,34 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Box,
-  TextField,
   Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
-  Typography,
-  Card,
-  CardContent,
-  Paper,
   CircularProgress,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
   Switch,
-  FormControlLabel
+  TextField,
+  Typography
 } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
-import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  CategoryCreateRequest, 
-  CategoryUpdateRequest, 
-  CategoryResponse,
-  CategorySummary 
-} from '../../types/api-responses';
 import { CategoryService } from '../../services/category.service';
-import { useApiRequest } from '../../hooks/useApiRequest';
+import {
+  CategoryCreateRequest,
+  CategoryUpdateRequest
+} from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
 
 // Add Props interface at the top of the file
@@ -59,7 +54,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
       parentCategoryId: null
     }
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -70,12 +65,12 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
   useEffect(() => {
     if (mode === 'edit' && categoryId) {
       setLoading(true);
-      
+
       CategoryService.getCategoryById(categoryId)
         .then(response => {
           if (response.status === 'SUCCESS' && response.data) {
             const categoryData = response.data;
-            
+
             reset({
               name: categoryData.name,
               description: categoryData.description,
@@ -83,7 +78,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               status: categoryData.status,
               imageUrl: categoryData.imageUrl
             });
-            
+
             if (categoryData.imageUrl) {
               setImagePreview(categoryData.imageUrl);
             }
@@ -103,7 +98,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setSelectedImage(file);
-      
+
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -113,22 +108,22 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
   const onSubmit = async (data: CategoryFormData) => {
     setLoading(true);
     setSuccess(false);
-    
+
     try {
       let response;
-      
+
       // If we have an image, use the multipart form endpoints
       if (selectedImage) {
         const formData = new FormData();
         formData.append('name', data.name);
         formData.append('description', data.description);
-        
+
         if (data.parentCategoryId) {
           formData.append('parentCategoryId', data.parentCategoryId.toString());
         }
-        
+
         formData.append('image', selectedImage);
-        
+
         if (mode === 'edit' && categoryId) {
           response = await CategoryService.updateCategoryWithImage(categoryId, formData);
         } else {
@@ -136,24 +131,29 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
         }
       } else {
         // Use regular JSON endpoints
-        const categoryData: CategoryCreateRequest | CategoryUpdateRequest = {
-          name: data.name,
-          description: data.description,
-          parentCategoryId: data.parentCategoryId || undefined,
-          imageUrl: data.imageUrl
-        };
-        
         if (mode === 'edit' && categoryId) {
+          const categoryData: CategoryUpdateRequest = {
+            name: data.name,
+            description: data.description,
+            parentCategoryId: data.parentCategoryId || undefined,
+            imageUrl: data.imageUrl
+          };
           response = await CategoryService.updateCategory(categoryId, categoryData);
         } else {
+          const categoryData: CategoryCreateRequest = {
+            name: data.name,
+            description: data.description, // This is required for creating
+            parentCategoryId: data.parentCategoryId || undefined,
+            imageUrl: data.imageUrl
+          };
           response = await CategoryService.createCategory(categoryData);
         }
       }
-      
+
       if (response.status === 'SUCCESS') {
         setSuccess(true);
         showNotification(`Category ${mode === 'edit' ? 'updated' : 'created'} successfully`, 'success');
-        
+
         // Navigate back after a short delay
         setTimeout(() => {
           navigate('/categories');
@@ -186,7 +186,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               {mode === 'edit' ? 'Edit Category' : 'Create New Category'}
             </Typography>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
@@ -196,7 +196,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               helperText={errors.name?.message}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <InputLabel id="parent-category-label">Parent Category</InputLabel>
@@ -229,7 +229,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               )}
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -260,7 +260,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
                 </Button>
               </label>
             </Box>
-            
+
             {imagePreview && (
               <Box sx={{ mt: 2, mb: 3 }}>
                 <Typography variant="subtitle2" gutterBottom>
@@ -280,7 +280,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
                 />
               </Box>
             )}
-            
+
             {!selectedImage && (
               <TextField
                 fullWidth
@@ -289,7 +289,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               />
             )}
           </Grid>
-          
+
           {mode === 'edit' && (
             <Grid item xs={12}>
               <FormControlLabel
@@ -309,7 +309,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               />
             </Grid>
           )}
-          
+
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button
@@ -324,7 +324,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
                   mode === 'edit' ? 'Update Category' : 'Create Category'
                 )}
               </Button>
-              
+
               <Button
                 variant="outlined"
                 onClick={() => navigate('/categories')}

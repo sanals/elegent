@@ -42,4 +42,36 @@ export interface Notification {
   type: "success" | "error" | "info" | "warning";
   message: string;
   autoHideDuration?: number;
+}
+
+/**
+ * Interface for Page data structure returned by backend
+ */
+export interface Page<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      sorted: boolean;
+      empty: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    empty: boolean;
+    unsorted: boolean;
+  };
+  numberOfElements: number;
+  empty: boolean;
 } 
