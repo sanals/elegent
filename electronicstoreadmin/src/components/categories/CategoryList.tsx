@@ -1,307 +1,307 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  ToggleOff as ToggleOffIcon,
+  ToggleOn as ToggleOnIcon
+} from '@mui/icons-material';
 import {
   Box,
   Button,
   Chip,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
   Typography
 } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
-import * as yup from 'yup';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApiRequest } from '../../hooks/useApiRequest';
 import { CategoryService } from '../../services/category.service';
-import { CategoryCreateRequest, CategoryResponse } from '../../types/api-responses';
+import { CategoryResponse } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
-import ConfirmDialog from '../shared/ConfirmDialog';
-
-// Form validation schema
-const schema = yup.object({
-  name: yup.string().required('Category name is required'),
-  description: yup.string().required('Description is required'),
-}).required();
+import DataTable, { Action } from '../shared/DataTable';
+import PageHeader from '../shared/PageHeader';
 
 const CategoryList = () => {
   const navigate = useNavigate();
-  const [openDialog, setOpenDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
 
-  // Form setup - MOVED HERE BEFORE ANY CONDITIONALS
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<CategoryCreateRequest>({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      name: '',
-      description: ''
+  // Memoize the API request function to prevent infinite rerenders
+  const fetchCategoriesApi = useCallback(async () => {
+    try {
+      const response = await CategoryService.getAllCategories();
+      console.log("Category API Response:", response);
+      return response;
+    } catch (error) {
+      console.error("Category API Error:", error);
+      throw new Error('Failed to fetch categories');
     }
-  });
+  }, []);
 
-  // Get categories
+  // Setup API request hook with memoized function
   const {
-    data: categories,
+    data,
     loading,
     error,
     execute: fetchCategories
-  } = useApiRequest<CategoryResponse[], []>(
-    CategoryService.getAllCategories,
+  } = useApiRequest<any, []>(
+    fetchCategoriesApi,
     false
   );
 
-  // Create category
-  const {
-    loading: creating,
-    execute: createCategory
-  } = useApiRequest<{ id: number }, [CategoryCreateRequest]>(
-    CategoryService.createCategory,
-    true,
-    'Category created successfully'
-  );
-
-  // Load categories on mount
+  // Fetch categories on component mount
   useEffect(() => {
+    console.log("Fetching categories...");
     fetchCategories();
   }, [fetchCategories]);
 
-  // Handle opening the create dialog
-  const handleOpenDialog = () => {
-    setSelectedCategory(null);
-    reset({
-      name: '',
-      description: ''
-    });
-    setOpenDialog(true);
-  };
+  // Update categories state when data changes
+  useEffect(() => {
+    console.log("Raw category data from API hook:", data);
 
-  // Handle closing the dialog
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
+    try {
+      if (data) {
+        // Type assertion to handle any response structure
+        const responseData = data as any;
 
-  // Handle form submission
-  const onSubmit = async (data: CategoryCreateRequest) => {
-    const result = await createCategory(data);
-    if (result && result.status === 'SUCCESS') {
-      handleCloseDialog();
-      fetchCategories();
+        // Try various data extraction approaches based on your API structure
+        if (responseData.data && Array.isArray(responseData.data)) {
+          console.log("Found category data.data array:", responseData.data);
+          setCategories(responseData.data);
+        } else if (Array.isArray(responseData)) {
+          console.log("Found category data array:", responseData);
+          setCategories(responseData);
+        } else if (typeof responseData === 'object') {
+          // Last resort, try to find any array in the response
+          console.log("Searching for arrays in the response object");
+          let foundCategories = false;
+
+          for (const key in responseData) {
+            if (Array.isArray(responseData[key])) {
+              console.log(`Found array at data.${key}:`, responseData[key]);
+
+              if (responseData[key].length > 0 && responseData[key][0].id) {
+                console.log(`Using array at data.${key} as categories list`);
+                setCategories(responseData[key]);
+                foundCategories = true;
+                break;
+              }
+            } else if (typeof responseData[key] === 'object' && responseData[key] !== null) {
+              for (const nestedKey in responseData[key]) {
+                if (Array.isArray(responseData[key][nestedKey])) {
+                  console.log(`Found array at data.${key}.${nestedKey}:`, responseData[key][nestedKey]);
+
+                  if (responseData[key][nestedKey].length > 0 && responseData[key][nestedKey][0].id) {
+                    console.log(`Using array at data.${key}.${nestedKey} as categories list`);
+                    setCategories(responseData[key][nestedKey]);
+                    foundCategories = true;
+                    break;
+                  }
+                }
+              }
+
+              if (foundCategories) break;
+            }
+          }
+
+          if (!foundCategories) {
+            console.error("Could not find a suitable array in the response object");
+            setCategories([]);
+          }
+        } else {
+          console.error("Unexpected category data structure:", responseData);
+          setCategories([]);
+        }
+      } else {
+        console.log("No category data returned from API");
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error("Error processing category API response:", error);
+      setCategories([]);
     }
-  };
+  }, [data]);
 
   // Handle category deletion
-  const handleDelete = async (category: CategoryResponse) => {
-    setSelectedCategory(category);
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = async () => {
+  const handleDeleteCategory = async () => {
     if (!selectedCategory) return;
 
     try {
-      const result = await CategoryService.deleteCategory(selectedCategory.id);
+      const response = await CategoryService.deleteCategory(selectedCategory.id);
 
-      if (result && result.status === 'SUCCESS') {
+      if (response && response.status === 'SUCCESS') {
         showNotification('Category deleted successfully', 'success');
+        setDeleteDialogOpen(false);
+        // Remove deleted category from state
+        setCategories(prev => prev.filter(c => c.id !== selectedCategory.id));
+        // Refetch categories
         fetchCategories();
       } else {
-        showNotification(`Failed to delete category: ${result?.message || 'Unknown error'}`, 'error');
+        showNotification(`Failed to delete category: ${response?.message || 'Unknown error'}`, 'error');
       }
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Error deleting category:', error);
       showNotification(`Error deleting category: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
-    } finally {
-      setDeleteDialogOpen(false);
-      setSelectedCategory(null);
     }
   };
 
-  // Show loading
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // Handle category status change
+  const handleToggleStatus = async (category: CategoryResponse) => {
+    try {
+      const newStatus = category.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      console.log(`Toggling category ${category.id} status from ${category.status} to ${newStatus}`);
 
-  // Show error
-  if (error) {
-    return (
-      <Paper sx={{ p: 3, bgcolor: '#fff8f8' }}>
-        <Typography color="error">Error: {error}</Typography>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => fetchCategories()}
-          sx={{ mt: 2 }}
-        >
-          Retry
-        </Button>
-      </Paper>
-    );
-  }
+      // Optimistically update the UI
+      setCategories(prev =>
+        prev.map(c => c.id === category.id ? { ...c, status: newStatus } : c)
+      );
+
+      // Use the dedicated method for updating category status
+      const response = await CategoryService.updateCategoryStatus(category.id, newStatus);
+
+      if (response && response.status === 'SUCCESS') {
+        showNotification(`Category ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`, 'success');
+        // No need to update state again as we already did it optimistically
+
+        // Refetch categories to ensure our state is synced with the backend
+        setTimeout(() => {
+          fetchCategories();
+        }, 1000); // Small delay to avoid race conditions
+      } else {
+        // Revert the optimistic update since the API call failed
+        setCategories(prev =>
+          prev.map(c => c.id === category.id ? { ...c, status: category.status } : c)
+        );
+        showNotification(`Failed to update category status: ${response?.message || 'Unknown error'}`, 'error');
+      }
+    } catch (error) {
+      console.error('Error updating category status:', error);
+      // Revert the optimistic update since an error occurred
+      setCategories(prev =>
+        prev.map(c => c.id === category.id ? { ...c, status: category.status } : c)
+      );
+      showNotification(`Error updating status: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+    }
+  };
+
+  // Define columns for the data table
+  const columns = [
+    {
+      id: 'name',
+      label: 'Category Name',
+      render: (item: CategoryResponse) => (
+        <Typography variant="body2" fontWeight="medium">
+          {item.name}
+        </Typography>
+      ),
+    },
+    {
+      id: 'description',
+      label: 'Description',
+      render: (item: CategoryResponse) => item.description,
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      render: (item: CategoryResponse) => (
+        <Chip
+          size="small"
+          label={item.status}
+          color={item.status === 'ACTIVE' ? 'success' : 'error'}
+        />
+      ),
+      align: 'center' as const,
+    },
+    {
+      id: 'createdBy',
+      label: 'Created By',
+      render: (item: CategoryResponse) => item.createdBy || 'Unknown',
+    },
+    {
+      id: 'updatedAt',
+      label: 'Last Modified',
+      render: (item: CategoryResponse) => new Date(item.updatedAt).toLocaleString(),
+    },
+  ];
+
+  // Define actions for the data table
+  const actions: Action<CategoryResponse>[] = [
+    {
+      icon: (item: CategoryResponse) => <EditIcon />,
+      label: 'Edit Category',
+      onClick: (item: CategoryResponse) => {
+        navigate(`/categories/${item.id}`);
+      },
+      color: 'primary',
+    },
+    {
+      icon: (item: CategoryResponse) => (
+        item.status === 'ACTIVE' ? <ToggleOnIcon /> : <ToggleOffIcon />
+      ),
+      label: 'Toggle Status',
+      onClick: handleToggleStatus,
+      color: (item: CategoryResponse) => (
+        item.status === 'ACTIVE' ? 'success' : 'default'
+      ),
+    },
+    {
+      icon: (item: CategoryResponse) => <DeleteIcon />,
+      label: 'Delete Category',
+      onClick: (item: CategoryResponse) => {
+        setSelectedCategory(item);
+        setDeleteDialogOpen(true);
+      },
+      color: 'error',
+    },
+  ];
+
+  // Debug the categories state
+  console.log("Categories state:", categories);
+  console.log("Categories length:", categories?.length);
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h5">Categories</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          component={Link}
-          to="/categories/new"
-        >
-          New Category
-        </Button>
-      </Box>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created By</TableCell>
-              <TableCell>Last Modified By</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {categories && categories.length > 0 ? (
-              categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell>{category.name}</TableCell>
-                  <TableCell>{category.description}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={category.status}
-                      color={category.status === 'ACTIVE' ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip title={`Created on ${new Date(category.createdAt).toLocaleString()}`}>
-                      <span>{category.createdBy || 'Unknown'}</span>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip title={`Modified on ${new Date(category.updatedAt).toLocaleString()}`}>
-                      <span>{category.lastModifiedBy || 'Unknown'}</span>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      component={Link}
-                      to={`/categories/${category.id}`}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDelete(category)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No categories found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Create Category Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {selectedCategory ? 'Edit Category' : 'Create New Category'}
-        </DialogTitle>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Category Name"
-                  fullWidth
-                  margin="normal"
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
-                />
-              )}
-            />
-
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Description"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  rows={4}
-                  error={!!errors.description}
-                  helperText={errors.description?.message}
-                />
-              )}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={creating}
-            >
-              {creating ? <CircularProgress size={24} /> : 'Save'}
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-
-      <ConfirmDialog
-        open={deleteDialogOpen}
-        title="Delete Category"
-        message={`Are you sure you want to delete "${selectedCategory?.name}"? This may impact products in this category.`}
-        onConfirm={confirmDelete}
-        onCancel={() => {
-          setDeleteDialogOpen(false);
-          setSelectedCategory(null);
-        }}
-        confirmButtonText="Delete"
-        confirmButtonColor="error"
+      <PageHeader
+        title="Categories"
+        addButtonLabel="Add Category"
+        addButtonPath="/categories/new"
       />
+
+      <DataTable
+        data={categories}
+        columns={columns}
+        actions={actions}
+        loading={loading}
+        error={error}
+        onRetry={fetchCategories}
+        keyExtractor={(item) => item.id}
+        emptyMessage="No categories found. Add your first category to get started."
+      />
+
+      {/* Confirm Delete Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete Category</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete {selectedCategory?.name}? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteCategory} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
-};
+}
 
-export default CategoryList; 
+export default CategoryList;

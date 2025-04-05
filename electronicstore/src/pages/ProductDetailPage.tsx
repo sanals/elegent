@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { 
-  Container, 
-  Grid, 
-  Typography, 
-  Paper, 
-  List, 
-  ListItem, 
-  ListItemText,
-  Box,
-  IconButton,
-  Link as MuiLink,
-  Breadcrumbs,
-  CircularProgress
-} from '@mui/material';
-import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { useProducts } from '../context/ProductContext';
+import {
+  Box,
+  Breadcrumbs,
+  CircularProgress,
+  Container,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Link as MuiLink,
+  Paper,
+  Typography
+} from '@mui/material';
+import React, { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import ImageModal from '../components/ImageModal';
+import { useProducts } from '../context/ProductContext';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,13 +49,13 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const handlePrevImage = () => {
-    setCurrentImageIndex(prev => 
+    setCurrentImageIndex(prev =>
       prev === 0 ? product.images.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
-    setCurrentImageIndex(prev => 
+    setCurrentImageIndex(prev =>
       prev === product.images.length - 1 ? 0 : prev + 1
     );
   };
@@ -70,14 +69,14 @@ const ProductDetailPage: React.FC = () => {
   const categoryId = product.category ? product.category.id : null;
 
   return (
-    <Container maxWidth="lg" sx={{ 
+    <Container maxWidth="lg" sx={{
       px: { xs: 1, sm: 2, md: 3 },
       mx: 'auto'
     }}>
       <Box sx={{ my: { xs: 2, sm: 3, md: 4 } }}>
-        <Breadcrumbs 
+        <Breadcrumbs
           aria-label="breadcrumb"
-          sx={{ 
+          sx={{
             display: { xs: 'none', sm: 'flex' }
           }}
         >
@@ -85,9 +84,9 @@ const ProductDetailPage: React.FC = () => {
             Home
           </MuiLink>
           {categoryId && (
-            <MuiLink 
-              component={Link} 
-              to={`/category/${categoryId}`} 
+            <MuiLink
+              component={Link}
+              to={`/category/${categoryId}`}
               color="inherit"
             >
               {categoryName}
@@ -97,13 +96,13 @@ const ProductDetailPage: React.FC = () => {
         </Breadcrumbs>
       </Box>
 
-      <Grid 
-        container 
-        spacing={{ xs: 1, sm: 2, md: 4 }} 
+      <Grid
+        container
+        spacing={{ xs: 1, sm: 2, md: 4 }}
         justifyContent="center"
       >
         <Grid item xs={12} md={6}>
-          <Box sx={{ 
+          <Box sx={{
             position: 'relative',
             paddingTop: '75%',
             backgroundColor: 'grey.100',
@@ -139,7 +138,7 @@ const ProductDetailPage: React.FC = () => {
                 src={product.images[currentImageIndex]}
                 alt={`${product.name} - view ${currentImageIndex + 1}`}
                 onLoad={handleImageLoad}
-                style={{ 
+                style={{
                   height: '100%',
                   objectFit: 'contain',
                   objectPosition: 'center center',
@@ -181,11 +180,11 @@ const ProductDetailPage: React.FC = () => {
               </>
             )}
           </Box>
-          <Box sx={{ 
-            display: 'flex', 
-            gap: { xs: 0.5, sm: 1 }, 
-            mt: { xs: 1, sm: 2 }, 
-            justifyContent: 'center' 
+          <Box sx={{
+            display: 'flex',
+            gap: { xs: 0.5, sm: 1 },
+            mt: { xs: 1, sm: 2 },
+            justifyContent: 'center'
           }}>
             {product.images.map((_, index) => (
               <Box
@@ -204,10 +203,10 @@ const ProductDetailPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Typography 
+          <Typography
             variant="h4"
             component="h1"
-            sx={{ 
+            sx={{
               fontWeight: 'bold',
               fontSize: { xs: '1.5rem', md: '2rem' },
               mb: { xs: 1, md: 2 }
@@ -216,44 +215,44 @@ const ProductDetailPage: React.FC = () => {
             {product.name}
           </Typography>
 
-          <Typography 
-            variant="h5" 
+          <Typography
+            variant="h5"
             color="primary"
-            sx={{ 
+            sx={{
               fontWeight: 'bold',
               fontSize: { xs: '1.25rem', md: '1.5rem' },
-              mb: { xs: 2, md: 3 } 
+              mb: { xs: 2, md: 3 }
             }}
           >
-            ${product.price.toFixed(2)}
+            ₹{product.price.toFixed(2)}
           </Typography>
 
-          <Paper 
+          <Paper
             elevation={1}
-            sx={{ 
+            sx={{
               p: { xs: 1.5, md: 2.5 },
               mb: { xs: 2, md: 3 }
             }}
           >
-            <Typography 
+            <Typography
               variant="body1"
               sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
             >
               {product.description}
             </Typography>
-            
+
             {/* Display Category */}
             {categoryId && (
-              <Typography 
+              <Typography
                 variant="body2"
                 color="primary"
                 component={Link}
                 to={`/category/${categoryId}`}
-                sx={{ 
-                  display: 'block', 
-                  mt: 2, 
+                sx={{
+                  display: 'block',
+                  mt: 2,
                   textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' } 
+                  '&:hover': { textDecoration: 'underline' }
                 }}
               >
                 Category: {categoryName}
@@ -261,14 +260,14 @@ const ProductDetailPage: React.FC = () => {
             )}
           </Paper>
 
-          <Paper 
+          <Paper
             elevation={1}
-            sx={{ 
+            sx={{
               p: { xs: 1.5, md: 2.5 },
               mb: { xs: 2, md: 3 }
             }}
           >
-            <Typography 
+            <Typography
               variant="h6"
               sx={{ mb: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}
             >
@@ -277,29 +276,29 @@ const ProductDetailPage: React.FC = () => {
             <List disablePadding>
               {/* Stock Status */}
               <ListItem disablePadding sx={{ py: 0.5 }}>
-                <ListItemText 
-                  primary="Stock Status" 
+                <ListItemText
+                  primary="Stock Status"
                   secondary={
-                    <Typography 
-                      variant="body2" 
+                    <Typography
+                      variant="body2"
                       color={product.stock > 0 ? "success.main" : "error.main"}
                       sx={{ fontWeight: 'medium' }}
                     >
-                      {product.stock > 0 
-                        ? `${product.stock} units available` 
+                      {product.stock > 0
+                        ? `${product.stock} units available`
                         : 'Out of stock'}
                     </Typography>
-                  } 
+                  }
                 />
               </ListItem>
 
               {/* Category */}
               <ListItem disablePadding sx={{ py: 0.5 }}>
-                <ListItemText 
-                  primary="Category" 
+                <ListItemText
+                  primary="Category"
                   secondary={
-                    <Typography 
-                      component={Link} 
+                    <Typography
+                      component={Link}
                       to={`/category/${categoryId}`}
                       color="primary"
                       variant="body2"
@@ -323,12 +322,12 @@ const ProductDetailPage: React.FC = () => {
                     specs = { "Error": "Invalid specification format" };
                   }
                 }
-                
+
                 // Handle both object and string formats
                 return Object.entries(specs).map(([key, value]) => (
                   <ListItem key={key} disablePadding sx={{ py: 0.5 }}>
-                    <ListItemText 
-                      primary={key} 
+                    <ListItemText
+                      primary={key}
                       secondary={String(value)}
                     />
                   </ListItem>
@@ -340,7 +339,7 @@ const ProductDetailPage: React.FC = () => {
       </Grid>
 
       {/* Image modal for fullscreen view */}
-      <ImageModal 
+      <ImageModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         images={product.images}
