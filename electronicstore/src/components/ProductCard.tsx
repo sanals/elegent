@@ -29,21 +29,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   // Use default image if no images are available
-  const imageUrl = product.images && product.images.length > 0
-    ? product.images[0]
+  const imageUrl = product?.images && product?.images?.length > 0
+    ? product?.images[0]
     : 'https://picsum.photos/400/300?random=1';
 
   // Format price with 2 decimal places
-  const formattedPrice = `₹${product.price.toFixed(2)}`;
+  const formattedPrice = `₹${product?.price?.toFixed(2)}`;
 
   // Stock status indicator
-  const lowStock = product.stock <= 5;
-  const inStock = product.stock > 0;
+  const lowStock = product?.stock <= 5;
+  const inStock = product?.stock > 0;
 
   return (
     <Card
       component={Link}
-      to={`/product/${product.id}`}
+      to={`/product/${product?.id}`}
       sx={{
         height: '100%',
         display: 'flex',
@@ -106,7 +106,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         component="img"
         height="200"
         image={imageUrl}
-        alt={product.name}
+        alt={product?.name}
         sx={{ objectFit: 'contain', p: 2, bgcolor: '#f7f7f7' }}
       />
 
@@ -126,7 +126,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             WebkitBoxOrient: 'vertical'
           }}
         >
-          {product.name}
+          {product?.name}
         </Typography>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -149,13 +149,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </Box>
         </Box>
 
-        {product.category && (
+        {product?.category && (
           <Typography
             variant="body2"
             color="text.secondary"
             sx={{ mb: 1 }}
           >
-            Category: {product.category.name}
+            Category: {product?.category?.name}
           </Typography>
         )}
 
@@ -172,7 +172,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             WebkitBoxOrient: 'vertical'
           }}
         >
-          {product.description}
+          {product?.description}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto' }}>
@@ -181,7 +181,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             color={inStock ? "success.main" : "error.main"}
             sx={{ fontWeight: 'medium' }}
           >
-            {inStock ? `${product.stock} in stock` : 'Out of stock'}
+            {inStock ? `${product?.stock} in stock` : 'Out of stock'}
           </Typography>
         </Box>
       </CardContent>

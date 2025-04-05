@@ -38,7 +38,7 @@ const ProductDetailPage: React.FC = () => {
   }, [currentImageIndex]);
 
   // Find product by ID, converting string to number
-  const product = products.find(p => p.id === (id ? Number(id) : null));
+  const product = products.find(p => p?.id === (id ? Number(id) : null));
 
   if (!product) {
     return (
@@ -50,13 +50,13 @@ const ProductDetailPage: React.FC = () => {
 
   const handlePrevImage = () => {
     setCurrentImageIndex(prev =>
-      prev === 0 ? product.images.length - 1 : prev - 1
+      prev === 0 ? product?.images?.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
     setCurrentImageIndex(prev =>
-      prev === product.images.length - 1 ? 0 : prev + 1
+      prev === product?.images?.length - 1 ? 0 : prev + 1
     );
   };
 
@@ -65,8 +65,8 @@ const ProductDetailPage: React.FC = () => {
   };
 
   // Get category name and ID
-  const categoryName = product.category ? product.category.name : 'Uncategorized';
-  const categoryId = product.category ? product.category.id : null;
+  const categoryName = product?.category ? product?.category?.name : 'Uncategorized';
+  const categoryId = product?.category ? product?.category?.id : null;
 
   return (
     <Container maxWidth="lg" sx={{
@@ -92,7 +92,7 @@ const ProductDetailPage: React.FC = () => {
               {categoryName}
             </MuiLink>
           )}
-          <Typography color="text.primary">{product.name}</Typography>
+          <Typography color="text.primary">{product?.name}</Typography>
         </Breadcrumbs>
       </Box>
 
@@ -135,8 +135,8 @@ const ProductDetailPage: React.FC = () => {
               }}
             >
               <img
-                src={product.images[currentImageIndex]}
-                alt={`${product.name} - view ${currentImageIndex + 1}`}
+                src={product?.images?.[currentImageIndex]}
+                alt={`${product?.name} - view ${currentImageIndex + 1}`}
                 onLoad={handleImageLoad}
                 style={{
                   height: '100%',
@@ -149,7 +149,7 @@ const ProductDetailPage: React.FC = () => {
                 onClick={handleImageClick}
               />
             </Box>
-            {product.images.length > 1 && (
+            {product?.images?.length > 1 && (
               <>
                 <IconButton
                   onClick={handlePrevImage}
@@ -186,7 +186,7 @@ const ProductDetailPage: React.FC = () => {
             mt: { xs: 1, sm: 2 },
             justifyContent: 'center'
           }}>
-            {product.images.map((_, index) => (
+            {product?.images?.map((_, index) => (
               <Box
                 key={index}
                 sx={{
@@ -212,7 +212,7 @@ const ProductDetailPage: React.FC = () => {
               mb: { xs: 1, md: 2 }
             }}
           >
-            {product.name}
+            {product?.name}
           </Typography>
 
           <Typography
@@ -224,7 +224,7 @@ const ProductDetailPage: React.FC = () => {
               mb: { xs: 2, md: 3 }
             }}
           >
-            ₹{product.price.toFixed(2)}
+            ₹{product?.price?.toFixed(2)}
           </Typography>
 
           <Paper
@@ -238,7 +238,7 @@ const ProductDetailPage: React.FC = () => {
               variant="body1"
               sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
             >
-              {product.description}
+              {product?.description}
             </Typography>
 
             {/* Display Category */}
@@ -281,11 +281,11 @@ const ProductDetailPage: React.FC = () => {
                   secondary={
                     <Typography
                       variant="body2"
-                      color={product.stock > 0 ? "success.main" : "error.main"}
+                      color={product?.stock > 0 ? "success.main" : "error.main"}
                       sx={{ fontWeight: 'medium' }}
                     >
-                      {product.stock > 0
-                        ? `${product.stock} units available`
+                      {product?.stock > 0
+                        ? `${product?.stock} units available`
                         : 'Out of stock'}
                     </Typography>
                   }
@@ -313,7 +313,7 @@ const ProductDetailPage: React.FC = () => {
               {/* Map all the specification key-value pairs */}
               {(() => {
                 // Parse specifications if they're a string
-                let specs = product.specifications;
+                let specs = product?.specifications;
                 if (typeof specs === 'string') {
                   try {
                     specs = JSON.parse(specs);
@@ -324,7 +324,7 @@ const ProductDetailPage: React.FC = () => {
                 }
 
                 // Handle both object and string formats
-                return Object.entries(specs).map(([key, value]) => (
+                return Object.entries(specs || {}).map(([key, value]) => (
                   <ListItem key={key} disablePadding sx={{ py: 0.5 }}>
                     <ListItemText
                       primary={key}
@@ -342,9 +342,9 @@ const ProductDetailPage: React.FC = () => {
       <ImageModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        images={product.images}
+        images={product?.images || []}
         initialIndex={currentImageIndex}
-        title={product.name}
+        title={product?.name || ''}
       />
     </Container>
   );

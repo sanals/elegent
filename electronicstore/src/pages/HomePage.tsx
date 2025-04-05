@@ -173,10 +173,10 @@ const HomePage: React.FC = () => {
                   color: 'white'
                 }}>
                   <Typography variant="h5" gutterBottom>
-                    {product.name}
+                    {product?.name}
                   </Typography>
                   <Typography variant="body1">
-                    ₹{product.price.toFixed(2)}
+                    ₹{product?.price?.toFixed(2)}
                   </Typography>
                 </Box>
               </Box>
@@ -219,7 +219,7 @@ const HomePage: React.FC = () => {
               display: 'flex',
               gap: 1
             }}>
-              {featuredProducts.map((_, index) => (
+              {featuredProducts?.map((_, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -250,11 +250,11 @@ const HomePage: React.FC = () => {
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 6 }}>
-        {categories.filter(cat => cat.status === 'ACTIVE').map((category) => (
-          <Grid item xs={6} sm={4} md={3} key={category.id}>
+        {categories?.filter(cat => cat?.status === 'ACTIVE')?.map((category) => (
+          <Grid item xs={6} sm={4} md={3} key={category?.id}>
             <Card
               component={Link}
-              to={`/category/${category.id}`}
+              to={`/category/${category?.id}`}
               sx={{
                 height: '100%',
                 display: 'flex',
@@ -269,12 +269,12 @@ const HomePage: React.FC = () => {
               <CardMedia
                 component="img"
                 height="140"
-                image={category.imageUrl || `https://picsum.photos/400/300?random=${category.id}`}
-                alt={category.name}
+                image={category?.imageUrl || `https://picsum.photos/400/300?random=${category?.id}`}
+                alt={category?.name}
               />
               <CardContent>
                 <Typography gutterBottom variant="h6" component="div" sx={{ textAlign: 'center' }}>
-                  {category.name}
+                  {category?.name}
                 </Typography>
               </CardContent>
             </Card>
@@ -342,8 +342,8 @@ const HomePage: React.FC = () => {
       ) : (
         <>
           <Grid container spacing={3} sx={{ mb: 4 }}>
-            {products.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+            {products?.map((product) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product?.id}>
                 <ProductCard product={product} />
               </Grid>
             ))}
