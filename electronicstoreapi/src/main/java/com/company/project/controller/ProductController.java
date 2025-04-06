@@ -35,6 +35,13 @@ import com.company.project.service.ResponseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controller handling product-related API endpoints
+ * 
+ * Provides endpoints for managing products including creation, retrieval,
+ * updates, deletion, and image management. Some operations require admin
+ * privileges.
+ */
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -43,6 +50,15 @@ public class ProductController {
         private final ProductService productService;
         private final ResponseService responseService;
 
+        /**
+         * Get all products with optional filtering and pagination
+         * 
+         * @param keyword    Optional search keyword for product filtering
+         * @param categoryId Optional category ID for filtering
+         * @param status     Optional product status for filtering
+         * @param pageable   Pagination information
+         * @return ApiResponse containing page of filtered products
+         */
         @GetMapping
         public ResponseEntity<ApiResponse<Page<ProductResponse>>> getAllProducts(
                         @RequestParam(required = false) String keyword,
@@ -64,6 +80,12 @@ public class ProductController {
                                                 "Products retrieved successfully"));
         }
 
+        /**
+         * Get a product by its ID
+         * 
+         * @param id Product ID
+         * @return ApiResponse containing the requested product
+         */
         @GetMapping("/{id}")
         public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Long id) {
                 Product product = productService.getProductById(id);
@@ -73,6 +95,12 @@ public class ProductController {
                                 responseService.createSingleResponse(response, "Product retrieved successfully"));
         }
 
+        /**
+         * Create a new product
+         * 
+         * @param request Product creation data
+         * @return ApiResponse with created product
+         */
         @PostMapping
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest request) {
@@ -83,6 +111,13 @@ public class ProductController {
                                 .body(responseService.createCreatedResponse(response, "Product created successfully"));
         }
 
+        /**
+         * Update an existing product
+         * 
+         * @param id      Product ID to update
+         * @param request Updated product data
+         * @return ApiResponse with updated product
+         */
         @PutMapping("/{id}")
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id,
@@ -94,6 +129,12 @@ public class ProductController {
                                 responseService.createSingleResponse(response, "Product updated successfully"));
         }
 
+        /**
+         * Delete a product
+         * 
+         * @param id Product ID to delete
+         * @return ApiResponse with success message
+         */
         @DeleteMapping("/{id}")
         @PreAuthorize("hasRole('SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
@@ -103,6 +144,13 @@ public class ProductController {
                                 responseService.createEmptyResponse("Product deleted successfully"));
         }
 
+        /**
+         * Upload images to an existing product
+         * 
+         * @param id     Product ID
+         * @param images List of image files to upload
+         * @return ApiResponse with updated product including images
+         */
         @PostMapping(value = "/{id}/upload-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> uploadProductImages(@PathVariable Long id,
@@ -114,6 +162,13 @@ public class ProductController {
                                 responseService.createSingleResponse(response, "Product images uploaded successfully"));
         }
 
+        /**
+         * Update product status
+         * 
+         * @param id     Product ID
+         * @param status New status value
+         * @return ApiResponse with updated product
+         */
         @PutMapping("/{id}/status")
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> updateProductStatus(
@@ -125,6 +180,13 @@ public class ProductController {
                                 responseService.createSingleResponse(response, "Product status updated successfully"));
         }
 
+        /**
+         * Get products with low stock levels
+         * 
+         * @param threshold Stock level threshold (default: 5)
+         * @param pageable  Pagination information
+         * @return ApiResponse containing page of low stock products
+         */
         @GetMapping("/low-stock")
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<Page<ProductResponse>>> getLowStockProducts(
@@ -140,6 +202,12 @@ public class ProductController {
                                                 "Low stock products retrieved successfully"));
         }
 
+        /**
+         * Upload product images without associating with a product
+         * 
+         * @param images List of image files to upload
+         * @return ApiResponse with list of image URLs
+         */
         @PostMapping(value = "/upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<List<String>>> uploadImage(
@@ -155,6 +223,12 @@ public class ProductController {
                                 responseService.createSingleResponse(imageUrls, "Images uploaded successfully"));
         }
 
+        /**
+         * Create a new product with images in a single request
+         * 
+         * @param request Product creation data with images
+         * @return ApiResponse with created product including images
+         */
         @PostMapping(value = "/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImages(
@@ -168,6 +242,13 @@ public class ProductController {
                                                 "Product created successfully with images"));
         }
 
+        /**
+         * Update an existing product with images in a single request
+         * 
+         * @param id      Product ID to update
+         * @param request Updated product data with images
+         * @return ApiResponse with updated product including images
+         */
         @PutMapping(value = "/{id}/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> updateProductWithImages(

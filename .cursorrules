@@ -9,10 +9,10 @@ This file defines common standards across all three projects: Admin Dashboard, C
 
 All string constants, error messages, and configuration values should be centralized in a constants file for each project:
 
-    ```typescript
+  ```typescript
 // Example - Frontend projects
 // src/constants/index.ts
-export const API_BASE_URL = 'http://localhost:8080/api/v1';
+export const API_BASE_URL = 'http://localhost:8090/api/v1';
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 export const SUPPORTED_IMAGE_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 export const DEFAULT_CURRENCY = '₹'; // INR Currency Symbol
@@ -90,7 +90,7 @@ export const formatDateTime = (date: Date | string): string => {
 };
 ```
 
-    ```java
+  ```java
 // Example - Backend API
 // src/main/java/com/company/project/constants/AppConstants.java
 public final class AppConstants {
@@ -164,7 +164,7 @@ export interface Page<T> {
 export type PagedApiResponse<T> = ApiResponse<Page<T>>;
 ```
 
-    ```java
+  ```java
 // src/main/java/com/company/project/dto/response/ApiResponse.java
 public class ApiResponse<T> {
     private String status;
@@ -271,7 +271,7 @@ const Button: React.FC<ButtonProps> = ({
 export default Button;
 ```
 
-    ```typescript
+  ```typescript
 // src/components/Button/Button.types.ts
 export interface ButtonProps {
   /** Button content */
@@ -285,7 +285,7 @@ export interface ButtonProps {
 }
 ```
 
-    ```typescript
+  ```typescript
 // src/components/Button/Button.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
@@ -392,7 +392,7 @@ Types should be defined in separate files and follow these conventions:
 2. Use type aliases for complex types
 3. Export types through index files
 
-    ```typescript
+  ```typescript
 // src/types/product.types.ts
 export interface IProduct {
   id: number;
@@ -413,7 +413,7 @@ export type ProductUpdateRequest = Partial<IProduct>;
 4. Include parameter descriptions and return values
 5. Document exceptions and edge cases
 
-    ```typescript
+  ```typescript
 /**
  * Formats a price to the Indian Rupee format
  * @param price - The price value to format
@@ -447,7 +447,7 @@ All UI components must support both light and dark themes:
 5. NEVER define colors directly in components, always access them from the theme
 6. Always use the theme's color tokens instead of hardcoded values
 
-    ```typescript
+  ```typescript
 // src/context/ThemeContext.tsx
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
@@ -521,7 +521,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 };
 ```
 
-    ** Note on ThemeProvider **: The application should have a single ThemeProvider at the root level that wraps the entire application.Individual components should NOT be wrapped in separate ThemeProvider instances.The examples showing ThemeProvider wrapping in test files are specific to testing and should not be copied to actual component implementation.
+  ** Note on ThemeProvider **: The application should have a single ThemeProvider at the root level that wraps the entire application.Individual components should NOT be wrapped in separate ThemeProvider instances.The examples showing ThemeProvider wrapping in test files are specific to testing and should not be copied to actual component implementation.
 
 ```tsx
 // src/App.tsx - Root level ThemeProvider
@@ -576,7 +576,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 };
 ```
 
-    ```typescript
+  ```typescript
 /**
  * Formats a date to the Indian date format (DD-MM-YYYY)
  * @param date - The date value to format
@@ -610,7 +610,7 @@ export const formatDateTimeDisplay = (
 
 ### Frontend Component Example(React)
 
-    ```typescript
+  ```typescript
 // src/components/ProductCard/ProductCard.tsx
 import React from 'react';
 import { Card, CardContent, Typography, Button } from '@mui/material';
@@ -655,7 +655,7 @@ export default ProductCard;
 
 ### Backend API Endpoint Example(Spring Boot)
 
-    ```java
+  ```java
 /**
  * Controller handling product-related API endpoints
  */
@@ -719,83 +719,83 @@ public class ProductController {
 ## Project - Specific Requirements
 
 ### electronicstoreapi(Backend API)
-    - Use package - by - feature organization
-        - Include proper validation annotations on DTOs
-            - Follow RESTful naming conventions for endpoints
-                - Implement proper exception handling with @ControllerAdvice
-                - Document all API endpoints with OpenAPI / Swagger
-                - Support India - specific formats(INR currency, Indian addresses)
-                    - Implement validation for all incoming requests
+  - Use package - by - feature organization
+    - Include proper validation annotations on DTOs
+      - Follow RESTful naming conventions for endpoints
+        - Implement proper exception handling with @ControllerAdvice
+        - Document all API endpoints with OpenAPI / Swagger
+        - Support India - specific formats(INR currency, Indian addresses)
+          - Implement validation for all incoming requests
 
 ### electronicstoreadmin(Admin Dashboard)
-    - Use Material - UI components consistently
-        - Implement protected routes with role - based access
-            - Organize components by feature
-                - Use React Context API for state management
-                    - Create reusable form components
-                        - Support dark / light theme switching
-                            - Use centralized color theme system
+  - Use Material - UI components consistently
+    - Implement protected routes with role - based access
+      - Organize components by feature
+        - Use React Context API for state management
+          - Create reusable form components
+            - Support dark / light theme switching
+              - Use centralized color theme system
 
 ### electronicstore(Customer Frontend)
-    - Focus on responsive design for all screen sizes
-        - Optimize for performance and SEO
-            - Implement cart functionality with local storage
-                - Create intuitive user interface
-                    - Use skeleton loaders for better UX during data loading
-                        - Support dark / light theme switching
-                            - Use INR currency formatting(₹) for all prices
+  - Focus on responsive design for all screen sizes
+    - Optimize for performance and SEO
+      - Implement cart functionality with local storage
+        - Create intuitive user interface
+          - Use skeleton loaders for better UX during data loading
+            - Support dark / light theme switching
+              - Use INR currency formatting(₹) for all prices
 
 ## Files To Create When Adding New Features
 
 ### For Frontend(both Admin and Customer)
 1. Component Files:
 - ComponentName.tsx(Component implementation)
-    - ComponentName.types.ts(TypeScript interfaces)
-    - index.ts(Export file)
-    - ComponentName.test.tsx(Tests)
+  - ComponentName.types.ts(TypeScript interfaces)
+  - index.ts(Export file)
+  - ComponentName.test.tsx(Tests)
 
 2. API Integration:
 - services / featureName.service.ts(API calls)
-    - types / featureName.types.ts(Type definitions)
-    - utils / validators.ts(Request validation)
+  - types / featureName.types.ts(Type definitions)
+  - utils / validators.ts(Request validation)
 
 3. Theme Support:
 - Make sure components use theme - aware styling
-    - Test in both light and dark themes
-        - Use color constants from the centralized theme system
+  - Test in both light and dark themes
+    - Use color constants from the centralized theme system
 
 ### For Backend
 1. Feature Files:
 - controller / FeatureController.java
-    - service / FeatureService.java
-    - service / impl / FeatureServiceImpl.java
-    - repository / FeatureRepository.java
-    - entity / Feature.java
-    - dto / request / FeatureRequest.java
-    - dto / response / FeatureResponse.java
-    - validator / FeatureValidator.java
+  - service / FeatureService.java
+  - service / impl / FeatureServiceImpl.java
+  - repository / FeatureRepository.java
+  - entity / Feature.java
+  - dto / request / FeatureRequest.java
+  - dto / response / FeatureResponse.java
+  - validator / FeatureValidator.java
 
 ## Enforced Folders
 All projects must maintain these folder structures:
 
 ### electronicstoreadmin & electronicstore
-    - src / components / - UI components
-        - src / pages / - Page components
-            - src / types / - TypeScript type definitions
+  - src / components / - UI components
+    - src / pages / - Page components
+      - src / types / - TypeScript type definitions
 - src / utils / - Utility functions
-    - src / services / - API service integration
-        - src / constants / - Application constants
-            - src / context / - React context providers(including theme context)
-                - src / hooks / - Custom React hooks
-                    - src / theme / - Theme configuration
+  - src / services / - API service integration
+    - src / constants / - Application constants
+      - src / context / - React context providers(including theme context)
+        - src / hooks / - Custom React hooks
+          - src / theme / - Theme configuration
 
 ### electronicstoreapi
-    - src / main / java / com / company / project / controller / - API endpoints
-        - src / main / java / com / company / project / service / - Business logic
-            - src / main / java / com / company / project / repository / - Data access
-                - src / main / java / com / company / project / entity / - Data models
-                    - src / main / java / com / company / project / dto / - Data transfer objects
-                        - src / main / java / com / company / project / exception / - Exception handling
-                            - src / main / java / com / company / project / security / - Security configuration
-                                - src / main / java / com / company / project / constants / - Application constants
-                                    - src / main / java / com / company / project / validator / - Request validators 
+  - src / main / java / com / company / project / controller / - API endpoints
+    - src / main / java / com / company / project / service / - Business logic
+      - src / main / java / com / company / project / repository / - Data access
+        - src / main / java / com / company / project / entity / - Data models
+          - src / main / java / com / company / project / dto / - Data transfer objects
+            - src / main / java / com / company / project / exception / - Exception handling
+              - src / main / java / com / company / project / security / - Security configuration
+                - src / main / java / com / company / project / constants / - Application constants
+                  - src / main / java / com / company / project / validator / - Request validators 

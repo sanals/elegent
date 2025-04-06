@@ -1,8 +1,5 @@
 package com.company.project.config;
 
-import com.company.project.security.AuthEntryPointJwt;
-import com.company.project.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +18,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import com.company.project.security.AuthEntryPointJwt;
+import com.company.project.security.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Spring Security Configuration
@@ -34,7 +34,8 @@ import java.util.Arrays;
  * - Session management
  * - Method-level security
  * 
- * This implementation uses stateless JWT authentication with role-based authorization.
+ * This implementation uses stateless JWT authentication with role-based
+ * authorization.
  */
 @Configuration
 @EnableWebSecurity
@@ -45,9 +46,24 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthEntryPointJwt unauthorizedHandler;
-    
+    private final CorsProperties corsProperties;
+
+    // CORS configuration from application.yml
+    // @Value("${cors.allowed-origins}")
+    // private String[] allowedOrigins;
+
+    // @Value("${cors.allowed-methods}")
+    // private String[] allowedMethods;
+
+    // @Value("${cors.allowed-headers}")
+    // private String[] allowedHeaders;
+
+    // @Value("${cors.max-age}")
+    // private long maxAge;
+
     /**
-     * Configures authentication provider with user details service and password encoder
+     * Configures authentication provider with user details service and password
+     * encoder
      * 
      * @return Configured authentication provider
      */
@@ -58,7 +74,7 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-    
+
     /**
      * Creates authentication manager for handling authentication requests
      * 
@@ -69,7 +85,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-    
+
     /**
      * Configures password encoder for secure password storage
      * 
@@ -83,17 +99,22 @@ public class SecurityConfig {
     }
 
     /**
-     * Configure CORS for Spring Security
+     * Configures CORS settings for cross-origin requests
+     * Uses values from application.yml through CorsProperties
+     * 
+     * @return CORS configuration source
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:3000", "http://localhost:3003"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+
+        // Apply configuration from application.yml using CorsProperties
+        configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
+        configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        
+        configuration.setMaxAge(corsProperties.getMaxAge());
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -130,15 +151,14 @@ public class SecurityConfig {
                         // Allow access to static images
                         .requestMatchers("/images/**").permitAll()
                         // All other endpoints require authentication
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().authenticated());
 
         // Use the custom authentication provider
         http.authenticationProvider(authenticationProvider());
-        
+
         // Add JWT filter before the standard authentication filter
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-} 
+}
