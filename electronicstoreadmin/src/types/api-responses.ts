@@ -1,3 +1,9 @@
+// Import the Page interface from common types
+import type { Page } from './common.types';
+
+// Export it for use elsewhere
+export type { Page };
+
 // API Response format
 export interface ApiResponse<T> {
   status: "SUCCESS" | "ERROR";

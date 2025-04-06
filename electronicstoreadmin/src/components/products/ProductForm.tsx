@@ -1,45 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Box,
-  TextField,
   Button,
-  Grid,
+  CircularProgress,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   FormHelperText,
-  Typography,
-  Card,
-  CardContent,
-  InputAdornment,
-  Divider,
-  Stack,
-  FormControlLabel,
-  Switch,
+  Grid,
+  InputLabel,
+  MenuItem,
   Paper,
-  CircularProgress
+  Select,
+  TextField,
+  Typography
 } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import ReactQuill from 'react-quill';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import 'react-quill/dist/quill.snow.css';
-import { ProductFormData } from '../../types/product.types';
+import { useNavigate, useParams } from 'react-router-dom';
+import * as yup from 'yup';
+import { useApiRequest } from '../../hooks/useApiRequest';
+import { CategoryService } from '../../services/category.service';
+import { ProductService } from '../../services/product.service';
+import {
+  CategoryResponse,
+  Page,
+  ProductCreateRequest,
+  ProductResponse,
+  ProductUpdateRequest
+} from '../../types/api-responses';
 import { Category } from '../../types/category.types';
+import { ProductFormData } from '../../types/product.types';
+import { showNotification } from '../../utils/notification';
 import ImageUpload from './ImageUpload';
 import SpecificationsEditor from './SpecificationsEditor';
-import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  ProductCreateRequest, 
-  ProductUpdateRequest, 
-  ProductResponse,
-  CategorySummary
-} from '../../types/api-responses';
-import { ProductService } from '../../services/product.service';
-import { CategoryService } from '../../services/category.service';
-import { useApiRequest } from '../../hooks/useApiRequest';
-import { showNotification } from '../../utils/notification';
 
 interface ProductFormProps {
   initialData?: ProductFormData;
@@ -67,7 +60,7 @@ const ProductForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
-  
+
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [specifications, setSpecifications] = useState<Record<string, string>>({});
@@ -76,7 +69,7 @@ const ProductForm: React.FC = () => {
   const [lastModifiedBy, setLastModifiedBy] = useState<string>('');
   const [createdAt, setCreatedAt] = useState<string>('');
   const [updatedAt, setUpdatedAt] = useState<string>('');
-  
+
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ProductCreateRequest>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
@@ -87,21 +80,24 @@ const ProductForm: React.FC = () => {
       stock: 0
     }
   });
-  
-  const { 
-    data: categories, 
-    loading: loadingCategories, 
-    execute: fetchCategories 
-  } = useApiRequest<CategorySummary[], []>(CategoryService.getAllCategories);
-  
+
+  const {
+    data: categoriesPage,
+    loading: loadingCategories,
+    execute: fetchCategories
+  } = useApiRequest<Page<CategoryResponse>, []>(CategoryService.getAllCategories);
+
+  // Derive the categories array from the page content
+  const categories = categoriesPage?.content || [];
+
   const {
     loading: loadingProduct,
     execute: fetchProduct
   } = useApiRequest<ProductResponse, [number]>(ProductService.getProductById);
-  
+
   useEffect(() => {
     fetchCategories();
-    
+
     if (isEditMode && id) {
       fetchProduct(parseInt(id)).then(response => {
         if (response?.status === 'SUCCESS' && response.data) {
@@ -113,14 +109,14 @@ const ProductForm: React.FC = () => {
             categoryId: product.category.id,
             stock: product.stock
           });
-          
+
           try {
             setSpecifications(JSON.parse(product.specifications || '{}'));
           } catch (error) {
             console.error('Failed to parse specifications:', error);
             setSpecifications({});
           }
-          
+
           setImages(product.images || []);
           setCreatedBy(product.createdBy || '');
           setLastModifiedBy(product.lastModifiedBy || '');
@@ -130,34 +126,34 @@ const ProductForm: React.FC = () => {
       });
     }
   }, [isEditMode, id, fetchCategories, fetchProduct, reset]);
-  
+
   const handleImageUpload = (file: File) => {
     console.log('Adding image file to upload list:', file.name);
-    
+
     // Add to image files array for later submission
     setImageFiles(prevFiles => [...prevFiles, file]);
-    
+
     // Create a temporary URL for preview
     const previewUrl = URL.createObjectURL(file);
     setImages(prevImages => [...prevImages, previewUrl]);
-    
+
     showNotification('Image added and will be uploaded when you save the product', 'success');
   };
-  
+
   const handleRemoveImage = (index: number) => {
     // Remove from both the preview images and the files to upload
     setImages(prev => prev.filter((_, i) => i !== index));
-    
+
     // Only remove from image files if it's a new image (not from the server)
     if (index < imageFiles.length) {
       setImageFiles(prev => prev.filter((_, i) => i !== index));
     }
   };
-  
+
   const onSubmit = async (data: ProductCreateRequest) => {
     setIsSubmitting(true);
     showNotification('Saving product...', 'info');
-    
+
     try {
       const productData: ProductCreateRequest = {
         name: data.name,
@@ -167,19 +163,19 @@ const ProductForm: React.FC = () => {
         specifications: JSON.stringify(specifications),
         stock: Number(data.stock)
       };
-      
+
       // Filter out blob URLs from the images array when sending to the backend
       const apiImages = images.filter(img => !img.startsWith('blob:'));
-      
+
       let response;
-      
+
       if (isEditMode && id) {
         // Update existing product with images
         const updateData: ProductUpdateRequest = {
           ...productData,
           images: apiImages
         };
-        
+
         response = await ProductService.updateProductWithImages(
           parseInt(id),
           updateData,
@@ -192,7 +188,7 @@ const ProductForm: React.FC = () => {
           imageFiles
         );
       }
-      
+
       if (response?.status === 'SUCCESS') {
         // Clean up blob URLs after successful submission
         images.forEach(image => {
@@ -200,7 +196,7 @@ const ProductForm: React.FC = () => {
             URL.revokeObjectURL(image);
           }
         });
-        
+
         showNotification(
           isEditMode ? 'Product updated successfully' : 'Product created successfully',
           'success'
@@ -219,9 +215,9 @@ const ProductForm: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   const loading = loadingCategories || loadingProduct;
-  
+
   // Clean up object URLs when component unmounts to prevent memory leaks
   useEffect(() => {
     return () => {
@@ -233,17 +229,17 @@ const ProductForm: React.FC = () => {
       });
     };
   }, [images]);
-  
+
   if (loading) {
     return <CircularProgress />;
   }
-  
+
   return (
     <Paper sx={{ p: 3 }}>
       <Typography variant="h5" component="h2" gutterBottom>
         {isEditMode ? 'Edit Product' : 'Create New Product'}
       </Typography>
-      
+
       {isEditMode && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
@@ -256,13 +252,13 @@ const ProductForm: React.FC = () => {
           )}
         </Box>
       )}
-      
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>Basic Information</Typography>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Controller
               name="name"
@@ -278,7 +274,7 @@ const ProductForm: React.FC = () => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Controller
               name="categoryId"
@@ -304,7 +300,7 @@ const ProductForm: React.FC = () => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Controller
               name="description"
@@ -322,11 +318,11 @@ const ProductForm: React.FC = () => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>Pricing & Inventory</Typography>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Controller
               name="price"
@@ -344,7 +340,7 @@ const ProductForm: React.FC = () => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Controller
               name="stock"
@@ -362,7 +358,7 @@ const ProductForm: React.FC = () => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>Specifications</Typography>
             <SpecificationsEditor
@@ -370,11 +366,11 @@ const ProductForm: React.FC = () => {
               onChange={setSpecifications}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>Images</Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {isEditMode 
+            <Typography variant="body2" color="text.primary" gutterBottom>
+              {isEditMode
                 ? 'Upload new images to add to the product. Existing images will be preserved.'
                 : 'Upload images for the product. You can add multiple images.'}
             </Typography>
@@ -384,24 +380,24 @@ const ProductForm: React.FC = () => {
               onRemove={handleRemoveImage}
             />
             {imageFiles.length > 0 && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
+              <Typography variant="body2" sx={{ mt: 1, color: 'text.primary' }}>
                 {imageFiles.length} new image(s) will be uploaded when you save the product.
               </Typography>
             )}
           </Grid>
-          
+
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button 
-                type="button" 
-                onClick={() => navigate('/products')} 
+              <Button
+                type="button"
+                onClick={() => navigate('/products')}
                 sx={{ mr: 2 }}
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                variant="contained" 
+              <Button
+                type="submit"
+                variant="contained"
                 color="primary"
                 disabled={isSubmitting}
               >

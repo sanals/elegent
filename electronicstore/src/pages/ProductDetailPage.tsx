@@ -217,7 +217,7 @@ const ProductDetailPage: React.FC = () => {
 
           <Typography
             variant="h5"
-            color="primary"
+            color="text.primary"
             sx={{
               fontWeight: 'bold',
               fontSize: { xs: '1.25rem', md: '1.5rem' },
@@ -245,7 +245,7 @@ const ProductDetailPage: React.FC = () => {
             {categoryId && (
               <Typography
                 variant="body2"
-                color="primary"
+                color="text.primary"
                 component={Link}
                 to={`/category/${categoryId}`}
                 sx={{
@@ -300,7 +300,7 @@ const ProductDetailPage: React.FC = () => {
                     <Typography
                       component={Link}
                       to={`/category/${categoryId}`}
-                      color="primary"
+                      color="text.primary"
                       variant="body2"
                       sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
                     >

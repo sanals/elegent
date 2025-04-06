@@ -13,9 +13,17 @@ const App: React.FC = () => {
     <CustomThemeProvider>
       <Router>
         <ProductProvider>
-          <Box className="app">
+          <Box className="app" sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navbar />
-            <Box component="main" className="main-content">
+            <Box
+              component="main"
+              className="main-content"
+              sx={{
+                flexGrow: 1,
+                pt: 2,
+                px: { xs: 2, sm: 3 }
+              }}
+            >
               <AppRoutes />
             </Box>
             <Footer />

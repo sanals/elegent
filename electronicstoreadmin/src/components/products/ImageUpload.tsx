@@ -1,18 +1,19 @@
-import React, { useRef } from 'react';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
   Button,
+  CardMedia,
   Grid,
   IconButton,
-  Typography,
   Paper,
-  CardMedia
+  Typography,
+  useTheme
 } from '@mui/material';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React, { useRef } from 'react';
+import { API_BASE_URL } from '../../utils/api-fetch';
 import { showNotification } from '../../utils/notification';
 import { getToken } from '../../utils/token-manager';
-import { API_BASE_URL } from '../../utils/api-fetch';
 
 // Allowed image MIME types
 const ALLOWED_IMAGE_TYPES = [
@@ -36,7 +37,7 @@ const prepareImageUrl = (imageUrl: string): string => {
   if (imageUrl.startsWith('blob:')) {
     return imageUrl;
   }
-  
+
   // If it's already a full URL with http/https, use it as is
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     // Check if it's from our API and needs token
@@ -50,19 +51,19 @@ const prepareImageUrl = (imageUrl: string): string => {
     }
     return imageUrl;
   }
-  
+
   // It's a relative URL, prepend the API base URL
   const baseUrl = API_BASE_URL;
   const token = getToken();
-  
+
   // Ensure we don't duplicate slashes
-  const normalizedUrl = imageUrl.startsWith('/') 
-    ? `${baseUrl}${imageUrl}` 
+  const normalizedUrl = imageUrl.startsWith('/')
+    ? `${baseUrl}${imageUrl}`
     : `${baseUrl}/${imageUrl}`;
-  
+
   // Add token as query parameter
-  return token 
-    ? `${normalizedUrl}?auth_token=${token}` 
+  return token
+    ? `${normalizedUrl}?auth_token=${token}`
     : normalizedUrl;
 };
 
@@ -74,6 +75,7 @@ interface ImageUploadProps {
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const theme = useTheme();
 
   const handleClick = () => {
     if (fileInputRef.current) {
@@ -91,16 +93,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
           showNotification(`File ${file.name} is too large. Maximum size is 5MB.`, 'error');
           return;
         }
-        
+
         // Validate file type
         if (!file.type.startsWith('image/')) {
           showNotification(`File ${file.name} is not an image.`, 'error');
           return;
         }
-        
+
         onUpload(file);
       });
-      
+
       // Reset the input so the same file can be selected again
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -119,7 +121,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
         multiple // Allow multiple file selection
         id="image-upload-input"
       />
-      
+
       <Button
         variant="outlined"
         startIcon={<AddPhotoAlternateIcon />}
@@ -128,31 +130,32 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
       >
         Add Images
       </Button>
-      
+
       <Grid container spacing={2}>
         {images.map((image, index) => {
           const isPreview = image.startsWith('blob:');
           return (
             <Grid item xs={6} sm={4} md={3} key={index}>
-              <Paper 
-                elevation={2} 
-                sx={{ 
+              <Paper
+                elevation={2}
+                sx={{
                   position: 'relative',
                   height: 200,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: isPreview ? '2px dashed #4caf50' : 'none' // Green dashed border for previews
+                  border: isPreview ? '2px dashed #4caf50' : 'none', // Green dashed border for previews
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white'
                 }}
               >
                 {isPreview && (
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      position: 'absolute', 
-                      top: 8, 
-                      left: 8, 
-                      bgcolor: 'rgba(76, 175, 80, 0.8)', 
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      bgcolor: 'rgba(76, 175, 80, 0.8)',
                       color: 'white',
                       px: 1,
                       py: 0.5,
@@ -166,8 +169,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                   component="img"
                   image={prepareImageUrl(image)}
                   alt={`Product image ${index + 1}`}
-                  sx={{ 
-                    height: '100%', 
+                  sx={{
+                    height: '100%',
                     objectFit: 'contain',
                     p: 1
                   }}
@@ -180,9 +183,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                     position: 'absolute',
                     top: 8,
                     right: 8,
-                    bgcolor: 'rgba(255, 255, 255, 0.7)',
+                    bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.8)' : 'rgba(255, 255, 255, 0.7)',
+                    color: theme => theme.palette.mode === 'dark' ? theme.palette.error.light : theme.palette.error.main,
                     '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.9)',
+                      bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.9)' : 'rgba(255, 255, 255, 0.9)'
                     }
                   }}
                 >
@@ -192,10 +196,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
             </Grid>
           );
         })}
-        
+
         {images.length === 0 && (
           <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.primary">
               No images uploaded yet. Click "Add Images" to upload.
             </Typography>
           </Grid>
