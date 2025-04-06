@@ -21,6 +21,17 @@ const COLORS = {
     // Text colors
     LIGHT_TEXT: '#263126',
     DARK_TEXT: '#e0e8e0',
+
+    // Status colors
+    SUCCESS: '#4caf50', // Green
+    SUCCESS_DARK: '#357a38', // Darker green for dark mode
+    ERROR: '#f44336', // Red
+    WARNING: '#ff9800', // Amber/orange for warning
+
+    // Action colors
+    ACTION_HOVER_LIGHT: 'rgba(0, 0, 0, 0.04)',
+    ACTION_HOVER_DARK: 'rgba(255, 255, 255, 0.1)',
+    ACTION_BG_DARK: 'rgba(255, 255, 255, 0.12)',
 };
 
 type ThemeMode = 'light' | 'dark';
@@ -72,12 +83,25 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
             secondary: {
                 main: COLORS.SECONDARY,
             },
+            success: {
+                main: mode === 'light' ? COLORS.SUCCESS : COLORS.SUCCESS_DARK,
+                contrastText: '#ffffff',
+            },
+            error: {
+                main: COLORS.ERROR,
+            },
+            warning: {
+                main: COLORS.WARNING,
+            },
             background: {
                 default: mode === 'light' ? COLORS.LIGHT_BG : COLORS.DARK_BG,
                 paper: mode === 'light' ? COLORS.LIGHT_PAPER : COLORS.DARK_PAPER,
             },
             text: {
                 primary: mode === 'light' ? COLORS.LIGHT_TEXT : COLORS.DARK_TEXT,
+            },
+            action: {
+                hover: mode === 'light' ? COLORS.ACTION_HOVER_LIGHT : COLORS.ACTION_HOVER_DARK,
             },
         },
         components: {
@@ -94,6 +118,60 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
                     root: {
                         backgroundColor: COLORS.PRIMARY,
                     },
+                },
+            },
+            MuiChip: {
+                styleOverrides: {
+                    root: ({ theme }) => ({
+                        ...(theme.palette.mode === 'dark' && {
+                            '&.MuiChip-colorSuccess': {
+                                color: '#ffffff',
+                            },
+                            '&.MuiChip-colorError': {
+                                color: '#ffffff',
+                            },
+                            '&.MuiChip-colorWarning': {
+                                color: '#ffffff',
+                            },
+                        }),
+                    }),
+                },
+            },
+            MuiIconButton: {
+                styleOverrides: {
+                    root: ({ theme }) => ({
+                        ...(theme.palette.mode === 'dark' && {
+                            '&.MuiIconButton-colorSuccess': {
+                                backgroundColor: 'rgba(76, 175, 80, 0.15)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(76, 175, 80, 0.25)',
+                                },
+                            },
+                            '&.MuiIconButton-colorWarning': {
+                                backgroundColor: 'rgba(255, 152, 0, 0.15)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 152, 0, 0.25)',
+                                },
+                            },
+                            '&.MuiIconButton-colorError': {
+                                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(244, 67, 54, 0.25)',
+                                },
+                            },
+                        }),
+                    }),
+                },
+            },
+            MuiButton: {
+                styleOverrides: {
+                    root: ({ theme }) => ({
+                        ...(theme.palette.mode === 'dark' && {
+                            '&.MuiButton-outlined': {
+                                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : undefined,
+                            },
+                        }),
+                    }),
                 },
             },
         },

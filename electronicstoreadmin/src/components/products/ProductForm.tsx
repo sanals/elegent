@@ -369,7 +369,7 @@ const ProductForm: React.FC = () => {
 
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>Images</Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography variant="body2" color="text.primary" gutterBottom>
               {isEditMode
                 ? 'Upload new images to add to the product. Existing images will be preserved.'
                 : 'Upload images for the product. You can add multiple images.'}
@@ -380,7 +380,7 @@ const ProductForm: React.FC = () => {
               onRemove={handleRemoveImage}
             />
             {imageFiles.length > 0 && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
+              <Typography variant="body2" sx={{ mt: 1, color: 'text.primary' }}>
                 {imageFiles.length} new image(s) will be uploaded when you save the product.
               </Typography>
             )}

@@ -1,10 +1,12 @@
+import { Add, BarChart, ViewList } from '@mui/icons-material';
+import { Button, Card, CardContent, Grid, Typography, useTheme } from '@mui/material';
 import React from 'react';
-import { Card, CardContent, Typography, Button, Grid } from '@mui/material';
-import { Add, ViewList, BarChart } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const QuickActions: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
 
   return (
     <Card>
@@ -26,18 +28,24 @@ const QuickActions: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Button
-              variant="outlined"
-              color="primary"
+              variant={isDarkMode ? "contained" : "outlined"}
+              color={isDarkMode ? "info" : "primary"}
               startIcon={<ViewList />}
               fullWidth
               onClick={() => navigate('/products')}
+              sx={{
+                borderColor: isDarkMode ? 'primary.main' : undefined,
+                '&:hover': {
+                  borderColor: isDarkMode ? 'primary.main' : undefined,
+                }
+              }}
             >
               View Products
             </Button>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Button
-              variant="outlined"
+              variant={isDarkMode ? "contained" : "outlined"}
               color="secondary"
               startIcon={<BarChart />}
               fullWidth

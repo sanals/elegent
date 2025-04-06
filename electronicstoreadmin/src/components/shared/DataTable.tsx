@@ -11,7 +11,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Typography
+    Typography,
+    useTheme
 } from '@mui/material';
 import React from 'react';
 
@@ -59,6 +60,9 @@ function DataTable<T>({
     emptyMessage = 'No data found',
     keyExtractor
 }: DataTableProps<T>) {
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
+
     // Debug what data is being received
     console.log("DataTable received data:", data);
     console.log("DataTable data length:", data?.length);
@@ -76,6 +80,10 @@ function DataTable<T>({
     const getActionColor = (action: Action<T>, item: T): ButtonColor => {
         if (typeof action.color === 'function') {
             return action.color(item);
+        }
+        // If in dark mode and the color is 'primary' (usually edit icons), use 'info' for better visibility
+        if (isDarkMode && (action.color === 'primary' || action.color === undefined || action.color === 'inherit')) {
+            return 'info';
         }
         return action.color || 'inherit';
     };

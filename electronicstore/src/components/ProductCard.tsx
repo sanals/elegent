@@ -12,6 +12,7 @@ import {
   IconButton,
   Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types/Product';
@@ -22,6 +23,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const theme = useTheme();
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation when clicking the heart icon
@@ -130,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Typography>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h6" color="text.primary" sx={{ fontWeight: 'bold' }}>
             {formattedPrice}
           </Typography>
 
@@ -139,9 +141,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               size="small"
               color="primary"
               sx={{
-                bgcolor: 'primary.main',
-                color: 'white',
-                '&:hover': { bgcolor: 'primary.dark' }
+                '&:hover': {
+                  bgcolor: theme => theme.palette.primary.dark
+                }
               }}
             >
               <ShoppingCart fontSize="small" />
@@ -152,7 +154,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {product?.category && (
           <Typography
             variant="body2"
-            color="text.secondary"
+            color="text.primary"
             sx={{ mb: 1 }}
           >
             Category: {product?.category?.name}

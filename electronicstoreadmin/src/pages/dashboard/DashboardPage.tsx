@@ -26,7 +26,7 @@ interface Product {
     id: number;
     name: string;
     description: string;
-    status: string;
+    status?: string;
   };
   specifications: string;
   images: string[];

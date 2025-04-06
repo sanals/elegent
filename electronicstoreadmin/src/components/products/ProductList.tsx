@@ -130,7 +130,7 @@ const ProductList = () => {
         <Chip
           size="small"
           label={item?.status}
-          color={item?.status === 'ACTIVE' ? 'success' : 'error'}
+          color={item?.status === 'ACTIVE' ? 'success' : 'warning'}
         />
       ),
       align: 'center' as const,

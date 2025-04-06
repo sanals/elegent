@@ -380,15 +380,18 @@ const HomePage: React.FC = () => {
         py: 6,
         bgcolor: 'grey.100',
         borderRadius: 2
-      }}>
+      }}
+        className="location-box"
+      >
         <LocationOn sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
         <Typography
           variant="h4"
           gutterBottom
           sx={{
             fontWeight: 'bold',
-            mb: 3
+            mb: 3,
           }}
+          className="location-heading"
         >
           LOCATE OUR NEAREST OFFICE
         </Typography>

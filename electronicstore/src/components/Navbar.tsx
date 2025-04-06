@@ -40,7 +40,14 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="sticky"
+      elevation={4}
+      sx={{
+        top: 0,
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
+    >
       <Toolbar sx={{
         justifyContent: 'space-between',
         px: { xs: 1, sm: 2 },
