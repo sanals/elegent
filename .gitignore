@@ -15,3 +15,7 @@ electronicstoreadmin/.env.production.local
 electronicstoreadmin/.env.development
 electronicstoreadmin/.env.test
 electronicstoreadmin/.env.production
+
+# History folder
+.history/
+.history
