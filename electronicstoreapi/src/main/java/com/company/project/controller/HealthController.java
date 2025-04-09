@@ -1,7 +1,10 @@
 package com.company.project.controller;
 
-import com.company.project.dto.response.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,9 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import com.company.project.constants.AppConstants;
+import com.company.project.dto.response.ApiResponse;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Health Check Controller
@@ -27,7 +31,7 @@ public class HealthController {
 
     @Value("${spring.application.name}")
     private String applicationName;
-    
+
     @Value("${spring.profiles.active:default}")
     private String activeProfile;
 
@@ -40,8 +44,7 @@ public class HealthController {
     @GetMapping
     public ResponseEntity<ApiResponse<String>> healthCheck() {
         return ResponseEntity.ok(
-            new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Application is running", "OK")
-        );
+                new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Application is running", "OK"));
     }
 
     /**
@@ -56,10 +59,13 @@ public class HealthController {
         healthData.put("application", applicationName);
         healthData.put("profile", activeProfile);
         healthData.put("status", "UP");
-        healthData.put("timestamp", LocalDateTime.now());
-        
+
+        // Format timestamp as a simple string to avoid serialization issues
+        String formattedTimestamp = DateTimeFormatter.ofPattern(AppConstants.DEFAULT_DATETIME_FORMAT)
+                .format(LocalDateTime.now());
+        healthData.put("timestamp", formattedTimestamp);
+
         return ResponseEntity.ok(
-            new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Health information", healthData)
-        );
+                new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Health information", healthData));
     }
-} 
+}

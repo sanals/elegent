@@ -183,10 +183,8 @@ public class CategoryController {
                         @PathVariable Long id,
                         @RequestParam Category.Status status) {
 
-                Category category = categoryService.getCategoryById(id);
-                category.setStatus(status);
-                Category updatedCategory = categoryService.updateCategory(id, CategoryRequest.fromEntity(category));
-                CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
+                Category category = categoryService.updateCategoryStatus(id, status);
+                CategoryResponse response = CategoryResponse.fromEntity(category);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category status updated successfully"));

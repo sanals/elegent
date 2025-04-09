@@ -1,18 +1,20 @@
 package com.company.project.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * Service for JWT token operations
@@ -26,7 +28,7 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expiration:#{T(com.company.project.constants.AppConstants).DEFAULT_JWT_EXPIRATION}}")
     private long jwtExpiration;
 
     /**
@@ -51,7 +53,7 @@ public class JwtServiceImpl implements JwtService {
     /**
      * Validates if a token is valid for a given user
      * 
-     * @param token JWT token to validate
+     * @param token       JWT token to validate
      * @param userDetails User details to validate against
      * @return true if token is valid, false otherwise
      */
@@ -113,7 +115,7 @@ public class JwtServiceImpl implements JwtService {
     /**
      * Extracts a specific claim from a token
      * 
-     * @param token JWT token
+     * @param token          JWT token
      * @param claimsResolver Function to extract specific claim
      * @return Extracted claim value
      */
@@ -146,4 +148,4 @@ public class JwtServiceImpl implements JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-} 
+}

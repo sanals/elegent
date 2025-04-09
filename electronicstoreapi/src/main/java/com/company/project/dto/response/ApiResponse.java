@@ -1,10 +1,12 @@
 package com.company.project.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import com.company.project.constants.AppConstants;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 /**
  * Generic API Response Wrapper
@@ -21,14 +23,15 @@ public class ApiResponse<T> {
     private int code;
     private String message;
     private T data;
-    
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime timestamp = LocalDateTime.now();
-    
+
+    // Store timestamp as a string to avoid serialization issues
+    private String timestamp;
+
     public ApiResponse(String status, int code, String message, T data) {
         this.status = status;
         this.code = code;
         this.message = message;
         this.data = data;
+        this.timestamp = DateTimeFormatter.ofPattern(AppConstants.DEFAULT_DATETIME_FORMAT).format(LocalDateTime.now());
     }
-} 
+}

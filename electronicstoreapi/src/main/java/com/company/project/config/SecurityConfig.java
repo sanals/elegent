@@ -2,6 +2,7 @@ package com.company.project.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -47,19 +48,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthEntryPointJwt unauthorizedHandler;
     private final CorsProperties corsProperties;
-
-    // CORS configuration from application.yml
-    // @Value("${cors.allowed-origins}")
-    // private String[] allowedOrigins;
-
-    // @Value("${cors.allowed-methods}")
-    // private String[] allowedMethods;
-
-    // @Value("${cors.allowed-headers}")
-    // private String[] allowedHeaders;
-
-    // @Value("${cors.max-age}")
-    // private long maxAge;
 
     /**
      * Configures authentication provider with user details service and password
@@ -140,16 +128,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints that don't require authentication
-                        .requestMatchers("/auth/**").permitAll()
-                        // Customer-facing product and category endpoints
-                        .requestMatchers("/products/**").permitAll()
-                        .requestMatchers("/categories/**").permitAll()
-                        // No longer need Swagger UI permissions
-                        .requestMatchers("/users/create").permitAll()
-                        // Health check endpoints
-                        .requestMatchers("/health/**").permitAll()
-                        // Allow access to static images
-                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/auth/**", "/users/create", "/health/**", "/images/**").permitAll()
+                        // Customer-facing product and category endpoints - GET operations only
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/products", "/products",
+                                "/api/v1/products/{id}", "/products/{id}",
+                                "/api/v1/categories", "/categories",
+                                "/api/v1/categories/{id}", "/categories/{id}")
+                        .permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated());
 

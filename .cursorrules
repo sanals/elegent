@@ -17,9 +17,9 @@ export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 export const SUPPORTED_IMAGE_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 export const DEFAULT_CURRENCY = '₹'; // INR Currency Symbol
 export const DEFAULT_LOCALE = 'en-IN'; // Indian English Locale
-export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY'; // Date format for display
-export const DEFAULT_DATE_FORMAT_ISO = 'YYYY-MM-DD'; // Date format for API
-export const DEFAULT_DATETIME_FORMAT = 'DD-MM-YYYYTHH:mm:ss.SSSZ'; // DateTime format with timezone
+export const DEFAULT_DATE_FORMAT = 'dd-MM-yyyy'; // Date format for display
+export const DEFAULT_DATE_FORMAT_ISO = 'yyyy-MM-dd'; // Date format for API
+export const DEFAULT_DATETIME_FORMAT = 'dd-MM-yyyyTHH:mm:ss.SSSZ'; // DateTime format with timezone
 
 export const MESSAGES = {
   ERROR: {
@@ -73,7 +73,7 @@ export const formatDate = (date: Date | string): string => {
 export const formatDateTime = (date: Date | string): string => {
   if (!date) return '';
   // Use built-in date formatting or a library like date-fns
-  // to format as "DD-MM-YYYYTHH:mm:ss.SSSZ"
+  // to format as "dd-MM-yyyyTHH:mm:ss.SSSZ"
   const d = typeof date === 'string' ? new Date(date) : date;
   const day = d.getDate().toString().padStart(2, '0');
   const month = (d.getMonth() + 1).toString().padStart(2, '0');
@@ -578,7 +578,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   ```typescript
 /**
- * Formats a date to the Indian date format (DD-MM-YYYY)
+ * Formats a date to the Indian date format (dd-MM-yyyy)
  * @param date - The date value to format
  * @returns Formatted date string
  */
@@ -592,7 +592,7 @@ export const formatDateDisplay = (
 };
 
 /**
- * Formats a date with time to the API format (DD-MM-YYYYTHH:mm:ss.SSSZ)
+ * Formats a date with time to the API format (dd-MM-yyyyTHH:mm:ss.SSSZ)
  * @param date - The date value to format
  * @returns Formatted date-time string with timezone
  */
