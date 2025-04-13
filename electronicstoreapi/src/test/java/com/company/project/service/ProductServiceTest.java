@@ -1,11 +1,18 @@
 package com.company.project.service;
 
-import com.company.project.dto.request.ProductRequest;
-import com.company.project.entity.Category;
-import com.company.project.entity.Product;
-import com.company.project.exception.ResourceNotFoundException;
-import com.company.project.repository.ProductRepository;
-import com.company.project.service.impl.ProductServiceImpl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +23,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.company.project.dto.request.ProductRequest;
+import com.company.project.dto.response.ProductResponse;
+import com.company.project.entity.Category;
+import com.company.project.entity.Product;
+import com.company.project.exception.ResourceNotFoundException;
+import com.company.project.repository.CategoryRepository;
+import com.company.project.repository.ProductRepository;
+import com.company.project.service.impl.ProductServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -32,7 +39,7 @@ public class ProductServiceTest {
     private ProductRepository productRepository;
 
     @Mock
-    private CategoryService categoryService;
+    private CategoryRepository categoryRepository;
 
     @Mock
     private FileStorageService fileStorageService;
@@ -77,7 +84,7 @@ public class ProductServiceTest {
         when(productRepository.findAll(pageable)).thenReturn(productPage);
 
         // Act
-        Page<Product> result = productService.getAllProducts(pageable);
+        Page<ProductResponse> result = productService.getAllProducts(pageable);
 
         // Assert
         assertEquals(1, result.getTotalElements());
@@ -91,7 +98,7 @@ public class ProductServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // Act
-        Product result = productService.getProductById(1L);
+        ProductResponse result = productService.getProductById(1L);
 
         // Assert
         assertNotNull(result);
@@ -113,11 +120,11 @@ public class ProductServiceTest {
     @Test
     void createProduct_shouldSaveAndReturnProduct() {
         // Arrange
-        when(categoryService.getCategoryById(1L)).thenReturn(category);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
         // Act
-        Product result = productService.createProduct(productRequest);
+        ProductResponse result = productService.createProduct(productRequest);
 
         // Assert
         assertNotNull(result);
@@ -133,7 +140,7 @@ public class ProductServiceTest {
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
         // Act
-        Product result = productService.updateProductStatus(1L, Product.Status.INACTIVE);
+        ProductResponse result = productService.updateProductStatus(1L, Product.Status.INACTIVE);
 
         // Assert
         assertEquals(Product.Status.INACTIVE, result.getStatus());
@@ -146,11 +153,11 @@ public class ProductServiceTest {
         when(productRepository.findByStockLessThan(10)).thenReturn(Arrays.asList(product));
 
         // Act
-        List<Product> result = productService.getLowStockProducts(10);
+        List<ProductResponse> result = productService.getLowStockProducts(10);
 
         // Assert
         assertEquals(1, result.size());
         assertEquals("Smartphone", result.get(0).getName());
         verify(productRepository, times(1)).findByStockLessThan(10);
     }
-} 
+}

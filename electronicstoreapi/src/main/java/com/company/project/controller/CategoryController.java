@@ -53,10 +53,7 @@ public class CategoryController {
         @GetMapping
         public ResponseEntity<ApiResponse<Page<CategoryResponse>>> getAllCategories(
                         @PageableDefault(size = 10) Pageable pageable) {
-                List<Category> categories = categoryService.getAllCategories();
-                List<CategoryResponse> responseList = categories.stream()
-                                .map(CategoryResponse::fromEntity)
-                                .toList();
+                List<CategoryResponse> responseList = categoryService.getAllCategories();
 
                 return ResponseEntity.ok(
                                 responseService.createPageResponse(responseList, pageable,
@@ -71,8 +68,7 @@ public class CategoryController {
          */
         @GetMapping("/{id}")
         public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id) {
-                Category category = categoryService.getCategoryById(id);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.getCategoryById(id);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category retrieved successfully"));
@@ -88,8 +84,7 @@ public class CategoryController {
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(
                         @Valid @RequestBody CategoryRequest request) {
-                Category category = categoryService.createCategory(request);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.createCategory(request);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(responseService.createCreatedResponse(response, "Category created successfully"));
@@ -106,8 +101,7 @@ public class CategoryController {
         public ResponseEntity<ApiResponse<CategoryResponse>> createCategoryWithImage(
                         @ModelAttribute CategoryRequest request) {
 
-                Category category = categoryService.createCategory(request);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.createCategory(request);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(responseService.createCreatedResponse(response,
@@ -127,8 +121,7 @@ public class CategoryController {
                         @PathVariable Long id,
                         @Valid @RequestBody CategoryRequest request) {
 
-                Category updatedCategory = categoryService.updateCategory(id, request);
-                CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
+                CategoryResponse response = categoryService.updateCategory(id, request);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category updated successfully"));
@@ -147,8 +140,7 @@ public class CategoryController {
                         @PathVariable Long id,
                         @ModelAttribute CategoryRequest request) {
 
-                Category updatedCategory = categoryService.updateCategory(id, request);
-                CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
+                CategoryResponse response = categoryService.updateCategory(id, request);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response,
@@ -183,8 +175,7 @@ public class CategoryController {
                         @PathVariable Long id,
                         @RequestParam Category.Status status) {
 
-                Category category = categoryService.updateCategoryStatus(id, status);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.updateCategoryStatus(id, status);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category status updated successfully"));

@@ -1,11 +1,8 @@
 package com.company.project.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -66,18 +63,10 @@ public class ProductController {
                         @RequestParam(required = false) Product.Status status,
                         @PageableDefault(size = 10) Pageable pageable) {
 
-                Page<Product> productsPage = productService.searchProducts(keyword, categoryId, status, pageable);
-
-                List<ProductResponse> productResponses = productsPage.getContent().stream()
-                                .map(ProductResponse::fromEntity)
-                                .collect(Collectors.toList());
-
-                Page<ProductResponse> productResponsePage = new PageImpl<>(
-                                productResponses, pageable, productsPage.getTotalElements());
-
+                Page<ProductResponse> productsPage = productService.searchProducts(keyword, categoryId, status,
+                                pageable);
                 return ResponseEntity.ok(
-                                responseService.createPageResponse(productResponsePage,
-                                                "Products retrieved successfully"));
+                                responseService.createPageResponse(productsPage, "Products retrieved successfully"));
         }
 
         /**
@@ -88,11 +77,9 @@ public class ProductController {
          */
         @GetMapping("/{id}")
         public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Long id) {
-                Product product = productService.getProductById(id);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.getProductById(id);
                 return ResponseEntity.ok(
-                                responseService.createSingleResponse(response, "Product retrieved successfully"));
+                                responseService.createSingleResponse(product, "Product retrieved successfully"));
         }
 
         /**
@@ -104,11 +91,9 @@ public class ProductController {
         @PostMapping
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest request) {
-                Product product = productService.createProduct(request);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.createProduct(request);
                 return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(responseService.createCreatedResponse(response, "Product created successfully"));
+                                .body(responseService.createCreatedResponse(product, "Product created successfully"));
         }
 
         /**
@@ -122,11 +107,9 @@ public class ProductController {
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id,
                         @Valid @RequestBody ProductRequest request) {
-                Product product = productService.updateProduct(id, request);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.updateProduct(id, request);
                 return ResponseEntity.ok(
-                                responseService.createSingleResponse(response, "Product updated successfully"));
+                                responseService.createSingleResponse(product, "Product updated successfully"));
         }
 
         /**
@@ -139,7 +122,6 @@ public class ProductController {
         @PreAuthorize("hasRole('SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
                 productService.deleteProduct(id);
-
                 return ResponseEntity.ok(
                                 responseService.createEmptyResponse("Product deleted successfully"));
         }
@@ -151,15 +133,13 @@ public class ProductController {
          * @param images List of image files to upload
          * @return ApiResponse with updated product including images
          */
-        @PostMapping(value = "/{id}/upload-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        @PostMapping(value = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> uploadProductImages(@PathVariable Long id,
                         @RequestParam("images") List<MultipartFile> images) {
-                Product product = productService.uploadProductImages(id, images);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.uploadProductImages(id, images);
                 return ResponseEntity.ok(
-                                responseService.createSingleResponse(response, "Product images uploaded successfully"));
+                                responseService.createSingleResponse(product, "Images uploaded successfully"));
         }
 
         /**
@@ -173,11 +153,9 @@ public class ProductController {
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<ProductResponse>> updateProductStatus(
                         @PathVariable Long id, @RequestParam Product.Status status) {
-                Product product = productService.updateProductStatus(id, status);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.updateProductStatus(id, status);
                 return ResponseEntity.ok(
-                                responseService.createSingleResponse(response, "Product status updated successfully"));
+                                responseService.createSingleResponse(product, "Product status updated successfully"));
         }
 
         /**
@@ -192,13 +170,10 @@ public class ProductController {
         public ResponseEntity<ApiResponse<Page<ProductResponse>>> getLowStockProducts(
                         @RequestParam(defaultValue = "5") Integer threshold,
                         @PageableDefault(size = 10) Pageable pageable) {
-                List<Product> products = productService.getLowStockProducts(threshold);
-                List<ProductResponse> responses = products.stream()
-                                .map(ProductResponse::fromEntity)
-                                .collect(Collectors.toList());
 
+                Page<ProductResponse> productPage = productService.getLowStockProductsPaginated(threshold, pageable);
                 return ResponseEntity.ok(
-                                responseService.createPageResponse(responses, pageable,
+                                responseService.createPageResponse(productPage,
                                                 "Low stock products retrieved successfully"));
         }
 
@@ -212,13 +187,8 @@ public class ProductController {
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<List<String>>> uploadImage(
                         @RequestParam("images") List<MultipartFile> images) {
-                List<String> imageUrls = new ArrayList<>();
 
-                for (MultipartFile image : images) {
-                        String imageUrl = productService.uploadSingleImage(image);
-                        imageUrls.add(imageUrl);
-                }
-
+                List<String> imageUrls = productService.uploadImages(images);
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(imageUrls, "Images uploaded successfully"));
         }
@@ -234,11 +204,9 @@ public class ProductController {
         public ResponseEntity<ApiResponse<ProductResponse>> createProductWithImages(
                         @ModelAttribute ProductCreateRequest request) {
 
-                Product product = productService.createProductWithImages(request);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.createProductWithImages(request);
                 return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(responseService.createCreatedResponse(response,
+                                .body(responseService.createCreatedResponse(product,
                                                 "Product created successfully with images"));
         }
 
@@ -255,11 +223,9 @@ public class ProductController {
                         @PathVariable Long id,
                         @ModelAttribute ProductCreateRequest request) {
 
-                Product product = productService.updateProductWithImages(id, request);
-                ProductResponse response = ProductResponse.fromEntity(product);
-
+                ProductResponse product = productService.updateProductWithImages(id, request);
                 return ResponseEntity.ok(
-                                responseService.createSingleResponse(response,
+                                responseService.createSingleResponse(product,
                                                 "Product updated successfully with images"));
         }
 }
