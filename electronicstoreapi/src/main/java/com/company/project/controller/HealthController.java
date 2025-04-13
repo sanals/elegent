@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.company.project.constants.AppConstants;
 import com.company.project.dto.response.ApiResponse;
+import com.company.project.util.AppConstants;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.company.project.constants;
+package com.company.project.util;
 
 /**
  * Application Constants

@@ -3,7 +3,7 @@ package com.company.project.dto.response;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.company.project.constants.AppConstants;
+import com.company.project.util.AppConstants;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

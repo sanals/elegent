@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.company.project.constants.AppConstants;
+import com.company.project.util.AppConstants;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

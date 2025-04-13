@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.company.project.entity.Category;
+import com.company.project.util.AppConstants;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -26,10 +27,10 @@ public class CategoryResponse {
         private List<ProductSummary> products;
         private Category.Status status;
 
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @JsonFormat(pattern = AppConstants.DEFAULT_DATETIME_FORMAT)
         private LocalDateTime createdAt;
 
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @JsonFormat(pattern = AppConstants.DEFAULT_DATETIME_FORMAT)
         private LocalDateTime updatedAt;
 
         private String createdBy;
