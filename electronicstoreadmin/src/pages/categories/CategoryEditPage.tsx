@@ -2,7 +2,7 @@ import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CategoryForm from '../../components/categories/CategoryForm';
+import { CategoryForm } from '../../components';
 import { CategoryService } from '../../services/category.service';
 import { CategorySummary } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';

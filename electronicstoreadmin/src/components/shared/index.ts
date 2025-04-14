@@ -7,3 +7,5 @@ export { default as LoadingIndicator } from './LoadingIndicator';
 export { default as Notification } from './Notification';
 export { default as PageHeader } from './PageHeader';
 export { default as Sidebar } from './Sidebar';
+export { default as ThemeToggle } from './ThemeToggle';
+

@@ -13,7 +13,7 @@ import {
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import ThemeToggle from '../ThemeToggle';
+import { ThemeToggle } from './';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
