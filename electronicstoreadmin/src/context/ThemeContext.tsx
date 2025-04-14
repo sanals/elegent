@@ -110,11 +110,31 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
                 },
             },
             MuiButton: {
-                styleOverrides: {
-                    root: ({ theme }) => ({
-                        ...(theme.palette.mode === 'dark' && COMPONENT_OVERRIDES.MuiButton.dark),
-                    }),
-                },
+                styleOverrides: COMPONENT_OVERRIDES.MuiButton.styleOverrides,
+            },
+            MuiOutlinedInput: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiOutlinedInput.styleOverrides,
+            },
+            MuiInputLabel: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiInputLabel.styleOverrides,
+            },
+            MuiTextField: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiTextField.styleOverrides,
+            },
+            MuiSelect: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiSelect.styleOverrides,
+            },
+            MuiFormControl: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiFormControl.styleOverrides,
+            },
+            MuiMenuItem: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiMenuItem.styleOverrides,
+            },
+            MuiCard: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiCard.styleOverrides,
+            },
+            MuiPaper: {
+                styleOverrides: COMPONENT_OVERRIDES.MuiPaper.styleOverrides,
             },
         },
     });

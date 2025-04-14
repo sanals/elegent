@@ -1,5 +1,5 @@
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import React from 'react';
-import { Card, CardContent, Typography, Grid, Box } from '@mui/material';
 
 interface ProductStats {
   totalProducts: number;
@@ -30,7 +30,7 @@ const Statistics: React.FC<StatisticsProps> = ({ productStats }) => {
           </CardContent>
         </Card>
       </Grid>
-      
+
       <Grid item xs={12} sm={6} md={3}>
         <Card>
           <CardContent>
@@ -43,7 +43,7 @@ const Statistics: React.FC<StatisticsProps> = ({ productStats }) => {
           </CardContent>
         </Card>
       </Grid>
-      
+
       <Grid item xs={12} sm={6} md={3}>
         <Card>
           <CardContent>
@@ -56,7 +56,7 @@ const Statistics: React.FC<StatisticsProps> = ({ productStats }) => {
           </CardContent>
         </Card>
       </Grid>
-      
+
       <Grid item xs={12} sm={6} md={3}>
         <Card>
           <CardContent>
@@ -69,7 +69,7 @@ const Statistics: React.FC<StatisticsProps> = ({ productStats }) => {
           </CardContent>
         </Card>
       </Grid>
-      
+
       <Grid item xs={12}>
         <Card>
           <CardContent>

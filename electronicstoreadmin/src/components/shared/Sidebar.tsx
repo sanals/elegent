@@ -1,25 +1,25 @@
-import React from 'react';
 import {
+  Category as CategoryIcon,
+  Dashboard as DashboardIcon,
+  Inventory as InventoryIcon,
+  People as PeopleIcon,
+  Settings as SettingsIcon
+} from '@mui/icons-material';
+import {
+  Box,
+  Divider,
   Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
   Toolbar,
-  Box,
-  useTheme,
-  useMediaQuery
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  Category as CategoryIcon,
-  Inventory as InventoryIcon,
-  People as PeopleIcon,
-  Settings as SettingsIcon
-} from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 interface SidebarProps {
@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
   const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   const menuItems: MenuItem[] = [
     {
       text: 'Dashboard',
@@ -70,18 +70,18 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       icon: <SettingsIcon />
     }
   ];
-  
-  const filteredMenuItems = menuItems.filter(item => 
+
+  const filteredMenuItems = menuItems.filter(item =>
     !item.requiredRoles || (user && item.requiredRoles.includes(user.role))
   );
-  
+
   const handleNavigate = (path: string) => {
     navigate(path);
     if (isMobile) {
       onClose();
     }
   };
-  
+
   const drawer = (
     <div>
       <Toolbar />
@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       <List>
         {filteredMenuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
-            <ListItemButton 
+            <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => handleNavigate(item.path)}
             >
@@ -103,7 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       </List>
     </div>
   );
-  
+
   return (
     <Box
       component="nav"
@@ -116,9 +116,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
           onClose={onClose}
           ModalProps={{ keepMounted: true }}
           sx={{
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth
             },
           }}
         >
@@ -129,9 +129,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth
             },
           }}
           open

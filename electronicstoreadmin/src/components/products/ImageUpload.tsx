@@ -7,9 +7,9 @@ import {
   Grid,
   IconButton,
   Paper,
-  Typography,
-  useTheme
+  Typography
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React, { useRef } from 'react';
 import { API_BASE_URL } from '../../utils/api-fetch';
 import { showNotification } from '../../utils/notification';
@@ -145,7 +145,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: isPreview ? '2px dashed #4caf50' : 'none', // Green dashed border for previews
-                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white'
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white'
                 }}
               >
                 {isPreview && (
@@ -183,10 +183,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                     position: 'absolute',
                     top: 8,
                     right: 8,
-                    bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.8)' : 'rgba(255, 255, 255, 0.7)',
-                    color: theme => theme.palette.mode === 'dark' ? theme.palette.error.light : theme.palette.error.main,
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.8)' : 'rgba(255, 255, 255, 0.7)',
+                    color: theme.palette.mode === 'dark' ? theme.palette.error.light : theme.palette.error.main,
                     '&:hover': {
-                      bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.9)' : 'rgba(255, 255, 255, 0.9)'
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.9)' : 'rgba(255, 255, 255, 0.9)'
                     }
                   }}
                 >

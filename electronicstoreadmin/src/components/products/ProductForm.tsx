@@ -389,7 +389,7 @@ const ProductForm: React.FC = () => {
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
               <Button
-                type="button"
+                variant="outlined"
                 onClick={() => navigate('/products')}
                 sx={{ mr: 2 }}
               >
