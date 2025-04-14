@@ -8,6 +8,7 @@ import NotificationComponent from './Notification';
 import Sidebar from './Sidebar';
 
 const drawerWidth = 240;
+const miniDrawerWidth = 64;
 
 const Layout: React.FC = () => {
   const theme = useTheme();
@@ -46,7 +47,14 @@ const Layout: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: {
+            xs: '100%',
+            sm: `calc(100% - ${isMobile ? 0 : (sidebarOpen ? drawerWidth : miniDrawerWidth)}px)`
+          },
+          transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.standard,
+          }),
           minHeight: '100vh',
           backgroundColor: 'background.default'
         }}

@@ -42,6 +42,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // Width for mini drawer (only icons)
+  const miniDrawerWidth = 64;
+
   const menuItems: MenuItem[] = [
     {
       text: 'Dashboard',
@@ -82,7 +85,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
     }
   };
 
-  const drawer = (
+  // Full drawer with icons and text
+  const fullDrawer = (
     <div>
       <Toolbar />
       <Divider />
@@ -104,12 +108,46 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
     </div>
   );
 
+  // Mini drawer with only icons
+  const miniDrawer = (
+    <div>
+      <Toolbar />
+      <Divider />
+      <List>
+        {filteredMenuItems.map((item) => (
+          <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
+            <ListItemButton
+              selected={location.pathname === item.path}
+              onClick={() => handleNavigate(item.path)}
+              sx={{
+                minHeight: 48,
+                justifyContent: 'center',
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </div>
+  );
+
   return (
     <Box
       component="nav"
-      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      sx={{ width: { sm: open ? drawerWidth : miniDrawerWidth }, flexShrink: { sm: 0 } }}
     >
       {isMobile ? (
+        // Mobile: Temporary drawer that overlays content
         <Drawer
           variant="temporary"
           open={open}
@@ -122,21 +160,27 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
             },
           }}
         >
-          {drawer}
+          {fullDrawer}
         </Drawer>
       ) : (
+        // Desktop: Permanent drawer that transitions between full and mini
         <Drawer
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: drawerWidth
+              width: open ? drawerWidth : miniDrawerWidth,
+              transition: theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.standard,
+              }),
+              overflowX: 'hidden',
             },
           }}
           open
         >
-          {drawer}
+          {open ? fullDrawer : miniDrawer}
         </Drawer>
       )}
     </Box>
