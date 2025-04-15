@@ -15,7 +15,7 @@ import { AuthProvider, ProtectedRoute } from './components/auth';
 import { ErrorBoundary, Layout } from './components/shared';
 
 // Import custom theme provider
-import { CustomThemeProvider } from './context/ThemeContext';
+import { CustomThemeProvider } from './context';
 
 const App: React.FC = () => {
   console.log('App rendering with proper routing and components');
