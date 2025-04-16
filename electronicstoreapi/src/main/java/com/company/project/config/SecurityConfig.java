@@ -3,6 +3,10 @@ package com.company.project.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -87,6 +91,35 @@ public class SecurityConfig {
     }
 
     /**
+     * Configures role hierarchy for the application
+     * 
+     * This establishes that SUPER_ADMIN inherits all permissions of ADMIN
+     * Users with SUPER_ADMIN role will automatically have all permissions granted
+     * to ADMIN role
+     * 
+     * @return Role hierarchy implementation
+     */
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        // Use the static fromHierarchy method for defining role hierarchy
+        return RoleHierarchyImpl.fromHierarchy("ROLE_SUPER_ADMIN > ROLE_ADMIN");
+    }
+
+    /**
+     * Configures method security expression handler with role hierarchy
+     * 
+     * This is required to make role hierarchy work with @PreAuthorize annotations
+     * 
+     * @return Method security expression handler with role hierarchy
+     */
+    @Bean
+    public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setRoleHierarchy(roleHierarchy());
+        return expressionHandler;
+    }
+
+    /**
      * Configures CORS settings for cross-origin requests
      * Uses values from application.yml through CorsProperties
      * 
@@ -134,7 +167,8 @@ public class SecurityConfig {
                                 "/api/v1/products", "/products",
                                 "/api/v1/products/{id}", "/products/{id}",
                                 "/api/v1/categories", "/categories",
-                                "/api/v1/categories/{id}", "/categories/{id}")
+                                "/api/v1/categories/{id}", "/categories/{id}", "/settings/**", "/outlets/**",
+                                "/states/**", "/cities/**")
                         .permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated());

@@ -19,3 +19,4 @@ electronicstoreadmin/.env.production
 # History folder
 .history/
 .history
+node_modules

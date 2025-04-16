@@ -77,6 +77,7 @@ export interface Product {
   images: string[]; // URLs
   status: "ACTIVE" | "INACTIVE";
   stock: number;
+  featured: boolean;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -113,6 +114,7 @@ export interface ProductResponse {
   images: string[];
   status: "ACTIVE" | "INACTIVE";
   stock: number;
+  featured: boolean;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -189,4 +191,60 @@ export interface UserResponse {
 
 export interface UserStatusUpdateRequest {
   status: "ACTIVE" | "INACTIVE";
+}
+
+// Location-related Types
+export interface StateResponse {
+  id: number;
+  name: string;
+}
+
+export interface CityResponse {
+  id: number;
+  name: string;
+  state: StateResponse;
+}
+
+export interface LocalityResponse {
+  id: number;
+  name: string;
+  pincode: string;
+  city: CityResponse;
+}
+
+// Outlet Types
+export interface OutletResponse {
+  id: number;
+  name: string;
+  address: string;
+  contactNumber: string;
+  email?: string;
+  openingTime?: string;
+  closingTime?: string;
+  active: boolean;
+  locality: LocalityResponse;
+  city: CityResponse;
+  state: StateResponse;
+}
+
+export interface OutletCreateRequest {
+  name: string;
+  address: string;
+  contactNumber: string;
+  email?: string;
+  openingTime?: string;
+  closingTime?: string;
+  localityId: number;
+  active?: boolean;
+}
+
+export interface OutletUpdateRequest {
+  name: string;
+  address: string;
+  contactNumber: string;
+  email?: string;
+  openingTime?: string;
+  closingTime?: string;
+  localityId: number;
+  active?: boolean;
 } 

@@ -1,5 +1,6 @@
 import {
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Search
 } from '@mui/icons-material';
 import {
   AppBar,
@@ -7,6 +8,7 @@ import {
   Button,
   Drawer,
   IconButton,
+  InputBase,
   List,
   ListItem,
   ListItemText,
@@ -25,6 +27,7 @@ const Navbar: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,6 +40,14 @@ const Navbar: React.FC = () => {
   const handleCategorySelect = (category: string) => {
     navigate(`/category/${category}`);
     handleClose();
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
   };
 
   return (
@@ -74,6 +85,34 @@ const Navbar: React.FC = () => {
           >
             <Logo variant="full" color="white" />
           </Link>
+        </Box>
+
+        {/* Search Bar */}
+        <Box
+          component="form"
+          onSubmit={handleSearch}
+          sx={{
+            display: 'flex',
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            borderRadius: 1,
+            ml: { xs: 0, md: 2 },
+            mr: 2,
+            flex: { xs: 1, md: 0.5 }
+          }}
+        >
+          <InputBase
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              ml: 1,
+              flex: 1,
+              color: 'inherit'
+            }}
+          />
+          <IconButton type="submit" sx={{ p: 1 }} color="inherit">
+            <Search />
+          </IconButton>
         </Box>
 
         {/* Desktop Navigation */}

@@ -3,7 +3,8 @@ import {
   Dashboard as DashboardIcon,
   Inventory as InventoryIcon,
   People as PeopleIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Store as StoreIcon
 } from '@mui/icons-material';
 import {
   Box,
@@ -60,6 +61,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       text: 'Categories',
       path: '/categories',
       icon: <CategoryIcon />
+    },
+    {
+      text: 'Outlets',
+      path: '/outlets',
+      icon: <StoreIcon />
     },
     {
       text: 'Users',

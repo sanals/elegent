@@ -1,13 +1,16 @@
 import axios, { AxiosRequestHeaders } from 'axios';
 import { refreshToken } from '../services/auth.service';
-import { getToken, saveTokens, removeTokens } from './token-manager';
+import { getToken, removeTokens, saveTokens } from './token-manager';
+
+// Get the API base URL from environment variable or use default
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8090';
 
 /**
  * Create an axios instance for API calls
  * Configured with interceptors for authentication and error handling
  */
 const api = axios.create({
-  baseURL: '', // Empty baseURL to use relative paths with proxy during development
+  baseURL: API_BASE_URL, // Set the baseURL to point to the backend API
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -23,7 +26,7 @@ api.interceptors.request.use(
         delete config.headers['Content-Type'];
       }
     }
-    
+
     // Add auth token if available
     const token = getToken();
     if (token) {
@@ -32,10 +35,10 @@ api.interceptors.request.use(
       }
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     // Log request for debugging
     console.log(`Axios Request: ${config.method?.toUpperCase()} ${config.url}`);
-    
+
     return config;
   },
   error => {
@@ -51,25 +54,25 @@ api.interceptors.response.use(
   },
   async error => {
     const originalRequest = error.config;
-    
+
     // If error is 401 (Unauthorized) and we haven't retried yet
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         // Try to refresh the token
         const response = await refreshToken();
         if (response && response.accessToken) {
           // Save the new tokens
           saveTokens(response.accessToken, response.refreshToken);
-          
+
           // Update the Authorization header
           if (originalRequest.headers) {
             originalRequest.headers['Authorization'] = `Bearer ${response.accessToken}`;
           } else {
             originalRequest.headers = { 'Authorization': `Bearer ${response.accessToken}` } as AxiosRequestHeaders;
           }
-          
+
           // Retry the original request
           return api(originalRequest);
         }
@@ -81,7 +84,7 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

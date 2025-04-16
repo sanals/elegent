@@ -14,6 +14,14 @@ import com.company.project.entity.Product;
 public interface ProductService {
     Page<ProductResponse> getAllProducts(Pageable pageable);
 
+    Page<ProductResponse> getProductsByCategory(Long categoryId, Pageable pageable);
+
+    Page<ProductResponse> searchProducts(String keyword, Pageable pageable);
+
+    Page<ProductResponse> searchProducts(String keyword, Long categoryId, Product.Status status, Pageable pageable);
+
+    Page<ProductResponse> getProductsByCategoryAndStatus(Long categoryId, Product.Status status, Pageable pageable);
+
     ProductResponse getProductById(Long id);
 
     ProductResponse createProduct(ProductRequest request);
@@ -22,11 +30,23 @@ public interface ProductService {
 
     void deleteProduct(Long id);
 
+    ProductResponse createProductWithImages(ProductCreateRequest request, List<MultipartFile> images);
+
+    ProductResponse createProductWithImages(ProductCreateRequest request);
+
+    ProductResponse updateProductWithImages(Long id, ProductRequest request, List<MultipartFile> images);
+
+    ProductResponse updateProductWithImages(Long id, ProductCreateRequest request);
+
     ProductResponse uploadProductImages(Long id, List<MultipartFile> images);
 
     ProductResponse updateProductStatus(Long id, Product.Status status);
 
-    Page<ProductResponse> searchProducts(String keyword, Long categoryId, Product.Status status, Pageable pageable);
+    Page<ProductResponse> getFeaturedProducts(Pageable pageable);
+
+    Page<ProductResponse> getLatestProducts(Pageable pageable);
+
+    ProductResponse toggleProductFeatured(Long id, boolean featured);
 
     List<ProductResponse> getLowStockProducts(Integer threshold);
 
@@ -35,8 +55,4 @@ public interface ProductService {
     String uploadSingleImage(MultipartFile image);
 
     List<String> uploadImages(List<MultipartFile> images);
-
-    ProductResponse createProductWithImages(ProductCreateRequest request);
-
-    ProductResponse updateProductWithImages(Long id, ProductCreateRequest request);
 }

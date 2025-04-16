@@ -12,9 +12,9 @@ import {
   Container,
   Grid,
   IconButton,
-  Pagination,
   Paper,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -42,10 +42,16 @@ const HomePage: React.FC = () => {
     totalPages,
     currentPage,
     setPage,
-    fetchProducts
+    fetchProducts,
+    featuredProducts,
+    latestProducts,
+    loadingFeatured,
+    loadingLatest,
+    fetchFeaturedProducts,
+    fetchLatestProducts
   } = useProducts();
 
-  const featuredProducts = products.slice(0, 5); // Get first 5 products as featured
+  // Use dedicated featured products for carousel
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
@@ -67,7 +73,7 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // Auto-slide functionality
+  // Auto-slide functionality for featured products carousel
   useEffect(() => {
     if (featuredProducts.length === 0) return;
 
@@ -101,13 +107,15 @@ const HomePage: React.FC = () => {
   const localities = selectedState && selectedCity ?
     locations[selectedState as keyof typeof locations][selectedCity] : [];
 
+  const theme = useTheme();
+
   return (
     <Container maxWidth="lg" sx={{
       px: { xs: 1, sm: 2, md: 3 },
       mx: 'auto'
     }}>
       {/* Featured Products Slider */}
-      {loading && featuredProducts.length === 0 ? (
+      {loadingFeatured && featuredProducts.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
           <CircularProgress />
         </Box>
@@ -116,7 +124,7 @@ const HomePage: React.FC = () => {
           <Typography color="error" variant="h6">
             {error}
           </Typography>
-          <Button onClick={() => fetchProducts()} sx={{ mt: 2 }}>
+          <Button onClick={() => fetchFeaturedProducts()} sx={{ mt: 2 }}>
             Try Again
           </Button>
         </Box>
@@ -327,8 +335,7 @@ const HomePage: React.FC = () => {
         variant="h4"
         component="h2"
         sx={{
-          mb: 4,
-          mt: 6,
+          my: 4,
           fontWeight: 'bold',
           textAlign: 'center'
         }}
@@ -336,7 +343,7 @@ const HomePage: React.FC = () => {
         Latest Products
       </Typography>
 
-      {loading ? (
+      {loadingLatest ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
           <CircularProgress />
         </Box>
@@ -345,32 +352,18 @@ const HomePage: React.FC = () => {
           <Typography color="error" variant="h6">
             {error}
           </Typography>
-          <Button onClick={() => fetchProducts()} sx={{ mt: 2 }}>
+          <Button onClick={() => fetchLatestProducts()} sx={{ mt: 2 }}>
             Try Again
           </Button>
         </Box>
       ) : (
-        <>
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            {products?.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product?.id}>
-                <ProductCard product={product} />
-              </Grid>
-            ))}
-          </Grid>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-              <Pagination
-                count={totalPages}
-                page={currentPage + 1}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Box>
-          )}
-        </>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {latestProducts.map((product) => (
+            <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
+              <ProductCard product={product} />
+            </Grid>
+          ))}
+        </Grid>
       )}
 
       {/* Location Section */}
@@ -378,18 +371,27 @@ const HomePage: React.FC = () => {
         textAlign: 'center',
         my: { xs: 4, md: 6 },
         py: 6,
-        bgcolor: 'grey.100',
-        borderRadius: 2
+        bgcolor: theme => theme.palette.mode === 'dark' ? 'background.paper' : 'grey.200',
+        borderRadius: 2,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        color: 'text.primary'
       }}
         className="location-box"
       >
-        <LocationOn sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
+        <LocationOn
+          sx={{
+            fontSize: 40,
+            color: theme => theme.palette.mode === 'dark' ? 'primary.light' : 'primary.main',
+            mb: 2
+          }}
+        />
         <Typography
           variant="h4"
           gutterBottom
           sx={{
             fontWeight: 'bold',
             mb: 3,
+            color: 'text.primary'
           }}
           className="location-heading"
         >
@@ -408,7 +410,10 @@ const HomePage: React.FC = () => {
                   width: '100%',
                   padding: '10px',
                   borderRadius: '4px',
-                  border: '1px solid #ccc'
+                  border: '1px solid',
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#ccc',
+                  backgroundColor: theme.palette.mode === 'dark' ? '#333' : 'white',
+                  color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
                 }}
               >
                 <option value="">Select State</option>
@@ -430,8 +435,12 @@ const HomePage: React.FC = () => {
                   width: '100%',
                   padding: '10px',
                   borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  backgroundColor: !selectedState ? '#f5f5f5' : 'white'
+                  border: '1px solid',
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#ccc',
+                  backgroundColor: !selectedState
+                    ? (theme.palette.mode === 'dark' ? '#222' : '#f5f5f5')
+                    : (theme.palette.mode === 'dark' ? '#333' : 'white'),
+                  color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
                 }}
               >
                 <option value="">Select City</option>
@@ -451,8 +460,12 @@ const HomePage: React.FC = () => {
                   width: '100%',
                   padding: '10px',
                   borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  backgroundColor: !selectedCity ? '#f5f5f5' : 'white'
+                  border: '1px solid',
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#ccc',
+                  backgroundColor: !selectedCity
+                    ? (theme.palette.mode === 'dark' ? '#222' : '#f5f5f5')
+                    : (theme.palette.mode === 'dark' ? '#333' : 'white'),
+                  color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
                 }}
               >
                 <option value="">Select Locality</option>

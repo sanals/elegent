@@ -57,16 +57,15 @@ public class ProductController {
          * @return ApiResponse containing page of filtered products
          */
         @GetMapping
-        public ResponseEntity<ApiResponse<Page<ProductResponse>>> getAllProducts(
+        public ResponseEntity<ApiResponse<Page<ProductResponse>>> getProducts(
                         @RequestParam(required = false) String keyword,
                         @RequestParam(required = false) Long categoryId,
                         @RequestParam(required = false) Product.Status status,
-                        @PageableDefault(size = 10) Pageable pageable) {
+                        @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
 
-                Page<ProductResponse> productsPage = productService.searchProducts(keyword, categoryId, status,
-                                pageable);
+                Page<ProductResponse> products = productService.searchProducts(keyword, categoryId, status, pageable);
                 return ResponseEntity.ok(
-                                responseService.createPageResponse(productsPage, "Products retrieved successfully"));
+                                responseService.success(products));
         }
 
         /**
@@ -227,5 +226,53 @@ public class ProductController {
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(product,
                                                 "Product updated successfully with images"));
+        }
+
+        /**
+         * Get featured products for the homepage carousel
+         * 
+         * @param pageable Pagination information
+         * @return ApiResponse containing page of featured products
+         */
+        @GetMapping("/featured")
+        public ResponseEntity<ApiResponse<Page<ProductResponse>>> getFeaturedProducts(
+                        @PageableDefault(size = 5, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
+
+                Page<ProductResponse> featuredProducts = productService.getFeaturedProducts(pageable);
+                return ResponseEntity.ok(
+                                responseService.success(featuredProducts));
+        }
+
+        /**
+         * Get latest products for the homepage
+         * 
+         * @param pageable Pagination information
+         * @return ApiResponse containing page of latest products
+         */
+        @GetMapping("/latest")
+        public ResponseEntity<ApiResponse<Page<ProductResponse>>> getLatestProducts(
+                        @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
+
+                Page<ProductResponse> latestProducts = productService.getLatestProducts(pageable);
+                return ResponseEntity.ok(
+                                responseService.success(latestProducts));
+        }
+
+        /**
+         * Toggle the featured status of a product
+         * 
+         * @param id       Product ID
+         * @param featured Whether the product should be featured
+         * @return ApiResponse containing the updated product
+         */
+        @PreAuthorize("hasRole('ADMIN')")
+        @PutMapping("/{id}/featured")
+        public ResponseEntity<ApiResponse<ProductResponse>> toggleProductFeatured(
+                        @PathVariable Long id,
+                        @RequestParam boolean featured) {
+
+                ProductResponse updatedProduct = productService.toggleProductFeatured(id, featured);
+                return ResponseEntity.ok(
+                                responseService.success(updatedProduct));
         }
 }

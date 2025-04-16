@@ -27,6 +27,7 @@ public class ProductResponse {
     private List<String> images;
     private Product.Status status;
     private Integer stock;
+    private Boolean featured;
 
     @JsonFormat(pattern = AppConstants.DEFAULT_DATETIME_FORMAT)
     private LocalDateTime createdAt;
@@ -62,6 +63,7 @@ public class ProductResponse {
                 .images(product.getImages())
                 .status(product.getStatus())
                 .stock(product.getStock())
+                .featured(product.getFeatured())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .createdBy(product.getCreatedBy())

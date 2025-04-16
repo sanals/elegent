@@ -8,6 +8,12 @@ type ApiProductResponse = ApiResponse<Product>;
 type ApiCategoriesResponse = ApiResponse<Category[]>;
 type ApiCategoryResponse = ApiResponse<Category>;
 
+// Settings types
+interface HomepageSettings {
+  featuredProductsCount: number;
+  latestProductsCount: number;
+}
+
 // Create axios instance with base configuration
 const apiClient = axios.create({
   baseURL: 'http://localhost:8090/api/v1',
@@ -70,6 +76,30 @@ export const api = {
       return response as unknown as Page<Product>;
     } catch (error) {
       console.error('Error fetching products:', error);
+      throw error;
+    }
+  },
+
+  getFeaturedProducts: async (size = 5): Promise<Product[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<Page<Product>>>('/products/featured', {
+        params: { size }
+      });
+      return (response as unknown as Page<Product>).content;
+    } catch (error) {
+      console.error('Error fetching featured products:', error);
+      throw error;
+    }
+  },
+
+  getLatestProducts: async (size = 10): Promise<Page<Product>> => {
+    try {
+      const response = await apiClient.get<ApiResponse<Page<Product>>>('/products/latest', {
+        params: { size }
+      });
+      return response as unknown as Page<Product>;
+    } catch (error) {
+      console.error('Error fetching latest products:', error);
       throw error;
     }
   },
@@ -153,6 +183,53 @@ export const api = {
     } catch (error) {
       console.error(`Error fetching products for category ${categoryId}:`, error);
       throw error;
+    }
+  },
+
+  // Get homepage settings
+  getHomepageSettings: async (): Promise<HomepageSettings> => {
+    try {
+      const response = await apiClient.get<ApiResponse<HomepageSettings>>('/settings/homepage');
+      return response as unknown as HomepageSettings;
+    } catch (error) {
+      console.error('Error fetching homepage settings:', error);
+      // Return default values if API call fails
+      return {
+        featuredProductsCount: 5,
+        latestProductsCount: 10
+      };
+    }
+  },
+
+  // Get featured products using settings
+  getFeaturedProductsWithSettings: async (): Promise<Product[]> => {
+    try {
+      // First get the settings to determine how many featured products to fetch
+      const settings = await api.getHomepageSettings();
+      const size = settings.featuredProductsCount;
+
+      // Then fetch the featured products with the size from settings
+      return await api.getFeaturedProducts(size);
+    } catch (error) {
+      console.error('Error fetching featured products with settings:', error);
+      // Fallback to default size
+      return await api.getFeaturedProducts();
+    }
+  },
+
+  // Get latest products using settings
+  getLatestProductsWithSettings: async (): Promise<Page<Product>> => {
+    try {
+      // First get the settings to determine how many latest products to fetch
+      const settings = await api.getHomepageSettings();
+      const size = settings.latestProductsCount;
+
+      // Then fetch the latest products with the size from settings
+      return await api.getLatestProducts(size);
+    } catch (error) {
+      console.error('Error fetching latest products with settings:', error);
+      // Fallback to default size
+      return await api.getLatestProducts();
     }
   }
 }; 

@@ -1,7 +1,8 @@
 export { LoginPage } from './auth';
-export { DashboardPage } from './dashboard';
-export { ProductsPage, ProductEditPage } from './products';
 export { CategoriesPage, CategoryEditPage } from './categories';
-export { UsersPage, UserEditPage } from './users';
+export { DashboardPage } from './dashboard';
+export { default as NotFoundPage } from './NotFoundPage';
+export { OutletCreatePage, OutletEditPage, OutletsPage } from './outlets';
+export { ProductEditPage, ProductsPage } from './products';
 export { SettingsPage } from './settings';
-export { default as NotFoundPage } from './NotFoundPage'; 
+export { UserEditPage, UsersPage } from './users';

@@ -1,11 +1,9 @@
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import {
   Box,
   Breadcrumbs,
   CircularProgress,
   Container,
   Grid,
-  IconButton,
   List,
   ListItem,
   ListItemText,
@@ -13,60 +11,43 @@ import {
   Paper,
   Typography
 } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import ImageModal from '../components/ImageModal';
-import { useProducts } from '../context/ProductContext';
+import { ProductImageCarousel } from '../components';
+import { useProductDetails } from '../hooks/useProductDetails';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { products } = useProducts();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { product, loading, error } = useProductDetails(id);
 
-  const handleImageLoad = () => {
-    setIsLoading(false);
-  };
-
-  const handleImageSwitch = () => {
-    setIsLoading(true);
-  };
-
-  React.useEffect(() => {
-    handleImageSwitch();
-  }, [currentImageIndex]);
-
-  // Find product by ID, converting string to number
-  const product = products.find(p => p?.id === (id ? Number(id) : null));
-
-  if (!product) {
+  // Show loading state while fetching product
+  if (loading) {
     return (
-      <Container>
-        <Typography variant="h5" color="error">Product not found</Typography>
+      <Container sx={{ py: 8, textAlign: 'center' }}>
+        <CircularProgress />
       </Container>
     );
   }
 
-  const handlePrevImage = () => {
-    setCurrentImageIndex(prev =>
-      prev === 0 ? product?.images?.length - 1 : prev - 1
+  // Show error message if product couldn't be loaded
+  if (error || !product) {
+    return (
+      <Container>
+        <Typography variant="h5" color="error">
+          {error || "Product not found"}
+        </Typography>
+        <Box sx={{ mt: 2 }}>
+          <MuiLink component={Link} to="/" color="primary">
+            Return to Home
+          </MuiLink>
+        </Box>
+      </Container>
     );
-  };
-
-  const handleNextImage = () => {
-    setCurrentImageIndex(prev =>
-      prev === product?.images?.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const handleImageClick = () => {
-    setIsModalOpen(true);
-  };
+  }
 
   // Get category name and ID
-  const categoryName = product?.category ? product?.category?.name : 'Uncategorized';
-  const categoryId = product?.category ? product?.category?.id : null;
+  const categoryName = product.category ? product.category.name : 'Uncategorized';
+  const categoryId = product.category ? product.category.id : null;
 
   return (
     <Container maxWidth="lg" sx={{
@@ -92,7 +73,7 @@ const ProductDetailPage: React.FC = () => {
               {categoryName}
             </MuiLink>
           )}
-          <Typography color="text.primary">{product?.name}</Typography>
+          <Typography color="text.primary">{product.name}</Typography>
         </Breadcrumbs>
       </Box>
 
@@ -102,104 +83,15 @@ const ProductDetailPage: React.FC = () => {
         justifyContent="center"
       >
         <Grid item xs={12} md={6}>
-          <Box sx={{
-            position: 'relative',
-            paddingTop: '75%',
-            backgroundColor: 'grey.100',
-            borderRadius: '8px',
-            overflow: 'hidden'
-          }}>
-            {isLoading && (
-              <Box sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.3)'
-              }}>
-                <CircularProgress />
-              </Box>
-            )}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%'
-              }}
-            >
-              <img
-                src={product?.images?.[currentImageIndex]}
-                alt={`${product?.name} - view ${currentImageIndex + 1}`}
-                onLoad={handleImageLoad}
-                style={{
-                  height: '100%',
-                  objectFit: 'contain',
-                  objectPosition: 'center center',
-                  cursor: 'pointer',
-                  opacity: isLoading ? 0.5 : 1,
-                  transition: 'opacity 0.3s'
-                }}
-                onClick={handleImageClick}
-              />
-            </Box>
-            {product?.images?.length > 1 && (
-              <>
-                <IconButton
-                  onClick={handlePrevImage}
-                  sx={{
-                    position: 'absolute',
-                    left: 8,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    bgcolor: 'rgba(255,255,255,0.8)',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
-                  }}
-                >
-                  <ChevronLeft />
-                </IconButton>
-                <IconButton
-                  onClick={handleNextImage}
-                  sx={{
-                    position: 'absolute',
-                    right: 8,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    bgcolor: 'rgba(255,255,255,0.8)',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
-                  }}
-                >
-                  <ChevronRight />
-                </IconButton>
-              </>
-            )}
-          </Box>
-          <Box sx={{
-            display: 'flex',
-            gap: { xs: 0.5, sm: 1 },
-            mt: { xs: 1, sm: 2 },
-            justifyContent: 'center'
-          }}>
-            {product?.images?.map((_, index) => (
-              <Box
-                key={index}
-                sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  bgcolor: index === currentImageIndex ? 'primary.main' : 'grey.300',
-                  cursor: 'pointer'
-                }}
-                onClick={() => setCurrentImageIndex(index)}
-              />
-            ))}
-          </Box>
+          {/* Replace the existing image display with our new ProductImageCarousel */}
+          <ProductImageCarousel
+            images={product.images}
+            productName={product.name}
+            aspectRatio="75%"
+            showControls={true}
+            showIndicators={true}
+            enableModal={true}
+          />
         </Grid>
 
         <Grid item xs={12} md={6}>
@@ -212,7 +104,7 @@ const ProductDetailPage: React.FC = () => {
               mb: { xs: 1, md: 2 }
             }}
           >
-            {product?.name}
+            {product.name}
           </Typography>
 
           <Typography
@@ -224,7 +116,7 @@ const ProductDetailPage: React.FC = () => {
               mb: { xs: 2, md: 3 }
             }}
           >
-            ₹{product?.price?.toFixed(2)}
+            ₹{product.price.toFixed(2)}
           </Typography>
 
           <Paper
@@ -238,7 +130,7 @@ const ProductDetailPage: React.FC = () => {
               variant="body1"
               sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}
             >
-              {product?.description}
+              {product.description}
             </Typography>
 
             {/* Display Category */}
@@ -281,11 +173,11 @@ const ProductDetailPage: React.FC = () => {
                   secondary={
                     <Typography
                       variant="body2"
-                      color={product?.stock > 0 ? "success.main" : "error.main"}
+                      color={product.stock > 0 ? "success.main" : "error.main"}
                       sx={{ fontWeight: 'medium' }}
                     >
-                      {product?.stock > 0
-                        ? `${product?.stock} units available`
+                      {product.stock > 0
+                        ? `${product.stock} units available`
                         : 'Out of stock'}
                     </Typography>
                   }
@@ -313,7 +205,7 @@ const ProductDetailPage: React.FC = () => {
               {/* Map all the specification key-value pairs */}
               {(() => {
                 // Parse specifications if they're a string
-                let specs = product?.specifications;
+                let specs = product.specifications;
                 if (typeof specs === 'string') {
                   try {
                     specs = JSON.parse(specs);
@@ -337,15 +229,6 @@ const ProductDetailPage: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
-
-      {/* Image modal for fullscreen view */}
-      <ImageModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        images={product?.images || []}
-        initialIndex={currentImageIndex}
-        title={product?.name || ''}
-      />
     </Container>
   );
 };

@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   PRODUCT_BY_ID: (id: number) => `/api/v1/products/${id}`,
   UPLOAD_PRODUCT_IMAGE: '/api/v1/products/upload-image',
   UPDATE_PRODUCT_STATUS: (id: number) => `/api/v1/products/${id}/status`,
+  TOGGLE_PRODUCT_FEATURED: (id: number) => `/api/v1/products/${id}/featured`,
   CREATE_PRODUCT_WITH_IMAGES: '/api/v1/products/with-images',
   UPDATE_PRODUCT_WITH_IMAGES: (id: number) => `/api/v1/products/${id}/with-images`,
 
@@ -32,6 +33,27 @@ export const API_ENDPOINTS = {
   CREATE_CATEGORY_WITH_IMAGE: '/api/v1/categories/with-image',
   UPDATE_CATEGORY_WITH_IMAGE: (id: number) => `/api/v1/categories/${id}/with-image`,
   UPDATE_CATEGORY_STATUS: (id: number) => `/api/v1/categories/${id}/status`,
+
+  // Outlets endpoints
+  OUTLETS: '/api/v1/outlets',
+  OUTLET_BY_ID: (id: number) => `/api/v1/outlets/${id}`,
+  ACTIVE_OUTLETS: '/api/v1/outlets/active',
+  OUTLETS_BY_LOCALITY: (localityId: number) => `/api/v1/outlets/by-locality/${localityId}`,
+  OUTLETS_BY_CITY: (cityId: number) => `/api/v1/outlets/by-city/${cityId}`,
+  OUTLETS_BY_STATE: (stateId: number) => `/api/v1/outlets/by-state/${stateId}`,
+
+  // Location endpoints
+  STATES: '/api/v1/states',
+  CITIES: '/api/v1/cities',
+  LOCALITIES: '/api/v1/localities',
+  CITIES_BY_STATE: (stateId: number) => `/api/v1/cities/by-state/${stateId}`,
+  LOCALITIES_BY_CITY: (cityId: number) => `/api/v1/localities/by-city/${cityId}`,
+
+  // Settings endpoints
+  SETTINGS: '/api/v1/settings',
+  SETTING_BY_KEY: (key: string) => `/api/v1/settings/${key}`,
+  SETTINGS_BY_GROUP: (group: string) => `/api/v1/settings?group=${group}`,
+  HOMEPAGE_SETTINGS: '/api/v1/settings/homepage',
 
   // Health check endpoints
   HEALTH: '/api/v1/health',

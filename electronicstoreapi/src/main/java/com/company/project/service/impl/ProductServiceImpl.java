@@ -39,6 +39,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductResponse> getProductsByCategory(Long categoryId, Pageable pageable) {
+        Page<Product> products = productRepository.findByCategoryId(categoryId, pageable);
+        return products.map(this::convertToResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
+        Page<Product> products = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        return products.map(this::convertToResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> getProductsByCategoryAndStatus(Long categoryId, Product.Status status,
+            Pageable pageable) {
+        Page<Product> products = productRepository.findByCategoryIdAndStatus(categoryId, status, pageable);
+        return products.map(this::convertToResponse);
+    }
+
+    @Override
     public ProductResponse getProductById(Long id) {
         Product product = findProductById(id);
         return convertToResponse(product);
@@ -239,6 +258,89 @@ public class ProductServiceImpl implements ProductService {
         return convertToResponse(updatedProduct);
     }
 
+    @Override
+    @Transactional
+    public ProductResponse createProductWithImages(ProductCreateRequest request, List<MultipartFile> images) {
+        Category category = getCategory(request.getCategoryId());
+
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(category);
+        product.setSpecifications(request.getSpecifications());
+        product.setStock(request.getStock());
+        product.setStatus(Product.Status.ACTIVE);
+
+        Product savedProduct = productRepository.save(product);
+
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = new ArrayList<>();
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    String imageUrl = fileStorageService.storeFile(image);
+                    imageUrls.add(imageUrl);
+                }
+            }
+            savedProduct.setImages(imageUrls);
+            savedProduct = productRepository.save(savedProduct);
+        }
+
+        return convertToResponse(savedProduct);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse updateProductWithImages(Long id, ProductRequest request, List<MultipartFile> images) {
+        Product product = findProductById(id);
+        Category category = getCategory(request.getCategoryId());
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(category);
+        product.setSpecifications(request.getSpecifications());
+        product.setStock(request.getStock());
+
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = product.getImages() != null ? new ArrayList<>(product.getImages())
+                    : new ArrayList<>();
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    String imageUrl = fileStorageService.storeFile(image);
+                    imageUrls.add(imageUrl);
+                }
+            }
+            product.setImages(imageUrls);
+        }
+
+        Product updatedProduct = productRepository.save(product);
+        return convertToResponse(updatedProduct);
+    }
+
+    @Override
+    public Page<ProductResponse> getFeaturedProducts(Pageable pageable) {
+        Page<Product> featuredProducts = productRepository.findByFeaturedTrueAndStatusOrderByCreatedAtDesc(
+                Product.Status.ACTIVE, pageable);
+        return featuredProducts.map(this::convertToResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> getLatestProducts(Pageable pageable) {
+        Page<Product> latestProducts = productRepository.findByStatusOrderByCreatedAtDesc(
+                Product.Status.ACTIVE, pageable);
+        return latestProducts.map(this::convertToResponse);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse toggleProductFeatured(Long id, boolean featured) {
+        Product product = findProductById(id);
+        product.setFeatured(featured);
+        Product updatedProduct = productRepository.save(product);
+        return convertToResponse(updatedProduct);
+    }
+
     private Category getCategory(Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
@@ -264,8 +366,11 @@ public class ProductServiceImpl implements ProductService {
                 .stock(product.getStock())
                 .status(product.getStatus())
                 .images(product.getImages())
+                .featured(product.getFeatured())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
+                .createdBy(product.getCreatedBy())
+                .lastModifiedBy(product.getLastModifiedBy())
                 .build();
     }
 }

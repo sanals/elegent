@@ -171,7 +171,7 @@ function DataTable<T>({
                                                     color={buttonColor}
                                                     onClick={() => action.onClick(item)}
                                                     disabled={action.disabled ? action.disabled(item) : false}
-                                                    title={action.label}
+                                                    aria-label={action.label}
                                                 >
                                                     {getActionIcon(action, item)}
                                                 </IconButton>

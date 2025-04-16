@@ -6,6 +6,7 @@ import { NotFoundPage } from './pages';
 import { LoginPage } from './pages/auth';
 import { CategoriesPage, CategoryEditPage } from './pages/categories';
 import { DashboardPage } from './pages/dashboard';
+import { OutletCreatePage, OutletEditPage, OutletsPage } from './pages/outlets';
 import { ProductEditPage, ProductsPage } from './pages/products';
 import { SettingsPage } from './pages/settings';
 import { UserEditPage, UsersPage } from './pages/users';
@@ -48,12 +49,21 @@ const App: React.FC = () => {
                 <Route path="/categories/new" element={<CategoryEditPage />} />
                 <Route path="/categories/:id" element={<CategoryEditPage />} />
 
+                <Route path="/outlets" element={<OutletsPage />} />
+                <Route path="/outlets/new" element={<OutletCreatePage />} />
+                <Route path="/outlets/:id" element={<OutletEditPage />} />
+
                 <Route path="/users" element={
                   <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
                     <UsersPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/users/new" element={
+                  <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+                    <UserEditPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/users/:id" element={
                   <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
                     <UserEditPage />
                   </ProtectedRoute>

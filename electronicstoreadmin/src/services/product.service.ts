@@ -352,85 +352,39 @@ export class ProductService {
   /**
    * Update product status with proper authentication
    * @param id - Product ID
-   * @param status - New status
-   * @returns Promise with API response
+   * @param status - New product status (ACTIVE or INACTIVE)
+   * @returns Promise with updated product
    */
-  static async updateProductStatus(id: number, status: 'ACTIVE' | 'INACTIVE'): Promise<ApiResponse<null>> {
+  static async updateProductStatus(id: number, status: 'ACTIVE' | 'INACTIVE'): Promise<ApiResponse<ProductResponse>> {
     try {
       console.log(`Updating product ${id} status to ${status}`);
-
-      // Send status as a query parameter instead of in the body
-      const response = await apiFetch(`${API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id)}?status=${status}`, {
-        method: 'PUT',
-        // No body needed as we're using query parameter
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const response = await apiFetch(API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id) + `?status=${status}`, {
+        method: 'PUT'
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error updating product status:', response.status, errorText);
-        throw new Error(`Server returned ${response.status}: ${errorText}`);
+        console.error('Server returned error updating product status:', response.status);
+        throw new Error(`Server returned ${response.status}`);
       }
 
-      try {
-        const data = await response.json();
-        return data;
-      } catch (parseError) {
-        console.error('Error parsing JSON response for product status update:', parseError);
-        // If response is ok but JSON parsing failed, return a success response
-        if (response.ok) {
-          return {
-            status: 'SUCCESS',
-            code: response.status,
-            message: 'Product status updated successfully',
-            data: null,
-            timestamp: new Date().toISOString()
-          };
-        } else {
-          throw parseError;
-        }
-      }
+      const data = await response.json();
+      console.log('Update status response:', data);
+      return data;
     } catch (error) {
-      console.error('Update product status API call error:', error);
-
-      // If the direct API call fails, try updating the entire product instead
+      console.error('Error updating product status:', error);
+      // Fallback to proxy in case of issues
+      console.log('Falling back to proxy for update product status');
       try {
-        console.log('Falling back to full product update');
-        // First get the product
-        const productResponse = await ProductService.getProductById(id);
-
-        if (productResponse.status !== 'SUCCESS' || !productResponse.data) {
-          return {
-            status: 'ERROR',
-            code: 404,
-            message: 'Product not found',
-            data: null,
-            timestamp: new Date().toISOString()
-          };
-        }
-
-        // Then update it with the new status
-        const product = productResponse.data;
-        const updateRequest: ProductUpdateRequest = {
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          categoryId: product.category?.id || 0,
-          specifications: product.specifications,
-          stock: product.stock,
-          images: product.images
-        };
-
-        return await ApiService.put<null>(API_ENDPOINTS.PRODUCT_BY_ID(id), updateRequest);
+        return await ApiService.put<ProductResponse>(
+          `${API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id)}?status=${status}`
+        );
       } catch (fallbackError) {
         console.error('Fallback for update product status also failed:', fallbackError);
         return {
           status: 'ERROR',
           code: 500,
           message: `Error updating product status: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          data: null,
+          data: null as unknown as ProductResponse,
           timestamp: new Date().toISOString()
         };
       }
@@ -510,6 +464,7 @@ export class ProductService {
               specifications: data.data.specifications,
               images: data.data.images || [],
               stock: data.data.stock,
+              featured: data.data.featured || false,
               status: data.data.status || 'ACTIVE',
               createdAt: data.data.createdAt,
               updatedAt: data.data.updatedAt,
@@ -548,6 +503,7 @@ export class ProductService {
               },
               specifications: productData.specifications || '{}',
               images: [],
+              featured: false,
               stock: productData.stock,
               status: 'ACTIVE',
               createdAt: new Date().toISOString(),
@@ -655,6 +611,7 @@ export class ProductService {
               specifications: data.data.specifications,
               images: data.data.images || [],
               stock: data.data.stock,
+              featured: data.data.featured || false,
               status: data.data.status || 'ACTIVE',
               createdAt: data.data.createdAt,
               updatedAt: data.data.updatedAt,
@@ -693,6 +650,7 @@ export class ProductService {
               },
               specifications: productData.specifications || '{}',
               images: productData.images || [],
+              featured: false,
               stock: productData.stock,
               status: 'ACTIVE',
               createdAt: new Date().toISOString(),
@@ -715,6 +673,48 @@ export class ProductService {
         data: null,
         timestamp: new Date().toISOString()
       };
+    }
+  }
+
+  /**
+   * Toggles whether a product is featured on the homepage
+   * @param id Product ID
+   * @param featured Whether the product should be featured
+   * @returns ApiResponse with updated product
+   */
+  static async toggleProductFeatured(id: number, featured: boolean): Promise<ApiResponse<ProductResponse>> {
+    try {
+      console.log(`Toggling featured status for product ${id} to ${featured}`);
+      const response = await apiFetch(API_ENDPOINTS.TOGGLE_PRODUCT_FEATURED(id) + `?featured=${featured}`, {
+        method: 'PUT'
+      });
+
+      if (!response.ok) {
+        console.error('Server returned error toggling product featured status:', response.status);
+        throw new Error(`Server returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Toggle featured response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error toggling product featured status:', error);
+      // Fallback to proxy in case of issues
+      console.log('Falling back to proxy for toggle product featured');
+      try {
+        return await ApiService.put<ProductResponse>(
+          `${API_ENDPOINTS.TOGGLE_PRODUCT_FEATURED(id)}?featured=${featured}`
+        );
+      } catch (fallbackError) {
+        console.error('Fallback for toggle product featured also failed:', fallbackError);
+        return {
+          status: 'ERROR',
+          code: 500,
+          message: `Error updating featured status: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          data: null as unknown as ProductResponse,
+          timestamp: new Date().toISOString()
+        };
+      }
     }
   }
 } 
