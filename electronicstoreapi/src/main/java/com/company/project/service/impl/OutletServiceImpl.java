@@ -46,6 +46,11 @@ public class OutletServiceImpl implements OutletService {
         outlet.setActive(request.isActive());
         outlet.setLocality(locality);
 
+        // Add the coordinates and map URL
+        outlet.setLatitude(request.getLatitude());
+        outlet.setLongitude(request.getLongitude());
+        outlet.setMapUrl(request.getMapUrl());
+
         Outlet savedOutlet = outletRepository.save(outlet);
         return mapToOutletResponse(savedOutlet);
     }
@@ -67,6 +72,11 @@ public class OutletServiceImpl implements OutletService {
         outlet.setClosingTime(request.getClosingTime());
         outlet.setActive(request.isActive());
         outlet.setLocality(locality);
+
+        // Add the missing coordinates and map URL
+        outlet.setLatitude(request.getLatitude());
+        outlet.setLongitude(request.getLongitude());
+        outlet.setMapUrl(request.getMapUrl());
 
         Outlet updatedOutlet = outletRepository.save(outlet);
         return mapToOutletResponse(updatedOutlet);
@@ -147,6 +157,11 @@ public class OutletServiceImpl implements OutletService {
         response.setOpeningTime(outlet.getOpeningTime());
         response.setClosingTime(outlet.getClosingTime());
         response.setActive(outlet.isActive());
+
+        // Include map coordinates and URL
+        response.setLatitude(outlet.getLatitude());
+        response.setLongitude(outlet.getLongitude());
+        response.setMapUrl(outlet.getMapUrl());
 
         // Set locality details
         Locality locality = outlet.getLocality();

@@ -1,6 +1,6 @@
 /**
  * API Endpoints for the Electronics Store Admin
- * Base URL: /api/v1
+ * These paths are relative to the API base URL which already includes http://localhost:8090
  */
 
 export const API_ENDPOINTS = {

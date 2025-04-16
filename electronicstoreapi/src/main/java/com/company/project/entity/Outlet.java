@@ -45,6 +45,15 @@ public class Outlet {
     @Column(name = "is_active")
     private boolean active = true;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "map_url")
+    private String mapUrl;
+
     @ManyToOne
     @JoinColumn(name = "locality_id", nullable = false)
     private Locality locality;

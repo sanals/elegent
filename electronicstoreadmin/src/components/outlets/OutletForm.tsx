@@ -1,4 +1,4 @@
-import { Add as AddIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { Add as AddIcon, ArrowBack as ArrowBackIcon, EditLocationAlt as EditLocationIcon, LocationOn as LocationIcon, Map as MapIcon } from '@mui/icons-material';
 import {
     Alert,
     Box,
@@ -22,7 +22,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LocationService } from '../../services/location.service';
 import { OutletService } from '../../services/outlet.service';
@@ -33,7 +33,16 @@ import {
     OutletResponse,
     StateResponse,
 } from '../../types/api-responses';
+import { createGoogleMapsUrl, fetchLocationNameFromCoordinates, loadGoogleMapsApi } from '../../utils/maps-utils';
 import { showNotification } from '../../utils/notification';
+
+// Google Maps types
+declare global {
+    interface Window {
+        google: any;
+        initMap: () => void;
+    }
+}
 
 interface OutletFormProps {
     outletId?: number;
@@ -44,6 +53,18 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
     const theme = useTheme();
     const navigate = useNavigate();
     const isEditing = !!outletId;
+    const mapRef = useRef<HTMLDivElement>(null);
+    const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+    const [marker, setMarker] = useState<google.maps.Marker | null>(null);
+
+    // Define reusable styles as constants
+    const addButtonStyle = {
+        ml: 1,
+        minWidth: theme.spacing(7), // 56px equivalent using theme spacing (assuming 8px base)
+        height: theme.spacing(7),
+        width: theme.spacing(7),
+        borderRadius: 1 // Using theme.shape.borderRadius units (4px by default)
+    };
 
     // Form state
     const [formData, setFormData] = useState<OutletCreateRequest>({
@@ -54,8 +75,14 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
         openingTime: '',
         closingTime: '',
         localityId: 0,
+        latitude: undefined,
+        longitude: undefined,
+        mapUrl: '',
         active: true,
     });
+
+    // Add state for location description
+    const [locationName, setLocationName] = useState<string>('');
 
     // Location state
     const [states, setStates] = useState<StateResponse[]>([]);
@@ -64,6 +91,9 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
     const [selectedState, setSelectedState] = useState<StateResponse | null>(null);
     const [selectedCity, setSelectedCity] = useState<CityResponse | null>(null);
     const [selectedLocality, setSelectedLocality] = useState<LocalityResponse | null>(null);
+
+    // Map dialog state
+    const [mapDialogOpen, setMapDialogOpen] = useState(false);
 
     // Dialog state for creating new items
     const [newStateDialog, setNewStateDialog] = useState(false);
@@ -83,6 +113,17 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
     // Load initial data if editing
     useEffect(() => {
         if (initialData) {
+            console.log('Loading initial outlet data:', initialData);
+
+            // Ensure coordinates are numbers, not strings
+            const latitude = typeof initialData.latitude === 'string'
+                ? parseFloat(initialData.latitude)
+                : initialData.latitude || 0; // Default to 0 if undefined
+
+            const longitude = typeof initialData.longitude === 'string'
+                ? parseFloat(initialData.longitude)
+                : initialData.longitude || 0; // Default to 0 if undefined
+
             setFormData({
                 name: initialData.name,
                 address: initialData.address,
@@ -91,8 +132,24 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
                 openingTime: initialData.openingTime || '',
                 closingTime: initialData.closingTime || '',
                 localityId: initialData.locality.id,
+                latitude,
+                longitude,
+                mapUrl: initialData.mapUrl || (latitude && longitude ? createGoogleMapsUrl(latitude, longitude) : ''),
                 active: initialData.active,
             });
+
+            console.log('Set form data with coordinates:', latitude, longitude);
+
+            // Get location name for the initial coordinates
+            if (latitude && longitude) {
+                fetchLocationNameFromCoordinates(latitude, longitude)
+                    .then(locationName => {
+                        if (locationName) {
+                            setLocationName(locationName);
+                            console.log('Initial location name:', locationName);
+                        }
+                    });
+            }
 
             // Set location information
             if (initialData.locality) {
@@ -108,6 +165,133 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
             }
         }
     }, [initialData]);
+
+    // Initialize Google Maps
+    const initializeMap = () => {
+        if (!mapRef.current) return;
+
+        // Default location - India (if no coordinates are provided)
+        const center = {
+            lat: formData.latitude || 20.5937,
+            lng: formData.longitude || 78.9629
+        };
+
+        console.log('Initializing map with center:', center);
+
+        const map = new window.google.maps.Map(mapRef.current, {
+            center,
+            zoom: formData.latitude ? 15 : 5,
+            mapTypeControl: true,
+            streetViewControl: true,
+        });
+
+        setMapInstance(map);
+
+        // Add marker if coordinates exist
+        if (formData.latitude && formData.longitude) {
+            console.log('Adding marker at:', formData.latitude, formData.longitude);
+            const position = { lat: formData.latitude, lng: formData.longitude };
+            const newMarker = new window.google.maps.Marker({
+                position,
+                map,
+                draggable: true,
+                title: formData.name,
+            });
+
+            setMarker(newMarker);
+
+            // Update coordinates when marker is dragged
+            newMarker.addListener('dragend', () => {
+                const position = newMarker.getPosition();
+                if (position) {
+                    updateCoordinates(position.lat(), position.lng());
+                }
+            });
+        }
+
+        // Add click listener to map
+        map.addListener('click', (e: google.maps.MapMouseEvent) => {
+            const position = e.latLng;
+            if (position) {
+                // Create marker if it doesn't exist, or move existing marker
+                if (!marker) {
+                    const newMarker = new window.google.maps.Marker({
+                        position,
+                        map,
+                        draggable: true,
+                        title: formData.name,
+                    });
+
+                    setMarker(newMarker);
+
+                    newMarker.addListener('dragend', () => {
+                        const newPosition = newMarker.getPosition();
+                        if (newPosition) {
+                            updateCoordinates(newPosition.lat(), newPosition.lng());
+                        }
+                    });
+                } else {
+                    marker.setPosition(position);
+                }
+
+                updateCoordinates(position.lat(), position.lng());
+            }
+        });
+    };
+
+    // Update coordinates and generate map URL
+    const updateCoordinates = (lat: number, lng: number) => {
+        // Ensure coordinates are numbers and properly formatted
+        const numLat = Number(lat);
+        const numLng = Number(lng);
+
+        const mapUrl = createGoogleMapsUrl(numLat, numLng);
+        setFormData(prev => ({
+            ...prev,
+            latitude: numLat,
+            longitude: numLng,
+            mapUrl,
+        }));
+
+        console.log('Updated coordinates:', numLat, numLng);
+
+        // Fetch location name using our direct API function
+        fetchLocationNameFromCoordinates(numLat, numLng)
+            .then(locationName => {
+                if (locationName) {
+                    setLocationName(locationName);
+                    console.log('Location name:', locationName);
+                }
+            });
+    };
+
+    // Handle map dialog open
+    const handleOpenMapDialog = () => {
+        setMapDialogOpen(true);
+
+        // Initialize map after dialog is open with a small delay
+        setTimeout(() => {
+            if (window.google) {
+                initializeMap();
+            } else {
+                // If Google Maps API isn't loaded yet, wait for it
+                loadGoogleMapsApi()
+                    .then(() => {
+                        initializeMap();
+                    })
+                    .catch((error) => {
+                        console.error('Failed to load Google Maps in dialog:', error);
+                        setFormError('Failed to load Google Maps. Please refresh the page and try again.');
+                        setMapDialogOpen(false);
+                    });
+            }
+        }, 300);
+    };
+
+    // Handle map dialog close
+    const handleCloseMapDialog = () => {
+        setMapDialogOpen(false);
+    };
 
     // Load states when component mounts
     useEffect(() => {
@@ -127,6 +311,12 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
         };
 
         fetchStates();
+
+        // Load Google Maps API
+        loadGoogleMapsApi().catch((error) => {
+            console.error('Failed to load Google Maps:', error);
+            setFormError('Failed to load Google Maps. Please refresh the page and try again.');
+        });
     }, []);
 
     // Load cities when state changes
@@ -345,16 +535,20 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
 
         if (!formData.contactNumber.trim()) {
             newErrors.contactNumber = 'Contact number is required';
-        } else if (!/^\d{10}$/.test(formData.contactNumber)) {
+        } else if (!/^\d{10}$/.test(formData.contactNumber.trim())) {
             newErrors.contactNumber = 'Contact number must be 10 digits';
         }
 
-        if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Invalid email address';
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = 'Invalid email format';
         }
 
-        if (!formData.localityId) {
-            newErrors.localityId = 'Please select a locality';
+        if (!formData.localityId || formData.localityId === 0) {
+            newErrors.locality = 'Locality is required';
+        }
+
+        if (!formData.latitude || !formData.longitude) {
+            newErrors.location = 'Please select a location on the map';
         }
 
         setErrors(newErrors);
@@ -386,14 +580,27 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
         setLoading(true);
         setFormError(null);
 
+        // Prepare data for submission - ensure proper types
+        const submissionData = {
+            ...formData,
+            // Ensure coordinates are numbers
+            latitude: formData.latitude ? Number(formData.latitude) : undefined,
+            longitude: formData.longitude ? Number(formData.longitude) : undefined
+        };
+
+        // Log the form data to debug
+        console.log('Submitting outlet data:', submissionData);
+
         try {
             let response;
 
             if (isEditing && outletId) {
-                response = await OutletService.updateOutlet(outletId, formData);
+                response = await OutletService.updateOutlet(outletId, submissionData);
             } else {
-                response = await OutletService.createOutlet(formData);
+                response = await OutletService.createOutlet(submissionData);
             }
+
+            console.log('API response:', response);
 
             if (response.status === 'SUCCESS') {
                 showNotification(
@@ -475,6 +682,57 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
                                 />
                             </Grid>
 
+                            <Grid item xs={12}>
+                                <Box display="flex" alignItems="center" gap={2}>
+                                    <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        startIcon={formData.latitude && formData.longitude
+                                            ? <EditLocationIcon /> : <LocationIcon />}
+                                        onClick={handleOpenMapDialog}
+                                    >
+                                        {formData.latitude && formData.longitude
+                                            ? 'Update Location on Map'
+                                            : 'Select Location on Map'}
+                                    </Button>
+
+                                    {formData.latitude && formData.longitude && (
+                                        <Typography variant="body2" color="textSecondary">
+                                            {locationName
+                                                ? `Location: ${locationName}`
+                                                : `Location selected: ${formData.latitude.toFixed(6)}, ${formData.longitude.toFixed(6)}`}
+                                        </Typography>
+                                    )}
+                                </Box>
+
+                                {formData.mapUrl && (
+                                    <Box mt={1}>
+                                        <Button
+                                            component={Link}
+                                            to={formData.mapUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            variant="text"
+                                            size="small"
+                                            startIcon={<MapIcon fontSize="small" />}
+                                            sx={{
+                                                color: theme.palette.mode === 'dark' ? '#90caf9' : theme.palette.primary.main,
+                                                textDecoration: 'underline',
+                                                '&:hover': {
+                                                    backgroundColor: 'transparent',
+                                                    textDecoration: 'underline',
+                                                },
+                                                textTransform: 'none',
+                                                padding: '2px 8px',
+                                                minWidth: 0
+                                            }}
+                                        >
+                                            View on Google Maps
+                                        </Button>
+                                    </Box>
+                                )}
+                            </Grid>
+
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     label="Email"
@@ -513,9 +771,9 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
                                         color="primary"
                                         onClick={() => setNewStateDialog(true)}
                                         disabled={fetchingLocations}
-                                        sx={{ ml: 1, mt: 1 }}
+                                        sx={addButtonStyle}
                                     >
-                                        <AddIcon />
+                                        <AddIcon fontSize="medium" />
                                     </Button>
                                 </Box>
                             </Grid>
@@ -547,9 +805,9 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
                                         color="primary"
                                         onClick={() => setNewCityDialog(true)}
                                         disabled={!selectedState || fetchingLocations}
-                                        sx={{ ml: 1, mt: 1 }}
+                                        sx={addButtonStyle}
                                     >
-                                        <AddIcon />
+                                        <AddIcon fontSize="medium" />
                                     </Button>
                                 </Box>
                             </Grid>
@@ -587,9 +845,9 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
                                         color="primary"
                                         onClick={() => setNewLocalityDialog(true)}
                                         disabled={!selectedCity || fetchingLocations}
-                                        sx={{ ml: 1, mt: 1 }}
+                                        sx={addButtonStyle}
                                     >
-                                        <AddIcon />
+                                        <AddIcon fontSize="medium" />
                                     </Button>
                                 </Box>
                             </Grid>
@@ -736,6 +994,46 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
                         disabled={!newLocalityName.trim() || !newLocalityPincode.trim() || !selectedCity}
                     >
                         Create
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Google Maps Dialog */}
+            <Dialog
+                open={mapDialogOpen}
+                onClose={handleCloseMapDialog}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        height: '80vh',
+                        maxHeight: '700px'
+                    }
+                }}
+            >
+                <DialogTitle>Select Location on Map</DialogTitle>
+                <DialogContent>
+                    <Box
+                        ref={mapRef}
+                        sx={{
+                            width: '100%',
+                            height: 'calc(100% - 32px)',
+                            borderRadius: 1,
+                            overflow: 'hidden'
+                        }}
+                    />
+                    <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                        Click on the map to place a marker, or drag the existing marker to adjust the location.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseMapDialog} color="inherit">Cancel</Button>
+                    <Button
+                        onClick={handleCloseMapDialog}
+                        color="primary"
+                        variant="contained"
+                    >
+                        Confirm Location
                     </Button>
                 </DialogActions>
             </Dialog>

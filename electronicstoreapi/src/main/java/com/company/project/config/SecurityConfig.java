@@ -168,7 +168,7 @@ public class SecurityConfig {
                                 "/api/v1/products/{id}", "/products/{id}",
                                 "/api/v1/categories", "/categories",
                                 "/api/v1/categories/{id}", "/categories/{id}", "/settings/**", "/outlets/**",
-                                "/states/**", "/cities/**")
+                                "/states/**", "/cities/**", "/localities/**")
                         .permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated());

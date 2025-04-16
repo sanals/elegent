@@ -19,6 +19,10 @@ public class OutletResponse {
     private LocalTime closingTime;
     private boolean active;
 
+    private Double latitude;
+    private Double longitude;
+    private String mapUrl;
+
     // Location details
     private LocalityResponse locality;
     private CityResponse city;

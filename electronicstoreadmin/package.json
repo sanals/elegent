@@ -55,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@types/google.maps": "^3.58.1",
     "@vitejs/plugin-react": "^4.0.4",
     "vitest": "^0.34.4"
   }

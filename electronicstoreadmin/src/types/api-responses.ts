@@ -222,6 +222,9 @@ export interface OutletResponse {
   openingTime?: string;
   closingTime?: string;
   active: boolean;
+  latitude?: number;
+  longitude?: number;
+  mapUrl?: string;
   locality: LocalityResponse;
   city: CityResponse;
   state: StateResponse;
@@ -235,6 +238,9 @@ export interface OutletCreateRequest {
   openingTime?: string;
   closingTime?: string;
   localityId: number;
+  latitude?: number;
+  longitude?: number;
+  mapUrl?: string;
   active?: boolean;
 }
 
@@ -246,5 +252,8 @@ export interface OutletUpdateRequest {
   openingTime?: string;
   closingTime?: string;
   localityId: number;
+  latitude?: number;
+  longitude?: number;
+  mapUrl?: string;
   active?: boolean;
 } 

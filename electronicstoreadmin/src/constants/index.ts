@@ -1,4 +1,7 @@
-// Theme constants
+// Export theme constants
 export * from './theme';
 
-// Export other constants as they are added to the application 
+// Export API constants
+export * from './api';
+
+// Other constants will be added later 

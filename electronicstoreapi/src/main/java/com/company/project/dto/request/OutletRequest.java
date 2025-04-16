@@ -34,5 +34,11 @@ public class OutletRequest {
     @NotNull(message = "Locality ID is required")
     private Long localityId;
 
+    private Double latitude;
+
+    private Double longitude;
+
+    private String mapUrl;
+
     private boolean active = true;
 }
