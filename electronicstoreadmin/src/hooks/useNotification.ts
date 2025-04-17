@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
-interface NotificationState {
+interface _NotificationState {
   open: boolean;
   message: string;
   type: NotificationType;
@@ -13,7 +13,7 @@ export function useNotification() {
   const showNotification = useCallback((message: string, type: NotificationType = 'info') => {
     // In a real implementation, you would use your notification context here
     console.log(`[${type.toUpperCase()}] ${message}`);
-    
+
     // For now, just show browser alerts for errors in development
     if (type === 'error' && process.env.NODE_ENV !== 'production') {
       console.error(message);
@@ -25,4 +25,4 @@ export function useNotification() {
   }, []);
 
   return { showNotification, hideNotification };
-} 
+}

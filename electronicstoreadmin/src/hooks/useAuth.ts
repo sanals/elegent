@@ -4,11 +4,11 @@ import { getUserInfoFromToken, isTokenExpired } from '../utils/token-manager';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 };
 
@@ -16,7 +16,7 @@ export const useCurrentUser = () => {
   const [userInfo, setUserInfo] = useState<{ username: string; role: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
+
   useEffect(() => {
     const checkAuth = () => {
       if (isTokenExpired()) {
@@ -29,9 +29,9 @@ export const useCurrentUser = () => {
       }
       setIsLoading(false);
     };
-    
+
     checkAuth();
   }, []);
-  
+
   return { userInfo, isAuthenticated, isLoading };
-}; 
+};

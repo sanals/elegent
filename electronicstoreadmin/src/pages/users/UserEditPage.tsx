@@ -12,12 +12,10 @@ const UserEditPage: React.FC = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           {isNewUser ? 'Add New User' : `Edit User #${id}`}
         </Typography>
-        <Typography variant="body1">
-          User form will be displayed here.
-        </Typography>
+        <Typography variant="body1">User form will be displayed here.</Typography>
       </Box>
     </Container>
   );
 };
 
-export default UserEditPage; 
+export default UserEditPage;

@@ -8,7 +8,7 @@ import {
   Menu,
   MenuItem,
   Toolbar,
-  Typography
+  Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   };
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <AppBar position="fixed" sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <IconButton
           color="inherit"
@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
               display: 'flex',
               alignItems: 'center',
               cursor: 'pointer',
-              ml: 2
+              ml: 2,
             }}
             onClick={handleClick}
           >
@@ -110,4 +110,4 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   );
 };
 
-export default Header; 
+export default Header;

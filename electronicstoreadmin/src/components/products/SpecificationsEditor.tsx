@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Button, 
-  TextField, 
-  IconButton, 
-  Grid, 
-  Paper, 
+import {
+  Box,
+  Button,
+  TextField,
+  IconButton,
+  Grid,
+  Paper,
   Typography,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 
@@ -19,55 +19,58 @@ interface SpecificationsEditorProps {
   onChange: (specifications: Record<string, string>) => void;
 }
 
-const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specifications, onChange }) => {
+const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({
+  specifications,
+  onChange,
+}) => {
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
-  
+
   const handleAddSpecification = () => {
     if (!key.trim()) {
       setError('Specification name is required');
       return;
     }
-    
+
     if (!value.trim()) {
       setError('Specification value is required');
       return;
     }
-    
+
     // If key already exists, show error
     if (specifications[key] !== undefined) {
       setError(`Specification "${key}" already exists`);
       return;
     }
-    
+
     // Add the new specification
     const updatedSpecs = {
       ...specifications,
-      [key]: value
+      [key]: value,
     };
-    
+
     onChange(updatedSpecs);
-    
+
     // Reset form fields
     setKey('');
     setValue('');
     setError('');
   };
-  
+
   const handleRemoveSpecification = (keyToRemove: string) => {
     const updatedSpecs = { ...specifications };
     delete updatedSpecs[keyToRemove];
     onChange(updatedSpecs);
   };
-  
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddSpecification();
     }
   };
-  
+
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Grid container spacing={2}>
@@ -76,7 +79,7 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
             fullWidth
             label="Specification Name"
             value={key}
-            onChange={(e) => setKey(e.target.value)}
+            onChange={e => setKey(e.target.value)}
             placeholder="e.g. Processor, RAM, Display Size"
             onKeyPress={handleKeyPress}
             error={!!error && !key.trim()}
@@ -87,7 +90,7 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
             fullWidth
             label="Specification Value"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={e => setValue(e.target.value)}
             placeholder="e.g. Intel i7, 16GB, 15.6 inches"
             onKeyPress={handleKeyPress}
             error={!!error && !value.trim()}
@@ -105,7 +108,7 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
             Add
           </Button>
         </Grid>
-        
+
         {error && (
           <Grid item xs={12}>
             <Typography color="error" variant="caption">
@@ -114,7 +117,7 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
           </Grid>
         )}
       </Grid>
-      
+
       <Box sx={{ mt: 2 }}>
         {Object.keys(specifications).length > 0 ? (
           <List>
@@ -126,8 +129,8 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
                   primaryTypographyProps={{ fontWeight: 'bold' }}
                 />
                 <ListItemSecondaryAction>
-                  <IconButton 
-                    edge="end" 
+                  <IconButton
+                    edge="end"
                     color="error"
                     onClick={() => handleRemoveSpecification(specKey)}
                   >
@@ -139,9 +142,7 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
           </List>
         ) : (
           <Box sx={{ p: 2, textAlign: 'center' }}>
-            <Typography color="textSecondary">
-              No specifications added yet
-            </Typography>
+            <Typography color="textSecondary">No specifications added yet</Typography>
           </Box>
         )}
       </Box>
@@ -149,4 +150,4 @@ const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({ specificati
   );
 };
 
-export default SpecificationsEditor; 
+export default SpecificationsEditor;

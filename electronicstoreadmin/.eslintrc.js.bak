@@ -1,0 +1,86 @@
+const { FlatCompat } = require('@eslint/eslintrc');
+const js = require('@eslint/js');
+const path = require('path');
+
+// Create the compatibility object to use modern format with legacy plugins
+const compat = new FlatCompat({
+    baseDirectory: __dirname,
+    recommendedConfig: js.configs.recommended,
+});
+
+module.exports = {
+    root: true,
+    parser: '@typescript-eslint/parser',
+    parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        ecmaFeatures: {
+            jsx: true,
+        },
+        project: './tsconfig.json',
+    },
+    settings: {
+        react: {
+            version: 'detect',
+        },
+        'import/resolver': {
+            node: {
+                extensions: ['.js', '.jsx', '.ts', '.tsx'],
+            },
+        },
+    },
+    extends: [
+        'eslint:recommended',
+        'plugin:react/recommended',
+        'plugin:react-hooks/recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:import/errors',
+        'plugin:import/warnings',
+        'plugin:import/typescript',
+        'plugin:jsx-a11y/recommended',
+        'plugin:prettier/recommended',
+    ],
+    plugins: [
+        'react',
+        'react-hooks',
+        '@typescript-eslint',
+        'import',
+        'jsx-a11y',
+        'prettier',
+    ],
+    rules: {
+        // React
+        'react/prop-types': 'off',
+        'react/react-in-jsx-scope': 'off',
+        'react/display-name': 'off',
+        'react/jsx-uses-react': 'off',
+        
+        // TypeScript
+        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
+        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-non-null-assertion': 'warn',
+        
+        // Import
+        'import/default': 'off',
+        'import/order': [
+            'error',
+            {
+                'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+                'newlines-between': 'always',
+                'alphabetize': { order: 'asc', caseInsensitive: true }
+            },
+        ],
+        
+        // General
+        'no-console': ['warn', { allow: ['warn', 'error'] }],
+        
+        // JSX Accessibility
+        'jsx-a11y/anchor-is-valid': 'off',
+    },
+    env: {
+        browser: true,
+        node: true,
+        es6: true,
+    },
+}; 

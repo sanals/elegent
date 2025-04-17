@@ -15,19 +15,25 @@ type ResetPasswordFormData = {
   confirmPassword: string;
 };
 
-const forgotPasswordSchema = yup.object({
-  email: yup.string().email('Enter a valid email').required('Email is required'),
-}).required();
+const forgotPasswordSchema = yup
+  .object({
+    email: yup.string().email('Enter a valid email').required('Email is required'),
+  })
+  .required();
 
-const resetPasswordSchema = yup.object({
-  token: yup.string().required('Token is required'),
-  newPassword: yup.string()
-    .min(8, 'Password must be at least 8 characters')
-    .required('New password is required'),
-  confirmPassword: yup.string()
-    .oneOf([yup.ref('newPassword')], 'Passwords must match')
-    .required('Confirm password is required'),
-}).required();
+const resetPasswordSchema = yup
+  .object({
+    token: yup.string().required('Token is required'),
+    newPassword: yup
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .required('New password is required'),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('newPassword')], 'Passwords must match')
+      .required('Confirm password is required'),
+  })
+  .required();
 
 interface PasswordResetProps {
   mode: 'forgot' | 'reset';
@@ -36,19 +42,19 @@ interface PasswordResetProps {
 const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
+
   const forgotPasswordForm = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(forgotPasswordSchema),
   });
-  
+
   const resetPasswordForm = useForm<ResetPasswordFormData>({
     resolver: yupResolver(resetPasswordSchema),
   });
-  
+
   const handleForgotPassword = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
     setMessage(null);
-    
+
     try {
       const response = await AuthService.forgotPassword(data.email);
       if (response.status === 'SUCCESS') {
@@ -73,18 +79,18 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
       setIsLoading(false);
     }
   };
-  
+
   const handleResetPassword = async (data: ResetPasswordFormData) => {
     setIsLoading(true);
     setMessage(null);
-    
+
     try {
       const response = await AuthService.resetPassword(
         data.token,
         data.newPassword,
         data.confirmPassword
       );
-      
+
       if (response.status === 'SUCCESS') {
         setMessage({
           text: 'Password has been reset successfully. You can now login with your new password.',
@@ -107,25 +113,29 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: '100%' }}>
       <Typography variant="h5" component="h1" gutterBottom align="center">
         {mode === 'forgot' ? 'Forgot Password' : 'Reset Password'}
       </Typography>
-      
+
       {message && (
-        <Typography 
-          color={message.type === 'success' ? 'success.main' : 'error'} 
-          variant="body2" 
+        <Typography
+          color={message.type === 'success' ? 'success.main' : 'error'}
+          variant="body2"
           sx={{ mb: 2 }}
         >
           {message.text}
         </Typography>
       )}
-      
+
       {mode === 'forgot' ? (
-        <Box component="form" onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)} noValidate>
+        <Box
+          component="form"
+          onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)}
+          noValidate
+        >
           <TextField
             margin="normal"
             required
@@ -138,7 +148,7 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
             error={!!forgotPasswordForm.formState.errors.email}
             helperText={forgotPasswordForm.formState.errors.email?.message}
           />
-          
+
           <Button
             type="submit"
             fullWidth
@@ -150,7 +160,11 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
           </Button>
         </Box>
       ) : (
-        <Box component="form" onSubmit={resetPasswordForm.handleSubmit(handleResetPassword)} noValidate>
+        <Box
+          component="form"
+          onSubmit={resetPasswordForm.handleSubmit(handleResetPassword)}
+          noValidate
+        >
           <TextField
             margin="normal"
             required
@@ -162,7 +176,7 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
             error={!!resetPasswordForm.formState.errors.token}
             helperText={resetPasswordForm.formState.errors.token?.message}
           />
-          
+
           <TextField
             margin="normal"
             required
@@ -174,7 +188,7 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
             error={!!resetPasswordForm.formState.errors.newPassword}
             helperText={resetPasswordForm.formState.errors.newPassword?.message}
           />
-          
+
           <TextField
             margin="normal"
             required
@@ -186,7 +200,7 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
             error={!!resetPasswordForm.formState.errors.confirmPassword}
             helperText={resetPasswordForm.formState.errors.confirmPassword?.message}
           />
-          
+
           <Button
             type="submit"
             fullWidth
@@ -202,4 +216,4 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ mode }) => {
   );
 };
 
-export default PasswordReset; 
+export default PasswordReset;

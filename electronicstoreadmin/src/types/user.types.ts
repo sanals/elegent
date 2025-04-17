@@ -2,8 +2,8 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  role: "ADMIN" | "SUPER_ADMIN";
-  status: "ACTIVE" | "INACTIVE";
+  role: 'ADMIN' | 'SUPER_ADMIN';
+  status: 'ACTIVE' | 'INACTIVE';
   lastLogin: string;
 }
 
@@ -12,10 +12,10 @@ export interface UserFormData {
   email: string;
   password: string;
   confirmPassword: string;
-  role: "ADMIN" | "SUPER_ADMIN";
+  role: 'ADMIN' | 'SUPER_ADMIN';
 }
 
 export interface UserUpdateData {
   id: number;
-  status: "ACTIVE" | "INACTIVE";
-} 
+  status: 'ACTIVE' | 'INACTIVE';
+}

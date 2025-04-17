@@ -12,4 +12,3 @@ export * from './categories';
 
 // Shared components
 export * from './shared';
-

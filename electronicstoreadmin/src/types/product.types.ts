@@ -8,7 +8,7 @@ export interface Product {
   category: Category;
   specifications: string; // JSON string
   images: string[]; // URLs
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   stock: number;
   createdAt: string;
   updatedAt: string;
@@ -20,14 +20,14 @@ export interface ProductFormData {
   price: number;
   categoryId: number;
   specifications: string;
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   stock: number;
 }
 
 export interface ProductFilter {
   name?: string;
   categoryId?: number;
-  status?: "ACTIVE" | "INACTIVE";
+  status?: 'ACTIVE' | 'INACTIVE';
   minPrice?: number;
   maxPrice?: number;
   page: number;
@@ -42,4 +42,4 @@ export interface ProductStats {
     categoryName: string;
     count: number;
   }[];
-} 
+}

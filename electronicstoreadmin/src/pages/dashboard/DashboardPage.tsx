@@ -42,7 +42,7 @@ const DashboardPage: React.FC = () => {
     totalProducts: 0,
     activeProducts: 0,
     lowStockProducts: 0,
-    productsByCategory: []
+    productsByCategory: [],
   });
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
 
@@ -69,21 +69,23 @@ const DashboardPage: React.FC = () => {
 
           const productsByCategory = Object.keys(categoryCounts).map(categoryName => ({
             categoryName,
-            count: categoryCounts[categoryName]
+            count: categoryCounts[categoryName],
           }));
 
           setProductStats({
             totalProducts: products.length,
             activeProducts: activeProducts.length,
             lowStockProducts: lowStockProducts.length,
-            productsByCategory
+            productsByCategory,
           });
 
           // Set recent products (most recently updated first)
           // Using our reusable date utility function
-          const sortedProducts = [...products].sort((a, b) => {
-            return getTimestamp(b.updatedAt) - getTimestamp(a.updatedAt); // Most recent first
-          }).slice(0, 5);
+          const sortedProducts = [...products]
+            .sort((a, b) => {
+              return getTimestamp(b.updatedAt) - getTimestamp(a.updatedAt); // Most recent first
+            })
+            .slice(0, 5);
 
           setRecentProducts(sortedProducts);
         } else {
@@ -95,7 +97,7 @@ const DashboardPage: React.FC = () => {
             totalProducts: 0,
             activeProducts: 0,
             lowStockProducts: 0,
-            productsByCategory: []
+            productsByCategory: [],
           });
           setRecentProducts([]);
         }
@@ -113,7 +115,9 @@ const DashboardPage: React.FC = () => {
   if (loading) {
     return (
       <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}
+        >
           <CircularProgress />
         </Box>
       </Container>
@@ -149,4 +153,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage; 
+export default DashboardPage;

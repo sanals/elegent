@@ -37,11 +37,7 @@ const Layout: React.FC = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Header onToggleSidebar={handleToggleSidebar} />
-      <Sidebar
-        open={sidebarOpen}
-        onClose={handleCloseSidebar}
-        drawerWidth={drawerWidth}
-      />
+      <Sidebar open={sidebarOpen} onClose={handleCloseSidebar} drawerWidth={drawerWidth} />
       <Box
         component="main"
         sx={{
@@ -49,25 +45,22 @@ const Layout: React.FC = () => {
           p: 3,
           width: {
             xs: '100%',
-            sm: `calc(100% - ${isMobile ? 0 : (sidebarOpen ? drawerWidth : miniDrawerWidth)}px)`
+            sm: `calc(100% - ${isMobile ? 0 : sidebarOpen ? drawerWidth : miniDrawerWidth}px)`,
           },
           transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.standard,
           }),
           minHeight: '100vh',
-          backgroundColor: 'background.default'
+          backgroundColor: 'background.default',
         }}
       >
         <Toolbar /> {/* Add spacing for the fixed header */}
         <Outlet />
       </Box>
-      <NotificationComponent
-        notification={notification}
-        onClose={handleCloseNotification}
-      />
+      <NotificationComponent notification={notification} onClose={handleCloseNotification} />
     </Box>
   );
 };
 
-export default Layout; 
+export default Layout;

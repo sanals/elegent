@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button
+  Button,
 } from '@mui/material';
 
 interface ConfirmDialogProps {
@@ -27,7 +27,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   cancelButtonText = 'Cancel',
   onConfirm,
   onCancel,
-  confirmButtonColor = 'error'
+  confirmButtonColor = 'error',
 }) => {
   return (
     <Dialog
@@ -38,9 +38,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     >
       <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="confirm-dialog-description">
-          {message}
-        </DialogContentText>
+        <DialogContentText id="confirm-dialog-description">{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel} color="primary">
@@ -54,4 +52,4 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   );
 };
 
-export default ConfirmDialog; 
+export default ConfirmDialog;

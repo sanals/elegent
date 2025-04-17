@@ -4,7 +4,7 @@ export interface Category {
   description: string;
   imageUrl?: string;
   parentCategory?: Category;
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
 }
@@ -14,6 +14,6 @@ export interface CategoryFormData {
   description: string;
   parentCategoryId?: number;
   imageUrl?: string;
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   image?: File | null;
-} 
+}

@@ -10,4 +10,4 @@ const CategoriesPage: React.FC = () => {
   );
 };
 
-export default CategoriesPage; 
+export default CategoriesPage;

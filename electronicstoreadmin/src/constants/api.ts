@@ -10,4 +10,4 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 // API version
 export const API_VERSION = 'v1';
 
-// Other API-related constants can be added here 
+// Other API-related constants can be added here

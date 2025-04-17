@@ -4,7 +4,7 @@ import {
   Product,
   ProductCreateRequest,
   ProductResponse,
-  ProductUpdateRequest
+  ProductUpdateRequest,
 } from '../types/api-responses';
 import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { apiFetch } from '../utils/api-fetch';
@@ -53,7 +53,7 @@ export class ProductService {
             sort: { sorted: false, empty: true, unsorted: true },
             offset: 0,
             paged: true,
-            unpaged: false
+            unpaged: false,
           },
           last: true,
           totalElements: products.length,
@@ -63,12 +63,12 @@ export class ProductService {
           number: 0,
           sort: { sorted: false, empty: true, unsorted: true },
           numberOfElements: products.length,
-          empty: products.length === 0
+          empty: products.length === 0,
         };
 
         return {
           ...data,
-          data: pageData
+          data: pageData,
         };
       }
 
@@ -87,7 +87,7 @@ export class ProductService {
               sort: { sorted: false, empty: true, unsorted: true },
               offset: 0,
               paged: true,
-              unpaged: false
+              unpaged: false,
             },
             last: true,
             totalElements: products.length,
@@ -97,9 +97,9 @@ export class ProductService {
             number: 0,
             sort: { sorted: false, empty: true, unsorted: true },
             numberOfElements: products.length,
-            empty: products.length === 0
+            empty: products.length === 0,
           },
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
 
@@ -125,7 +125,7 @@ export class ProductService {
                 sort: { sorted: false, empty: true, unsorted: true },
                 offset: 0,
                 paged: true,
-                unpaged: false
+                unpaged: false,
               },
               last: true,
               totalElements: products.length,
@@ -135,8 +135,8 @@ export class ProductService {
               number: 0,
               sort: { sorted: false, empty: true, unsorted: true },
               numberOfElements: products.length,
-              empty: products.length === 0
-            }
+              empty: products.length === 0,
+            },
           };
         }
 
@@ -153,7 +153,7 @@ export class ProductService {
               sort: { sorted: false, empty: true, unsorted: true },
               offset: 0,
               paged: true,
-              unpaged: false
+              unpaged: false,
             },
             last: true,
             totalElements: 0,
@@ -163,9 +163,9 @@ export class ProductService {
             number: 0,
             sort: { sorted: false, empty: true, unsorted: true },
             numberOfElements: 0,
-            empty: true
+            empty: true,
           },
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       } catch (fallbackError) {
         console.error('Fallback for products also failed:', fallbackError);
@@ -203,9 +203,9 @@ export class ProductService {
       const response = await apiFetch(API_ENDPOINTS.PRODUCTS, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(product)
+        body: JSON.stringify(product),
       });
 
       if (!response.ok) {
@@ -229,7 +229,10 @@ export class ProductService {
    * @param product - Product update request data
    * @returns Promise with API response
    */
-  static async updateProduct(id: number, product: ProductUpdateRequest): Promise<ApiResponse<null>> {
+  static async updateProduct(
+    id: number,
+    product: ProductUpdateRequest
+  ): Promise<ApiResponse<null>> {
     try {
       const response = await apiFetch(API_ENDPOINTS.PRODUCT_BY_ID(id), {
         method: 'PUT',
@@ -289,7 +292,7 @@ export class ProductService {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - the browser will set it with the correct boundary
-        headers: {}
+        headers: {},
       });
 
       console.log('Upload response status:', response.status);
@@ -323,11 +326,14 @@ export class ProductService {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(`${DIRECT_API_BASE_URL}${API_ENDPOINTS.UPLOAD_PRODUCT_IMAGE}`, {
-          method: 'POST',
-          body: formData,
-          headers
-        });
+        const response = await fetch(
+          `${DIRECT_API_BASE_URL}${API_ENDPOINTS.UPLOAD_PRODUCT_IMAGE}`,
+          {
+            method: 'POST',
+            body: formData,
+            headers,
+          }
+        );
 
         const data = await response.json();
         console.log('Direct fetch upload response:', data);
@@ -355,12 +361,18 @@ export class ProductService {
    * @param status - New product status (ACTIVE or INACTIVE)
    * @returns Promise with updated product
    */
-  static async updateProductStatus(id: number, status: 'ACTIVE' | 'INACTIVE'): Promise<ApiResponse<ProductResponse>> {
+  static async updateProductStatus(
+    id: number,
+    status: 'ACTIVE' | 'INACTIVE'
+  ): Promise<ApiResponse<ProductResponse>> {
     try {
       console.log(`Updating product ${id} status to ${status}`);
-      const response = await apiFetch(API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id) + `?status=${status}`, {
-        method: 'PUT'
-      });
+      const response = await apiFetch(
+        API_ENDPOINTS.UPDATE_PRODUCT_STATUS(id) + `?status=${status}`,
+        {
+          method: 'PUT',
+        }
+      );
 
       if (!response.ok) {
         console.error('Server returned error updating product status:', response.status);
@@ -385,7 +397,7 @@ export class ProductService {
           code: 500,
           message: `Error updating product status: ${error instanceof Error ? error.message : 'Unknown error'}`,
           data: null as unknown as ProductResponse,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
     }
@@ -422,7 +434,7 @@ export class ProductService {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - browser will set it with the correct boundary
-        headers: {}
+        headers: {},
       });
 
       if (!response.ok) {
@@ -459,7 +471,7 @@ export class ProductService {
                 createdAt: data.data.createdAt || '',
                 updatedAt: data.data.updatedAt || '',
                 createdBy: data.data.createdBy || '',
-                lastModifiedBy: data.data.lastModifiedBy || ''
+                lastModifiedBy: data.data.lastModifiedBy || '',
               },
               specifications: data.data.specifications,
               images: data.data.images || [],
@@ -469,9 +481,9 @@ export class ProductService {
               createdAt: data.data.createdAt,
               updatedAt: data.data.updatedAt,
               createdBy: data.data.createdBy || '',
-              lastModifiedBy: data.data.lastModifiedBy || ''
+              lastModifiedBy: data.data.lastModifiedBy || '',
             },
-            timestamp: data.timestamp
+            timestamp: data.timestamp,
           };
         } else {
           return data as unknown as ApiResponse<Product | null>;
@@ -499,7 +511,7 @@ export class ProductService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 createdBy: '',
-                lastModifiedBy: ''
+                lastModifiedBy: '',
               },
               specifications: productData.specifications || '{}',
               images: [],
@@ -509,12 +521,14 @@ export class ProductService {
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               createdBy: '',
-              lastModifiedBy: ''
+              lastModifiedBy: '',
             },
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           };
         } else {
-          throw new Error(`Failed to parse server response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+          throw new Error(
+            `Failed to parse server response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`
+          );
         }
       }
     } catch (error) {
@@ -524,7 +538,7 @@ export class ProductService {
         code: 500,
         message: error instanceof Error ? error.message : 'Unknown error occurred',
         data: null,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -542,7 +556,12 @@ export class ProductService {
     newImageFiles: File[]
   ): Promise<ApiResponse<Product | null>> {
     try {
-      console.log('Updating product with images:', id, productData, `(${newImageFiles.length} new images)`);
+      console.log(
+        'Updating product with images:',
+        id,
+        productData,
+        `(${newImageFiles.length} new images)`
+      );
 
       // Create FormData and append product data
       const formData = new FormData();
@@ -569,7 +588,7 @@ export class ProductService {
         method: 'PUT',
         body: formData,
         // Don't set Content-Type header - browser will set it with the correct boundary
-        headers: {}
+        headers: {},
       });
 
       if (!response.ok) {
@@ -606,7 +625,7 @@ export class ProductService {
                 createdAt: data.data.createdAt || '',
                 updatedAt: data.data.updatedAt || '',
                 createdBy: data.data.createdBy || '',
-                lastModifiedBy: data.data.lastModifiedBy || ''
+                lastModifiedBy: data.data.lastModifiedBy || '',
               },
               specifications: data.data.specifications,
               images: data.data.images || [],
@@ -616,9 +635,9 @@ export class ProductService {
               createdAt: data.data.createdAt,
               updatedAt: data.data.updatedAt,
               createdBy: data.data.createdBy || '',
-              lastModifiedBy: data.data.lastModifiedBy || ''
+              lastModifiedBy: data.data.lastModifiedBy || '',
             },
-            timestamp: data.timestamp
+            timestamp: data.timestamp,
           };
         } else {
           return data as unknown as ApiResponse<Product | null>;
@@ -646,7 +665,7 @@ export class ProductService {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 createdBy: '',
-                lastModifiedBy: ''
+                lastModifiedBy: '',
               },
               specifications: productData.specifications || '{}',
               images: productData.images || [],
@@ -656,12 +675,14 @@ export class ProductService {
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               createdBy: '',
-              lastModifiedBy: ''
+              lastModifiedBy: '',
             },
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           };
         } else {
-          throw new Error(`Failed to parse server response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+          throw new Error(
+            `Failed to parse server response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`
+          );
         }
       }
     } catch (error) {
@@ -671,7 +692,7 @@ export class ProductService {
         code: 500,
         message: error instanceof Error ? error.message : 'Unknown error occurred',
         data: null,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -682,12 +703,18 @@ export class ProductService {
    * @param featured Whether the product should be featured
    * @returns ApiResponse with updated product
    */
-  static async toggleProductFeatured(id: number, featured: boolean): Promise<ApiResponse<ProductResponse>> {
+  static async toggleProductFeatured(
+    id: number,
+    featured: boolean
+  ): Promise<ApiResponse<ProductResponse>> {
     try {
       console.log(`Toggling featured status for product ${id} to ${featured}`);
-      const response = await apiFetch(API_ENDPOINTS.TOGGLE_PRODUCT_FEATURED(id) + `?featured=${featured}`, {
-        method: 'PUT'
-      });
+      const response = await apiFetch(
+        API_ENDPOINTS.TOGGLE_PRODUCT_FEATURED(id) + `?featured=${featured}`,
+        {
+          method: 'PUT',
+        }
+      );
 
       if (!response.ok) {
         console.error('Server returned error toggling product featured status:', response.status);
@@ -712,9 +739,9 @@ export class ProductService {
           code: 500,
           message: `Error updating featured status: ${error instanceof Error ? error.message : 'Unknown error'}`,
           data: null as unknown as ProductResponse,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
     }
   }
-} 
+}

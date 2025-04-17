@@ -28,10 +28,10 @@ export interface PaginatedResponse<T> {
 }
 
 export interface HealthStatus {
-  status: "UP" | "DOWN";
+  status: 'UP' | 'DOWN';
   components: {
     [key: string]: {
-      status: "UP" | "DOWN";
+      status: 'UP' | 'DOWN';
       details?: Record<string, any>;
     };
   };
@@ -39,7 +39,7 @@ export interface HealthStatus {
 
 export interface Notification {
   id: string;
-  type: "success" | "error" | "info" | "warning";
+  type: 'success' | 'error' | 'info' | 'warning';
   message: string;
   autoHideDuration?: number;
 }
@@ -74,4 +74,4 @@ export interface Page<T> {
   };
   numberOfElements: number;
   empty: boolean;
-} 
+}

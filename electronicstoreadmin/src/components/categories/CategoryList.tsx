@@ -1,19 +1,19 @@
 import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  ToggleOff as ToggleOffIcon,
-  ToggleOn as ToggleOnIcon
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    ToggleOff as ToggleOffIcon,
+    ToggleOn as ToggleOnIcon,
 } from '@mui/icons-material';
 import {
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Typography
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Typography,
 } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,10 +33,10 @@ const CategoryList = () => {
   const fetchCategoriesApi = useCallback(async () => {
     try {
       const response = await CategoryService.getAllCategories();
-      console.log("Category API Response:", response);
+      console.log('Category API Response:', response);
       return response;
     } catch (error) {
-      console.error("Category API Error:", error);
+      console.error('Category API Error:', error);
       throw new Error('Failed to fetch categories');
     }
   }, []);
@@ -47,11 +47,8 @@ const CategoryList = () => {
     pagination,
     loading,
     error,
-    refetch: fetchCategories
-  } = usePagedApiRequest<CategoryResponse, []>(
-    fetchCategoriesApi,
-    true
-  );
+    refetch: fetchCategories,
+  } = usePagedApiRequest<CategoryResponse, []>(fetchCategoriesApi, true);
 
   // Handle category deletion
   const handleDeleteCategory = async () => {
@@ -66,11 +63,17 @@ const CategoryList = () => {
         // Refetch categories
         fetchCategories();
       } else {
-        showNotification(`Failed to delete category: ${response?.message || 'Unknown error'}`, 'error');
+        showNotification(
+          `Failed to delete category: ${response?.message || 'Unknown error'}`,
+          'error'
+        );
       }
     } catch (error) {
       console.error('Error deleting category:', error);
-      showNotification(`Error deleting category: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+      showNotification(
+        `Error deleting category: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'error'
+      );
     }
   };
 
@@ -78,21 +81,31 @@ const CategoryList = () => {
   const handleToggleStatus = async (category: CategoryResponse) => {
     try {
       const newStatus = category.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-      console.log(`Toggling category ${category.id} status from ${category.status} to ${newStatus}`);
+      console.log(
+        `Toggling category ${category.id} status from ${category.status} to ${newStatus}`
+      );
 
       // Use the dedicated method for updating category status
       const response = await CategoryService.updateCategoryStatus(category.id, newStatus);
 
       if (response && response.status === 'SUCCESS') {
-        showNotification(`Category ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`, 'success');
+        showNotification(
+          `Category ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`,
+          'success'
+        );
         // Refetch categories to ensure our state is synced with the backend
         fetchCategories();
       } else {
-        showNotification(`Failed to update category status: ${response?.message || 'Unknown error'}`, 'error');
+        showNotification(
+          `Failed to update category status: ${response?.message || 'Unknown error'}`,
+          'error'
+        );
       }
     } catch (error) {
-      console.error('Error updating category status:', error);
-      showNotification(`Error updating status: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+      showNotification(
+        `Error updating status: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'error'
+      );
     }
   };
 
@@ -139,7 +152,7 @@ const CategoryList = () => {
   // Define actions for the data table
   const actions: Action<CategoryResponse>[] = [
     {
-      icon: (item: CategoryResponse) => <EditIcon />,
+      icon: (_item: CategoryResponse) => <EditIcon />,
       label: 'Edit Category',
       onClick: (item: CategoryResponse) => {
         navigate(`/categories/${item.id}`);
@@ -147,17 +160,14 @@ const CategoryList = () => {
       color: 'primary',
     },
     {
-      icon: (item: CategoryResponse) => (
-        item.status === 'ACTIVE' ? <ToggleOnIcon /> : <ToggleOffIcon />
-      ),
+      icon: (item: CategoryResponse) =>
+        item.status === 'ACTIVE' ? <ToggleOnIcon /> : <ToggleOffIcon />,
       label: 'Toggle Status',
       onClick: handleToggleStatus,
-      color: (item: CategoryResponse) => (
-        item.status === 'ACTIVE' ? 'success' : 'default'
-      ),
+      color: (item: CategoryResponse) => (item.status === 'ACTIVE' ? 'success' : 'default'),
     },
     {
-      icon: (item: CategoryResponse) => <DeleteIcon />,
+      icon: (_item: CategoryResponse) => <DeleteIcon />,
       label: 'Delete Category',
       onClick: (item: CategoryResponse) => {
         setSelectedCategory(item);
@@ -168,8 +178,8 @@ const CategoryList = () => {
   ];
 
   // Debug pagination information
-  console.log("Categories pagination:", pagination);
-  console.log("Categories length:", categories?.length);
+  console.log('Categories pagination:', pagination);
+  console.log('Categories length:', categories?.length);
 
   return (
     <Box>
@@ -186,15 +196,12 @@ const CategoryList = () => {
         loading={loading}
         error={error}
         onRetry={fetchCategories}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         emptyMessage="No categories found. Add your first category to get started."
       />
 
       {/* Confirm Delete Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Delete Category</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -210,6 +217,6 @@ const CategoryList = () => {
       </Dialog>
     </Box>
   );
-}
+};
 
 export default CategoryList;

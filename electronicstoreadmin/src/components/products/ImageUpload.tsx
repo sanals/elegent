@@ -1,31 +1,15 @@
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  Box,
-  Button,
-  CardMedia,
-  Grid,
-  IconButton,
-  Paper,
-  Typography
-} from '@mui/material';
+import { Box, Button, CardMedia, Grid, IconButton, Paper, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import React, { useRef } from 'react';
 import { API_BASE_URL } from '../../utils/api-fetch';
 import { showNotification } from '../../utils/notification';
 import { getToken } from '../../utils/token-manager';
 
-// Allowed image MIME types
-const ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/gif',
-  'image/webp'
-];
-
-// Maximum file size (5MB)
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+// Replace unused constants with prefixed versions
+const _ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const _MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 /**
  * Prepares an image URL with authentication token if needed
@@ -62,9 +46,7 @@ const prepareImageUrl = (imageUrl: string): string => {
     : `${baseUrl}/${imageUrl}`;
 
   // Add token as query parameter
-  return token
-    ? `${normalizedUrl}?auth_token=${token}`
-    : normalizedUrl;
+  return token ? `${normalizedUrl}?auth_token=${token}` : normalizedUrl;
 };
 
 interface ImageUploadProps {
@@ -145,7 +127,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: isPreview ? '2px dashed #4caf50' : 'none', // Green dashed border for previews
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white'
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white',
                 }}
               >
                 {isPreview && (
@@ -159,7 +141,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                       color: 'white',
                       px: 1,
                       py: 0.5,
-                      borderRadius: 1
+                      borderRadius: 1,
                     }}
                   >
                     Preview
@@ -172,7 +154,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                   sx={{
                     height: '100%',
                     objectFit: 'contain',
-                    p: 1
+                    p: 1,
                   }}
                 />
                 <IconButton
@@ -183,11 +165,20 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
                     position: 'absolute',
                     top: 8,
                     right: 8,
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.8)' : 'rgba(255, 255, 255, 0.7)',
-                    color: theme.palette.mode === 'dark' ? theme.palette.error.light : theme.palette.error.main,
+                    bgcolor:
+                      theme.palette.mode === 'dark'
+                        ? 'rgba(66, 66, 66, 0.8)'
+                        : 'rgba(255, 255, 255, 0.7)',
+                    color:
+                      theme.palette.mode === 'dark'
+                        ? theme.palette.error.light
+                        : theme.palette.error.main,
                     '&:hover': {
-                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(66, 66, 66, 0.9)' : 'rgba(255, 255, 255, 0.9)'
-                    }
+                      bgcolor:
+                        theme.palette.mode === 'dark'
+                          ? 'rgba(66, 66, 66, 0.9)'
+                          : 'rgba(255, 255, 255, 0.9)',
+                    },
                   }}
                 >
                   <DeleteIcon />
@@ -209,4 +200,4 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ images, onUpload, onRemove })
   );
 };
 
-export default ImageUpload; 
+export default ImageUpload;

@@ -66,11 +66,11 @@ export const isAuthenticated = (): boolean => {
 export const isTokenExpired = (): boolean => {
   const token = getToken();
   if (!token) return true;
-  
+
   try {
     const decoded = jwtDecode<DecodedToken>(token);
     const currentTime = Date.now() / 1000;
-    
+
     return decoded.exp < currentTime;
   } catch (error) {
     console.error('Error decoding token:', error);
@@ -81,15 +81,15 @@ export const isTokenExpired = (): boolean => {
 export const getUserInfoFromToken = (): { username: string; role: string } | null => {
   const token = getToken();
   if (!token) return null;
-  
+
   try {
     const decoded = jwtDecode<DecodedToken>(token);
     return {
       username: decoded.sub,
-      role: decoded.role
+      role: decoded.role,
     };
   } catch (error) {
     console.error('Error decoding token:', error);
     return null;
   }
-}; 
+};

@@ -57,5 +57,5 @@ export const API_ENDPOINTS = {
 
   // Health check endpoints
   HEALTH: '/api/v1/health',
-  HEALTH_INFO: '/api/v1/health/info'
-}; 
+  HEALTH_INFO: '/api/v1/health/info',
+};
