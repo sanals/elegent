@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
 import { ElectricBolt } from '@mui/icons-material';
+import { Box, Typography } from '@mui/material';
+import React from 'react';
 
 interface LogoProps {
   variant?: 'full' | 'icon';
@@ -10,20 +10,20 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ variant = 'full', color = 'primary' }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <ElectricBolt sx={{ 
+      <ElectricBolt sx={{
         fontSize: variant === 'full' ? 32 : 24,
         color: color === 'white' ? 'white' : 'primary.main'
       }} />
       {variant === 'full' && (
         <Typography
           variant="h6"
-          sx={{ 
+          sx={{
             fontWeight: 'bold',
             color: color === 'white' ? 'white' : 'primary.main',
             fontSize: { xs: '1.1rem', sm: '1.25rem' }
           }}
         >
-          Elegant Electrics
+          Elegent Electric
         </Typography>
       )}
     </Box>

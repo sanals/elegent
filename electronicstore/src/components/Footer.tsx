@@ -1,12 +1,12 @@
+import { Facebook, Instagram, Twitter, YouTube } from '@mui/icons-material';
+import { Box, Container, Grid, Link, Typography } from '@mui/material';
 import React from 'react';
-import { Box, Container, Grid, Typography, Link } from '@mui/material';
-import { Facebook, Twitter, Instagram, YouTube } from '@mui/icons-material';
 
 const Footer: React.FC = () => {
   return (
-    <Box 
-      component="footer" 
-      sx={{ 
+    <Box
+      component="footer"
+      sx={{
         bgcolor: 'black',
         color: 'white',
         py: 4,
@@ -21,8 +21,7 @@ const Footer: React.FC = () => {
               Our Address
             </Typography>
             <Typography variant="body2">
-              V.K. Industries #53, Mehta Industrial Estate, Liberty Garden Cross
-              Lane No. 3, Malad (West), Mumbai - 400 064.
+              AAN Elegent Electric, QCQV+2V4, Market Road, Thalayolaparambu, Kerala 686605
             </Typography>
           </Grid>
 
@@ -53,11 +52,11 @@ const Footer: React.FC = () => {
               Copyright
             </Typography>
             <Typography variant="body2">
-              ©2024 Elegant Electrics.
+              ©2025 Elegent Electric.
               <br />
               All rights reserved.
               <br />
-              Made By The Storytellers.
+              Made with love.
             </Typography>
           </Grid>
         </Grid>
