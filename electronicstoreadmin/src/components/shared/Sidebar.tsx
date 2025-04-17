@@ -4,7 +4,7 @@ import {
   Inventory as InventoryIcon,
   People as PeopleIcon,
   Settings as SettingsIcon,
-  Store as StoreIcon
+  Store as StoreIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -17,7 +17,7 @@ import {
   ListItemText,
   Toolbar,
   useMediaQuery,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -50,38 +50,38 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
     {
       text: 'Dashboard',
       path: '/dashboard',
-      icon: <DashboardIcon />
+      icon: <DashboardIcon />,
     },
     {
       text: 'Products',
       path: '/products',
-      icon: <InventoryIcon />
+      icon: <InventoryIcon />,
     },
     {
       text: 'Categories',
       path: '/categories',
-      icon: <CategoryIcon />
+      icon: <CategoryIcon />,
     },
     {
       text: 'Outlets',
       path: '/outlets',
-      icon: <StoreIcon />
+      icon: <StoreIcon />,
     },
     {
       text: 'Users',
       path: '/users',
       icon: <PeopleIcon />,
-      requiredRoles: ['ADMIN', 'SUPER_ADMIN']
+      requiredRoles: ['ADMIN', 'SUPER_ADMIN'],
     },
     {
       text: 'Settings',
       path: '/settings',
-      icon: <SettingsIcon />
-    }
+      icon: <SettingsIcon />,
+    },
   ];
 
-  const filteredMenuItems = menuItems.filter(item =>
-    !item.requiredRoles || (user && item.requiredRoles.includes(user.role))
+  const filteredMenuItems = menuItems.filter(
+    item => !item.requiredRoles || (user && item.requiredRoles.includes(user.role))
   );
 
   const handleNavigate = (path: string) => {
@@ -97,15 +97,13 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       <Toolbar />
       <Divider />
       <List>
-        {filteredMenuItems.map((item) => (
+        {filteredMenuItems.map(item => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => handleNavigate(item.path)}
             >
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
+              <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -120,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       <Toolbar />
       <Divider />
       <List>
-        {filteredMenuItems.map((item) => (
+        {filteredMenuItems.map(item => (
           <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <ListItemButton
               selected={location.pathname === item.path}
@@ -162,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
           sx={{
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: drawerWidth
+              width: drawerWidth,
             },
           }}
         >
@@ -193,4 +191,4 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

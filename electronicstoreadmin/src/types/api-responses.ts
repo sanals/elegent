@@ -6,7 +6,7 @@ export type { Page };
 
 // API Response format
 export interface ApiResponse<T> {
-  status: "SUCCESS" | "ERROR";
+  status: 'SUCCESS' | 'ERROR';
   code: number;
   message: string;
   data: T;
@@ -75,7 +75,7 @@ export interface Product {
   category: Category;
   specifications: string; // JSON string
   images: string[]; // URLs
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   stock: number;
   featured: boolean;
   createdAt: string;
@@ -112,7 +112,7 @@ export interface ProductResponse {
   category: CategorySummary;
   specifications: string;
   images: string[];
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   stock: number;
   featured: boolean;
   createdAt: string;
@@ -130,7 +130,7 @@ export interface Category {
   parentCategory?: Category;
   subCategories?: CategorySummary[];
   products?: ProductSummary[];
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -149,7 +149,7 @@ export interface CategoryUpdateRequest {
   description?: string;
   parentCategoryId?: number;
   imageUrl?: string;
-  status?: "ACTIVE" | "INACTIVE";
+  status?: 'ACTIVE' | 'INACTIVE';
 }
 
 export interface CategoryResponse {
@@ -160,7 +160,7 @@ export interface CategoryResponse {
   parentCategory?: CategorySummary;
   subCategories?: CategorySummary[];
   products?: ProductSummary[];
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
   createdBy: string;
@@ -172,8 +172,8 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  role: "ADMIN" | "SUPER_ADMIN";
-  status: "ACTIVE" | "INACTIVE";
+  role: 'ADMIN' | 'SUPER_ADMIN';
+  status: 'ACTIVE' | 'INACTIVE';
   lastLogin: string;
 }
 
@@ -182,7 +182,7 @@ export interface UserCreateRequest {
   email: string;
   password: string;
   confirmPassword: string;
-  role: "ADMIN" | "SUPER_ADMIN";
+  role: 'ADMIN' | 'SUPER_ADMIN';
 }
 
 export interface UserResponse {
@@ -190,7 +190,7 @@ export interface UserResponse {
 }
 
 export interface UserStatusUpdateRequest {
-  status: "ACTIVE" | "INACTIVE";
+  status: 'ACTIVE' | 'INACTIVE';
 }
 
 // Location-related Types
@@ -256,4 +256,4 @@ export interface OutletUpdateRequest {
   longitude?: number;
   mapUrl?: string;
   active?: boolean;
-} 
+}

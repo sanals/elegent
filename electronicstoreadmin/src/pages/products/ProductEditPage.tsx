@@ -13,11 +13,11 @@ const ProductEditPage: React.FC = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           {isNewProduct ? 'Add New Product' : `Edit Product #${id}`}
         </Typography>
-        
+
         <ProductForm />
       </Box>
     </Container>
   );
 };
 
-export default ProductEditPage; 
+export default ProductEditPage;

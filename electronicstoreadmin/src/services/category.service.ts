@@ -4,7 +4,7 @@ import {
   CategoryCreateRequest,
   CategoryResponse,
   CategoryUpdateRequest,
-  Page
+  Page,
 } from '../types/api-responses';
 import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { apiFetch } from '../utils/api-fetch';
@@ -39,7 +39,7 @@ export class CategoryService {
             sort: { sorted: false, empty: true, unsorted: true },
             offset: 0,
             paged: true,
-            unpaged: false
+            unpaged: false,
           },
           last: true,
           totalElements: categories.length,
@@ -49,12 +49,12 @@ export class CategoryService {
           number: 0,
           sort: { sorted: false, empty: true, unsorted: true },
           numberOfElements: categories.length,
-          empty: categories.length === 0
+          empty: categories.length === 0,
         };
 
         return {
           ...data,
-          data: pageData
+          data: pageData,
         };
       }
 
@@ -73,7 +73,7 @@ export class CategoryService {
               sort: { sorted: false, empty: true, unsorted: true },
               offset: 0,
               paged: true,
-              unpaged: false
+              unpaged: false,
             },
             last: true,
             totalElements: categories.length,
@@ -83,9 +83,9 @@ export class CategoryService {
             number: 0,
             sort: { sorted: false, empty: true, unsorted: true },
             numberOfElements: categories.length,
-            empty: categories.length === 0
+            empty: categories.length === 0,
           },
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
 
@@ -103,7 +103,7 @@ export class CategoryService {
             sort: { sorted: false, empty: true, unsorted: true },
             offset: 0,
             paged: true,
-            unpaged: false
+            unpaged: false,
           },
           last: true,
           totalElements: 0,
@@ -113,9 +113,9 @@ export class CategoryService {
           number: 0,
           sort: { sorted: false, empty: true, unsorted: true },
           numberOfElements: 0,
-          empty: true
+          empty: true,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       console.error('Categories API call error:', error);
@@ -138,7 +138,7 @@ export class CategoryService {
                 sort: { sorted: false, empty: true, unsorted: true },
                 offset: 0,
                 paged: true,
-                unpaged: false
+                unpaged: false,
               },
               last: true,
               totalElements: categories.length,
@@ -148,8 +148,8 @@ export class CategoryService {
               number: 0,
               sort: { sorted: false, empty: true, unsorted: true },
               numberOfElements: categories.length,
-              empty: categories.length === 0
-            }
+              empty: categories.length === 0,
+            },
           };
         }
 
@@ -166,7 +166,7 @@ export class CategoryService {
               sort: { sorted: false, empty: true, unsorted: true },
               offset: 0,
               paged: true,
-              unpaged: false
+              unpaged: false,
             },
             last: true,
             totalElements: 0,
@@ -176,9 +176,9 @@ export class CategoryService {
             number: 0,
             sort: { sorted: false, empty: true, unsorted: true },
             numberOfElements: 0,
-            empty: true
+            empty: true,
           },
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       } catch (fallbackError) {
         console.error('Fallback for categories also failed:', fallbackError);
@@ -210,7 +210,9 @@ export class CategoryService {
    * @param category - Category create request data
    * @returns Promise with created category ID
    */
-  static async createCategory(category: CategoryCreateRequest): Promise<ApiResponse<CategoryResponse>> {
+  static async createCategory(
+    category: CategoryCreateRequest
+  ): Promise<ApiResponse<CategoryResponse>> {
     try {
       const response = await apiFetch(API_ENDPOINTS.CATEGORIES, {
         method: 'POST',
@@ -232,7 +234,10 @@ export class CategoryService {
    * @param category - Category update request data
    * @returns Promise with API response
    */
-  static async updateCategory(id: number, category: CategoryUpdateRequest): Promise<ApiResponse<null>> {
+  static async updateCategory(
+    id: number,
+    category: CategoryUpdateRequest
+  ): Promise<ApiResponse<null>> {
     try {
       const response = await apiFetch(API_ENDPOINTS.CATEGORY_BY_ID(id), {
         method: 'PUT',
@@ -275,13 +280,16 @@ export class CategoryService {
    */
   static async createCategoryWithImage(formData: FormData): Promise<ApiResponse<CategoryResponse>> {
     try {
-      const response = await fetch(`${DIRECT_API_BASE_URL}${API_ENDPOINTS.CREATE_CATEGORY_WITH_IMAGE}`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      const response = await fetch(
+        `${DIRECT_API_BASE_URL}${API_ENDPOINTS.CREATE_CATEGORY_WITH_IMAGE}`,
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      });
+      );
       const data = await response.json();
       return data;
     } catch (error) {
@@ -296,15 +304,21 @@ export class CategoryService {
    * @param formData - FormData containing category data and image
    * @returns Promise with updated category
    */
-  static async updateCategoryWithImage(id: number, formData: FormData): Promise<ApiResponse<CategoryResponse>> {
+  static async updateCategoryWithImage(
+    id: number,
+    formData: FormData
+  ): Promise<ApiResponse<CategoryResponse>> {
     try {
-      const response = await fetch(`${DIRECT_API_BASE_URL}${API_ENDPOINTS.UPDATE_CATEGORY_WITH_IMAGE(id)}`, {
-        method: 'PUT',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      const response = await fetch(
+        `${DIRECT_API_BASE_URL}${API_ENDPOINTS.UPDATE_CATEGORY_WITH_IMAGE(id)}`,
+        {
+          method: 'PUT',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      });
+      );
       const data = await response.json();
       return data;
     } catch (error) {
@@ -319,17 +333,23 @@ export class CategoryService {
    * @param status - New status
    * @returns Promise with API response
    */
-  static async updateCategoryStatus(id: number, status: 'ACTIVE' | 'INACTIVE'): Promise<ApiResponse<null>> {
+  static async updateCategoryStatus(
+    id: number,
+    status: 'ACTIVE' | 'INACTIVE'
+  ): Promise<ApiResponse<null>> {
     try {
       console.log(`Updating category ${id} status to ${status}`);
 
       // Use the dedicated status endpoint with status as a query parameter
-      const response = await apiFetch(`${API_ENDPOINTS.UPDATE_CATEGORY_STATUS(id)}?status=${status}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await apiFetch(
+        `${API_ENDPOINTS.UPDATE_CATEGORY_STATUS(id)}?status=${status}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       // Improve error handling
       if (!response.ok) {
@@ -350,7 +370,7 @@ export class CategoryService {
             code: response.status,
             message: 'Category status updated successfully',
             data: null,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           };
         } else {
           throw parseError;
@@ -363,7 +383,10 @@ export class CategoryService {
 
       try {
         // Try the proxy approach, also using query parameters
-        return await ApiService.put<null>(`${API_ENDPOINTS.UPDATE_CATEGORY_STATUS(id)}?status=${status}`, null);
+        return await ApiService.put<null>(
+          `${API_ENDPOINTS.UPDATE_CATEGORY_STATUS(id)}?status=${status}`,
+          null
+        );
       } catch (fallbackError) {
         console.error('Fallback for update category status also failed:', fallbackError);
         return {
@@ -371,9 +394,9 @@ export class CategoryService {
           code: 500,
           message: `Error updating category status: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`,
           data: null,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
     }
   }
-} 
+}

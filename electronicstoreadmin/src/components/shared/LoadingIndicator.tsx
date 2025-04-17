@@ -10,11 +10,9 @@ interface LoadingIndicatorProps {
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   size = 40,
   color = 'primary',
-  fullScreen = false
+  fullScreen = false,
 }) => {
-  const loadingElement = (
-    <CircularProgress color={color} size={size} />
-  );
+  const loadingElement = <CircularProgress color={color} size={size} />;
 
   if (fullScreen) {
     return (
@@ -29,7 +27,7 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
           right: 0,
           bottom: 0,
           zIndex: 9999,
-          backgroundColor: 'rgba(255, 255, 255, 0.7)'
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
         }}
       >
         {loadingElement}
@@ -37,11 +35,7 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
     );
   }
 
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-      {loadingElement}
-    </Box>
-  );
+  return <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>{loadingElement}</Box>;
 };
 
-export default LoadingIndicator; 
+export default LoadingIndicator;

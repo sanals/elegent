@@ -14,7 +14,7 @@ const NotFoundPage: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: '100vh',
-          textAlign: 'center'
+          textAlign: 'center',
         }}
       >
         <Typography variant="h1" component="h1" color="primary" sx={{ mb: 2 }}>
@@ -26,11 +26,7 @@ const NotFoundPage: React.FC = () => {
         <Typography variant="body1" color="textSecondary" sx={{ mb: 4 }}>
           The page you are looking for does not exist or has been moved.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate('/dashboard')}
-        >
+        <Button variant="contained" color="primary" onClick={() => navigate('/dashboard')}>
           Go to Dashboard
         </Button>
       </Box>
@@ -38,4 +34,4 @@ const NotFoundPage: React.FC = () => {
   );
 };
 
-export default NotFoundPage; 
+export default NotFoundPage;

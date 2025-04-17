@@ -8,4 +8,4 @@ export { usePagedApiRequest } from './usePagedApiRequest';
 // UI related hooks
 export { useNotification } from './useNotification';
 
-// Export other hooks as they are added to the application 
+// Export other hooks as they are added to the application

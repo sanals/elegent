@@ -1,2 +1,2 @@
 export { default as CategoriesPage } from './CategoriesPage';
-export { default as CategoryEditPage } from './CategoryEditPage'; 
+export { default as CategoryEditPage } from './CategoryEditPage';

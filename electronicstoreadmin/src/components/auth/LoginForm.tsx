@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, Grid, Link, Box, InputAdornment, IconButton, CircularProgress } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
 import { useAuth } from '../../hooks/useAuth';
-import { LoginRequest } from '../../types/api-responses';
 
-const schema = yup.object({
-  username: yup.string().required('Username is required'),
-  password: yup.string().required('Password is required'),
-}).required();
+const schema = yup
+  .object({
+    username: yup.string().required('Username is required'),
+    password: yup.string().required('Password is required'),
+  })
+  .required();
 
 type FormData = {
   username: string;
@@ -22,25 +34,29 @@ const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
-  
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
-  
+
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const username = data.username;
       const password = data.password;
-      
+
       console.log('Attempting login with:', username);
       const success = await login(username, password);
-      
+
       if (success) {
         console.log('Login successful, redirecting to dashboard');
         navigate('/dashboard');
@@ -50,12 +66,12 @@ const LoginForm: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      
+
       // Display more specific error message if available
       if (err.response) {
         const status = err.response.status;
         const message = err.response.data?.message || 'Unknown error';
-        
+
         if (status === 401) {
           setError('Invalid username or password. Please check your credentials.');
         } else if (status === 403) {
@@ -74,24 +90,24 @@ const LoginForm: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
+
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-  
+
   return (
     <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: '100%' }}>
       <Typography variant="h5" component="h1" gutterBottom align="center">
         Electronics Store Admin
       </Typography>
-      
+
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 2 }}>
         {error && (
           <Typography color="error" variant="body2" sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
-        
+
         <TextField
           margin="normal"
           required
@@ -105,7 +121,7 @@ const LoginForm: React.FC = () => {
           helperText={errors.username?.message}
           disabled={isLoading}
         />
-        
+
         <TextField
           margin="normal"
           required
@@ -133,7 +149,7 @@ const LoginForm: React.FC = () => {
             ),
           }}
         />
-        
+
         <Button
           type="submit"
           fullWidth
@@ -141,13 +157,9 @@ const LoginForm: React.FC = () => {
           sx={{ mt: 3, mb: 2, height: 40 }}
           disabled={isLoading}
         >
-          {isLoading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            'Sign In'
-          )}
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
         </Button>
-        
+
         <Grid container>
           <Grid item xs>
             <Link href="/forgot-password" variant="body2">
@@ -160,4 +172,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;

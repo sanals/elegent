@@ -1,4 +1,12 @@
-import { Card, CardContent, Divider, List, ListItem, ListItemText, Typography } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 import { formatDate } from '../../utils/date-utils';
 
@@ -48,4 +56,4 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ recentProducts }) => {
   );
 };
 
-export default RecentActivity; 
+export default RecentActivity;

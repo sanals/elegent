@@ -4,7 +4,7 @@ import {
   StarBorder as StarBorderIcon,
   Star as StarIcon,
   ToggleOff as ToggleOffIcon,
-  ToggleOn as ToggleOnIcon
+  ToggleOn as ToggleOnIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -25,7 +25,6 @@ import { ProductResponse } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
 import DataTable, { Action } from '../shared/DataTable';
 import PageHeader from '../shared/PageHeader';
-
 const ProductList = () => {
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
@@ -35,10 +34,8 @@ const ProductList = () => {
   const fetchProductsApi = useCallback(async () => {
     try {
       const response = await ProductService.getAllProducts();
-      console.log("API Response:", response);
       return response;
     } catch (error) {
-      console.error("API Error:", error);
       throw new Error('Failed to fetch products');
     }
   }, []);
@@ -49,11 +46,8 @@ const ProductList = () => {
     pagination,
     loading,
     error,
-    refetch: fetchProducts
-  } = usePagedApiRequest<ProductResponse, []>(
-    fetchProductsApi,
-    true
-  );
+    refetch: fetchProducts,
+  } = usePagedApiRequest<ProductResponse, []>(fetchProductsApi, true);
 
   // Handle product deletion
   const handleDeleteProduct = async () => {
@@ -68,11 +62,16 @@ const ProductList = () => {
         // Refetch products to update the list
         fetchProducts();
       } else {
-        showNotification(`Failed to delete product: ${result?.message || 'Unknown error'}`, 'error');
+        showNotification(
+          `Failed to delete product: ${result?.message || 'Unknown error'}`,
+          'error'
+        );
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
-      showNotification(`Error deleting product: ${error instanceof Error ? error?.message : 'Unknown error'}`, 'error');
+      showNotification(
+        `Error deleting product: ${error instanceof Error ? error?.message : 'Unknown error'}`,
+        'error'
+      );
     }
   };
 
@@ -80,20 +79,27 @@ const ProductList = () => {
   const handleToggleStatus = async (product: ProductResponse) => {
     try {
       const newStatus = product?.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-      console.log(`Toggling product ${product?.id} status from ${product?.status} to ${newStatus}`);
 
       const result = await ProductService.updateProductStatus(product?.id, newStatus);
 
       if (result && result?.status === 'SUCCESS') {
-        showNotification(`Product ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`, 'success');
+        showNotification(
+          `Product ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully`,
+          'success'
+        );
         // Refetch products to ensure our state is synced with the backend
         fetchProducts();
       } else {
-        showNotification(`Failed to update product status: ${result?.message || 'Unknown error'}`, 'error');
+        showNotification(
+          `Failed to update product status: ${result?.message || 'Unknown error'}`,
+          'error'
+        );
       }
     } catch (error) {
-      console.error('Error updating product status:', error);
-      showNotification(`Error updating status: ${error instanceof Error ? error?.message : 'Unknown error'}`, 'error');
+      showNotification(
+        `Error updating status: ${error instanceof Error ? error?.message : 'Unknown error'}`,
+        'error'
+      );
     }
   };
 
@@ -101,20 +107,27 @@ const ProductList = () => {
   const handleToggleFeatured = async (product: ProductResponse) => {
     try {
       const newFeaturedStatus = !product?.featured;
-      console.log(`Toggling product ${product?.id} featured status to ${newFeaturedStatus}`);
 
       const result = await ProductService.toggleProductFeatured(product?.id, newFeaturedStatus);
 
       if (result && result?.status === 'SUCCESS') {
-        showNotification(`Product ${newFeaturedStatus ? 'added to' : 'removed from'} featured products`, 'success');
+        showNotification(
+          `Product ${newFeaturedStatus ? 'added to' : 'removed from'} featured products`,
+          'success'
+        );
         // Refetch products to ensure our state is synced with the backend
         fetchProducts();
       } else {
-        showNotification(`Failed to update featured status: ${result?.message || 'Unknown error'}`, 'error');
+        showNotification(
+          `Failed to update featured status: ${result?.message || 'Unknown error'}`,
+          'error'
+        );
       }
     } catch (error) {
-      console.error('Error updating featured status:', error);
-      showNotification(`Error updating featured status: ${error instanceof Error ? error?.message : 'Unknown error'}`, 'error');
+      showNotification(
+        `Error updating featured status: ${error instanceof Error ? error?.message : 'Unknown error'}`,
+        'error'
+      );
     }
   };
 
@@ -173,7 +186,7 @@ const ProductList = () => {
   // Define actions for the data table
   const actions: Action<ProductResponse>[] = [
     {
-      icon: (item: ProductResponse) => <EditIcon />,
+      icon: (_item: ProductResponse) => <EditIcon />,
       label: 'Edit Product',
       onClick: (item: ProductResponse) => {
         navigate(`/products/${item?.id}`);
@@ -181,27 +194,20 @@ const ProductList = () => {
       color: 'primary',
     },
     {
-      icon: (item: ProductResponse) => (
-        item?.status === 'ACTIVE' ? <ToggleOnIcon /> : <ToggleOffIcon />
-      ),
+      icon: (item: ProductResponse) =>
+        item?.status === 'ACTIVE' ? <ToggleOnIcon /> : <ToggleOffIcon />,
       label: 'Toggle Status',
       onClick: handleToggleStatus,
-      color: (item: ProductResponse) => (
-        item?.status === 'ACTIVE' ? 'success' : 'default'
-      ),
+      color: (item: ProductResponse) => (item?.status === 'ACTIVE' ? 'success' : 'default'),
     },
     {
-      icon: (item: ProductResponse) => (
-        item?.featured ? <StarIcon /> : <StarBorderIcon />
-      ),
+      icon: (item: ProductResponse) => (item?.featured ? <StarIcon /> : <StarBorderIcon />),
       label: 'Toggle Featured Status',
       onClick: handleToggleFeatured,
-      color: (item: ProductResponse) => (
-        item?.featured ? 'secondary' : 'default'
-      ),
+      color: (item: ProductResponse) => (item?.featured ? 'secondary' : 'default'),
     },
     {
-      icon: (item: ProductResponse) => <DeleteIcon />,
+      icon: (_item: ProductResponse) => <DeleteIcon />,
       label: 'Delete Product',
       onClick: (item: ProductResponse) => {
         setSelectedProduct(item);
@@ -211,17 +217,9 @@ const ProductList = () => {
     },
   ];
 
-  // Debug pagination information
-  console.log("Products pagination:", pagination);
-  console.log("Products length:", products?.length);
-
   return (
     <Box>
-      <PageHeader
-        title="Products"
-        addButtonLabel="Add Product"
-        addButtonPath="/products/new"
-      />
+      <PageHeader title="Products" addButtonLabel="Add Product" addButtonPath="/products/new" />
 
       <DataTable
         data={products}
@@ -230,15 +228,12 @@ const ProductList = () => {
         loading={loading}
         error={error}
         onRetry={fetchProducts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         emptyMessage="No products found. Add your first product to get started."
       />
 
       {/* Confirm Delete Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Delete Product</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -254,6 +249,6 @@ const ProductList = () => {
       </Dialog>
     </Box>
   );
-}
+};
 
 export default ProductList;

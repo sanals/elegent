@@ -5,15 +5,15 @@ import React from 'react';
 import { useTheme } from '../../context';
 
 const ThemeToggle: React.FC = () => {
-    const { mode, toggleTheme } = useTheme();
+  const { mode, toggleTheme } = useTheme();
 
-    return (
-        <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
-            <IconButton onClick={toggleTheme} color="inherit" aria-label="toggle theme" edge="end">
-                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-        </Tooltip>
-    );
+  return (
+    <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+      <IconButton onClick={toggleTheme} color="inherit" aria-label="toggle theme" edge="end">
+        {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+      </IconButton>
+    </Tooltip>
+  );
 };
 
-export default ThemeToggle; 
+export default ThemeToggle;

@@ -18,7 +18,7 @@ class ErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     };
   }
 
@@ -26,16 +26,16 @@ class ErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorInfo: null
+      errorInfo: null,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
-    
+
     // Log the error to an error reporting service
     console.error('Uncaught error:', error, errorInfo);
   }
@@ -49,7 +49,7 @@ class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) {
         return this.props.fallback;
       }
-      
+
       return (
         <Box
           sx={{
@@ -57,7 +57,7 @@ class ErrorBoundary extends Component<Props, State> {
             justifyContent: 'center',
             alignItems: 'center',
             minHeight: '100vh',
-            p: 3
+            p: 3,
           }}
         >
           <Paper elevation={3} sx={{ p: 4, maxWidth: 600 }}>
@@ -70,11 +70,7 @@ class ErrorBoundary extends Component<Props, State> {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Error: {this.state.error?.toString()}
             </Typography>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={this.handleReload}
-            >
+            <Button variant="contained" color="primary" onClick={this.handleReload}>
               Reload Application
             </Button>
           </Paper>
@@ -86,4 +82,4 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default ErrorBoundary; 
+export default ErrorBoundary;

@@ -77,7 +77,7 @@ const Statistics: React.FC<StatisticsProps> = ({ productStats }) => {
               Products by Category
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-              {productStats.productsByCategory.map((category) => (
+              {productStats.productsByCategory.map(category => (
                 <Card key={category.categoryName} sx={{ flex: '1 0 200px', maxWidth: 250 }}>
                   <CardContent>
                     <Typography variant="body2" color="textSecondary">
@@ -97,4 +97,4 @@ const Statistics: React.FC<StatisticsProps> = ({ productStats }) => {
   );
 };
 
-export default Statistics; 
+export default Statistics;

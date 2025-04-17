@@ -34,11 +34,13 @@ const App: React.FC = () => {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
               {/* Protected routes inside Layout */}
-              <Route element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }>
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
                 <Route path="/dashboard" element={<DashboardPage />} />
 
                 <Route path="/products" element={<ProductsPage />} />
@@ -53,21 +55,30 @@ const App: React.FC = () => {
                 <Route path="/outlets/new" element={<OutletCreatePage />} />
                 <Route path="/outlets/:id" element={<OutletEditPage />} />
 
-                <Route path="/users" element={
-                  <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
-                    <UsersPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/users/new" element={
-                  <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
-                    <UserEditPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/users/:id" element={
-                  <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
-                    <UserEditPage />
-                  </ProtectedRoute>
-                } />
+                <Route
+                  path="/users"
+                  element={
+                    <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+                      <UsersPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/users/new"
+                  element={
+                    <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+                      <UserEditPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/users/:id"
+                  element={
+                    <ProtectedRoute requiredRoles={['ADMIN', 'SUPER_ADMIN']}>
+                      <UserEditPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
@@ -82,4 +93,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;

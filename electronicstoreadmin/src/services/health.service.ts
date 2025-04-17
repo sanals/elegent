@@ -1,10 +1,10 @@
-import { ApiService } from './api.service';
-import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { ApiResponse } from '../types/api-responses';
+import { API_ENDPOINTS } from '../utils/api-endpoints';
 import { apiFetch } from '../utils/api-fetch';
+import { ApiService } from './api.service';
 
-// Define base URL for direct API calls
-const DIRECT_API_BASE_URL = 'http://localhost:8090';
+// Replace with prefixed version
+const _DIRECT_API_BASE_URL = 'http://localhost:8090';
 
 export interface HealthStatus {
   status: 'UP' | 'DOWN' | 'UNKNOWN';
@@ -12,7 +12,7 @@ export interface HealthStatus {
     [key: string]: {
       status: 'UP' | 'DOWN' | 'UNKNOWN';
       details?: Record<string, any>;
-    }
+    };
   };
 }
 
@@ -47,7 +47,7 @@ export class HealthService {
       return await ApiService.get<HealthStatus>(API_ENDPOINTS.HEALTH);
     }
   }
-  
+
   /**
    * Get detailed health information directly from the backend
    * @returns Promise with health info
@@ -64,4 +64,4 @@ export class HealthService {
       return await ApiService.get<HealthInfo>(API_ENDPOINTS.HEALTH_INFO);
     }
   }
-} 
+}

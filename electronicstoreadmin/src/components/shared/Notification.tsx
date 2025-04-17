@@ -11,10 +11,7 @@ const CustomAlert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => (
   <Alert elevation={6} ref={ref} variant="filled" {...props} />
 ));
 
-const NotificationComponent: React.FC<NotificationComponentProps> = ({
-  notification,
-  onClose
-}) => {
+const NotificationComponent: React.FC<NotificationComponentProps> = ({ notification, onClose }) => {
   if (!notification) return null;
 
   return (
@@ -24,15 +21,11 @@ const NotificationComponent: React.FC<NotificationComponentProps> = ({
       onClose={onClose}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
-      <CustomAlert
-        onClose={onClose}
-        severity={notification.type}
-        sx={{ width: '100%' }}
-      >
+      <CustomAlert onClose={onClose} severity={notification.type} sx={{ width: '100%' }}>
         {notification.message}
       </CustomAlert>
     </Snackbar>
   );
 };
 
-export default NotificationComponent; 
+export default NotificationComponent;

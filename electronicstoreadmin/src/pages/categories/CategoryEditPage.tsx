@@ -58,11 +58,7 @@ const CategoryEditPage: React.FC = () => {
     <Container>
       <Box sx={{ mt: 3, mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={handleBack}
-            sx={{ mr: 2 }}
-          >
+          <Button startIcon={<ArrowBackIcon />} onClick={handleBack} sx={{ mr: 2 }}>
             Back to Categories
           </Button>
           <Typography variant="h4" component="h1">
@@ -80,4 +76,4 @@ const CategoryEditPage: React.FC = () => {
   );
 };
 
-export default CategoryEditPage; 
+export default CategoryEditPage;

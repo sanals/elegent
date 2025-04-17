@@ -1,0 +1,8 @@
+node_modules
+build
+dist
+coverage
+public
+.history
+vite.config.ts
+.eslintrc.js 

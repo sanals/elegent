@@ -3,11 +3,11 @@ import React from 'react';
 import { OutletList } from '../../components/outlets';
 
 const OutletsPage: React.FC = () => {
-    return (
-        <Container>
-            <OutletList />
-        </Container>
-    );
+  return (
+    <Container>
+      <OutletList />
+    </Container>
+  );
 };
 
-export default OutletsPage; 
+export default OutletsPage;

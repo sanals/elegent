@@ -11,7 +11,7 @@ import {
   Divider,
   Grid,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { SettingsService } from '../../services/settings.service';
@@ -21,8 +21,8 @@ const SettingsPage: React.FC = () => {
   const [settings, setSettings] = useState({
     homepage: {
       featuredProductsCount: 0,
-      latestProductsCount: 0
-    }
+      latestProductsCount: 0,
+    },
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,8 +40,8 @@ const SettingsPage: React.FC = () => {
           setSettings({
             homepage: {
               featuredProductsCount: response.data.featuredProductsCount,
-              latestProductsCount: response.data.latestProductsCount
-            }
+              latestProductsCount: response.data.latestProductsCount,
+            },
           });
         } else {
           setError(`Could not load settings: ${response.message || 'Unknown error'}`);
@@ -62,8 +62,8 @@ const SettingsPage: React.FC = () => {
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
     setSaved(false);
   };
@@ -75,7 +75,7 @@ const SettingsPage: React.FC = () => {
     try {
       const response = await SettingsService.saveHomepageSettings({
         featuredProductsCount: settings.homepage.featuredProductsCount,
-        latestProductsCount: settings.homepage.latestProductsCount
+        latestProductsCount: settings.homepage.latestProductsCount,
       });
 
       if (response.status === 'SUCCESS') {
@@ -129,7 +129,13 @@ const SettingsPage: React.FC = () => {
                     label="Featured Products Count"
                     type="number"
                     value={settings.homepage.featuredProductsCount}
-                    onChange={(e) => handleSettingChange('homepage', 'featuredProductsCount', parseInt(e.target.value) || 0)}
+                    onChange={e =>
+                      handleSettingChange(
+                        'homepage',
+                        'featuredProductsCount',
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     helperText="Number of products to display in the homepage carousel"
                     InputProps={{ inputProps: { min: 1, max: 10 } }}
                   />
@@ -140,7 +146,13 @@ const SettingsPage: React.FC = () => {
                     label="Latest Products Count"
                     type="number"
                     value={settings.homepage.latestProductsCount}
-                    onChange={(e) => handleSettingChange('homepage', 'latestProductsCount', parseInt(e.target.value) || 0)}
+                    onChange={e =>
+                      handleSettingChange(
+                        'homepage',
+                        'latestProductsCount',
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     helperText="Number of products to display in the Latest Products section"
                     InputProps={{ inputProps: { min: 4, max: 24 } }}
                   />
@@ -166,4 +178,4 @@ const SettingsPage: React.FC = () => {
   );
 };
 
-export default SettingsPage; 
+export default SettingsPage;

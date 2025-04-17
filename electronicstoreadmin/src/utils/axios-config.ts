@@ -13,8 +13,8 @@ const api = axios.create({
   baseURL: API_BASE_URL, // Set the baseURL to point to the backend API
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // Request interceptor
@@ -70,7 +70,9 @@ api.interceptors.response.use(
           if (originalRequest.headers) {
             originalRequest.headers['Authorization'] = `Bearer ${response.accessToken}`;
           } else {
-            originalRequest.headers = { 'Authorization': `Bearer ${response.accessToken}` } as AxiosRequestHeaders;
+            originalRequest.headers = {
+              Authorization: `Bearer ${response.accessToken}`,
+            } as AxiosRequestHeaders;
           }
 
           // Retry the original request
@@ -89,4 +91,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api; 
+export default api;

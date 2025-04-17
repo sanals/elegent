@@ -13,17 +13,14 @@ import {
   Select,
   Switch,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { CategoryService } from '../../services/category.service';
-import {
-  CategoryCreateRequest,
-  CategoryUpdateRequest
-} from '../../types/api-responses';
+import { CategoryCreateRequest, CategoryUpdateRequest } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
 
 // Add Props interface at the top of the file
@@ -37,26 +34,35 @@ interface Props {
 const schema = yup.object().shape({
   name: yup.string().required('Category name is required'),
   description: yup.string().required('Description is required'),
-  parentCategoryId: yup.number().nullable().transform((value) => (isNaN(value) ? null : value))
+  parentCategoryId: yup
+    .number()
+    .nullable()
+    .transform(value => (isNaN(value) ? null : value)),
 });
 
 // Extended interface to allow null for parentCategoryId
 interface CategoryFormData extends Omit<CategoryCreateRequest, 'parentCategoryId'> {
   parentCategoryId?: number | null;
-  status?: "ACTIVE" | "INACTIVE";
+  status?: 'ACTIVE' | 'INACTIVE';
   imageUrl?: string;
 }
 
 const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId }) => {
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CategoryFormData>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<CategoryFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      parentCategoryId: null
-    }
+      parentCategoryId: null,
+    },
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [_success, setSuccess] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const navigate = useNavigate();
@@ -76,7 +82,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
               description: categoryData.description,
               parentCategoryId: categoryData.parentCategory?.id || null,
               status: categoryData.status,
-              imageUrl: categoryData.imageUrl
+              imageUrl: categoryData.imageUrl,
             });
 
             if (categoryData.imageUrl) {
@@ -136,7 +142,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
             name: data.name,
             description: data.description,
             parentCategoryId: data.parentCategoryId || undefined,
-            imageUrl: data.imageUrl
+            imageUrl: data.imageUrl,
           };
           response = await CategoryService.updateCategory(categoryId, categoryData);
         } else {
@@ -144,7 +150,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
             name: data.name,
             description: data.description, // This is required for creating
             parentCategoryId: data.parentCategoryId || undefined,
-            imageUrl: data.imageUrl
+            imageUrl: data.imageUrl,
           };
           response = await CategoryService.createCategory(categoryData);
         }
@@ -152,7 +158,10 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
 
       if (response.status === 'SUCCESS') {
         setSuccess(true);
-        showNotification(`Category ${mode === 'edit' ? 'updated' : 'created'} successfully`, 'success');
+        showNotification(
+          `Category ${mode === 'edit' ? 'updated' : 'created'} successfully`,
+          'success'
+        );
 
         // Navigate back after a short delay
         setTimeout(() => {
@@ -209,14 +218,16 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
                     label="Parent Category"
                     {...field}
                     value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                    onChange={e =>
+                      field.onChange(e.target.value === '' ? null : Number(e.target.value))
+                    }
                   >
                     <MenuItem value="">
                       <em>None</em>
                     </MenuItem>
                     {categories
                       .filter(cat => mode !== 'edit' || cat.id !== Number(categoryId)) // Filter out current category when editing
-                      .map((category) => (
+                      .map(category => (
                         <MenuItem key={category.id} value={category.id}>
                           {category.name}
                         </MenuItem>
@@ -275,18 +286,14 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
                     maxHeight: '200px',
                     objectFit: 'contain',
                     border: '1px solid #ccc',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
                   }}
                 />
               </Box>
             )}
 
             {!selectedImage && (
-              <TextField
-                fullWidth
-                label="Or enter image URL"
-                {...register('imageUrl')}
-              />
+              <TextField fullWidth label="Or enter image URL" {...register('imageUrl')} />
             )}
           </Grid>
 
@@ -300,7 +307,7 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
                     render={({ field }) => (
                       <Switch
                         checked={field.value === 'ACTIVE'}
-                        onChange={(e) => field.onChange(e.target.checked ? 'ACTIVE' : 'INACTIVE')}
+                        onChange={e => field.onChange(e.target.checked ? 'ACTIVE' : 'INACTIVE')}
                       />
                     )}
                   />
@@ -312,23 +319,17 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
 
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                disabled={loading}
-              >
+              <Button variant="contained" color="primary" type="submit" disabled={loading}>
                 {loading ? (
                   <CircularProgress size={24} />
+                ) : mode === 'edit' ? (
+                  'Update Category'
                 ) : (
-                  mode === 'edit' ? 'Update Category' : 'Create Category'
+                  'Create Category'
                 )}
               </Button>
 
-              <Button
-                variant="outlined"
-                onClick={() => navigate('/categories')}
-              >
+              <Button variant="outlined" onClick={() => navigate('/categories')}>
                 Cancel
               </Button>
             </Box>
@@ -339,4 +340,4 @@ const CategoryForm: React.FC<Props> = ({ categories, mode = 'create', categoryId
   );
 };
 
-export default CategoryForm; 
+export default CategoryForm;

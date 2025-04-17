@@ -11,7 +11,7 @@ import {
   Paper,
   Select,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -26,34 +26,22 @@ import {
   Page,
   ProductCreateRequest,
   ProductResponse,
-  ProductUpdateRequest
+  ProductUpdateRequest,
 } from '../../types/api-responses';
-import { Category } from '../../types/category.types';
-import { ProductFormData } from '../../types/product.types';
 import { showNotification } from '../../utils/notification';
 import ImageUpload from './ImageUpload';
 import SpecificationsEditor from './SpecificationsEditor';
 
-interface ProductFormProps {
-  initialData?: ProductFormData;
-  categories: Category[];
-  onSubmit: (data: ProductFormData, images: File[]) => Promise<void>;
-  isLoading: boolean;
-}
-
 const schema = yup.object().shape({
   name: yup.string().required('Product name is required'),
   description: yup.string().required('Description is required'),
-  price: yup
-    .number()
-    .positive('Price must be a positive number')
-    .required('Price is required'),
+  price: yup.number().positive('Price must be a positive number').required('Price is required'),
   categoryId: yup.number().required('Category is required'),
   stock: yup
     .number()
     .integer('Stock must be a whole number')
     .min(0, 'Stock cannot be negative')
-    .required('Stock is required')
+    .required('Stock is required'),
 });
 
 const ProductForm: React.FC = () => {
@@ -70,30 +58,35 @@ const ProductForm: React.FC = () => {
   const [createdAt, setCreatedAt] = useState<string>('');
   const [updatedAt, setUpdatedAt] = useState<string>('');
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<ProductCreateRequest>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ProductCreateRequest>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       name: '',
       description: '',
       price: 0,
       categoryId: 0,
-      stock: 0
-    }
+      stock: 0,
+    },
   });
 
   const {
     data: categoriesPage,
     loading: loadingCategories,
-    execute: fetchCategories
+    execute: fetchCategories,
   } = useApiRequest<Page<CategoryResponse>, []>(CategoryService.getAllCategories);
 
   // Derive the categories array from the page content
   const categories = categoriesPage?.content || [];
 
-  const {
-    loading: loadingProduct,
-    execute: fetchProduct
-  } = useApiRequest<ProductResponse, [number]>(ProductService.getProductById);
+  const { loading: loadingProduct, execute: fetchProduct } = useApiRequest<
+    ProductResponse,
+    [number]
+  >(ProductService.getProductById);
 
   useEffect(() => {
     fetchCategories();
@@ -107,7 +100,7 @@ const ProductForm: React.FC = () => {
             description: product.description,
             price: product.price,
             categoryId: product.category.id,
-            stock: product.stock
+            stock: product.stock,
           });
 
           try {
@@ -161,7 +154,7 @@ const ProductForm: React.FC = () => {
         price: Number(data.price),
         categoryId: Number(data.categoryId),
         specifications: JSON.stringify(specifications),
-        stock: Number(data.stock)
+        stock: Number(data.stock),
       };
 
       // Filter out blob URLs from the images array when sending to the backend
@@ -173,7 +166,7 @@ const ProductForm: React.FC = () => {
         // Update existing product with images
         const updateData: ProductUpdateRequest = {
           ...productData,
-          images: apiImages
+          images: apiImages,
         };
 
         response = await ProductService.updateProductWithImages(
@@ -183,10 +176,7 @@ const ProductForm: React.FC = () => {
         );
       } else {
         // Create new product with images
-        response = await ProductService.createProductWithImages(
-          productData,
-          imageFiles
-        );
+        response = await ProductService.createProductWithImages(productData, imageFiles);
       }
 
       if (response?.status === 'SUCCESS') {
@@ -210,7 +200,10 @@ const ProductForm: React.FC = () => {
       }
     } catch (error) {
       console.error('Product submission error:', error);
-      showNotification(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+      showNotification(
+        `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'error'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -256,7 +249,9 @@ const ProductForm: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Basic Information</Typography>
+            <Typography variant="h6" gutterBottom>
+              Basic Information
+            </Typography>
           </Grid>
 
           <Grid item xs={12} md={6}>
@@ -282,11 +277,10 @@ const ProductForm: React.FC = () => {
               render={({ field }) => (
                 <FormControl fullWidth error={!!errors.categoryId}>
                   <InputLabel>Category</InputLabel>
-                  <Select
-                    {...field}
-                    label="Category"
-                  >
-                    <MenuItem value={0} disabled>Select a category</MenuItem>
+                  <Select {...field} label="Category">
+                    <MenuItem value={0} disabled>
+                      Select a category
+                    </MenuItem>
                     {categories?.map(category => (
                       <MenuItem key={category.id} value={category.id}>
                         {category.name}
@@ -320,7 +314,9 @@ const ProductForm: React.FC = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Pricing & Inventory</Typography>
+            <Typography variant="h6" gutterBottom>
+              Pricing & Inventory
+            </Typography>
           </Grid>
 
           <Grid item xs={12} md={6}>
@@ -360,15 +356,16 @@ const ProductForm: React.FC = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Specifications</Typography>
-            <SpecificationsEditor
-              specifications={specifications}
-              onChange={setSpecifications}
-            />
+            <Typography variant="h6" gutterBottom>
+              Specifications
+            </Typography>
+            <SpecificationsEditor specifications={specifications} onChange={setSpecifications} />
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Images</Typography>
+            <Typography variant="h6" gutterBottom>
+              Images
+            </Typography>
             <Typography variant="body2" color="text.primary" gutterBottom>
               {isEditMode
                 ? 'Upload new images to add to the product. Existing images will be preserved.'
@@ -388,22 +385,17 @@ const ProductForm: React.FC = () => {
 
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={() => navigate('/products')}
-                sx={{ mr: 2 }}
-              >
+              <Button variant="outlined" onClick={() => navigate('/products')} sx={{ mr: 2 }}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <CircularProgress size={24} />
-                ) : isEditMode ? 'Update Product' : 'Create Product'}
+                ) : isEditMode ? (
+                  'Update Product'
+                ) : (
+                  'Create Product'
+                )}
               </Button>
             </Box>
           </Grid>
@@ -413,4 +405,4 @@ const ProductForm: React.FC = () => {
   );
 };
 
-export default ProductForm; 
+export default ProductForm;

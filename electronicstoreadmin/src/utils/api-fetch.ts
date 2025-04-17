@@ -7,7 +7,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 /**
  * Make an authenticated API request to the backend
  * Automatically adds authentication token for endpoints that require it
- * 
+ *
  * @param endpoint The API endpoint to call
  * @param options Fetch options
  * @returns Promise with fetch response
@@ -15,15 +15,20 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 export const apiFetch = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
   const url = `${API_BASE_URL}${endpoint}`;
   const headers = new Headers(options.headers || {});
-  
+
   // Don't set Content-Type for FormData (let browser handle it)
   const isFormData = options.body instanceof FormData;
-  
+
   // Set default content type if not provided, method is not GET or DELETE, and not FormData
-  if (!headers.has('Content-Type') && options.method && !['GET', 'DELETE'].includes(options.method) && !isFormData) {
+  if (
+    !headers.has('Content-Type') &&
+    options.method &&
+    !['GET', 'DELETE'].includes(options.method) &&
+    !isFormData
+  ) {
     headers.set('Content-Type', 'application/json');
   }
-  
+
   // Add authentication token if endpoint requires it
   if (requiresAuthentication(endpoint)) {
     const token = getToken();
@@ -34,13 +39,13 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}): Pro
       console.warn(`Endpoint ${endpoint} requires authentication but no token is available`);
     }
   }
-  
+
   // Create the final request options
   const requestOptions: RequestInit = {
     ...options,
-    headers
+    headers,
   };
-  
+
   // Log the full request details
   console.log(`API Request: ${options.method || 'GET'} ${url}`);
   console.log('Request Headers:', Object.fromEntries(headers.entries()));
@@ -50,7 +55,10 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}): Pro
       if (typeof requestOptions.body === 'string') {
         console.log('Request Body:', JSON.parse(requestOptions.body));
       } else if (requestOptions.body instanceof FormData) {
-        console.log('Request Body: FormData with:', isFormData ? 'FormData (file upload)' : 'unknown');
+        console.log(
+          'Request Body: FormData with:',
+          isFormData ? 'FormData (file upload)' : 'unknown'
+        );
       } else {
         console.log('Request Body:', requestOptions.body);
       }
@@ -58,14 +66,14 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}): Pro
       console.log('Request Body: (could not parse)');
     }
   }
-  
+
   try {
     // Make the request with the updated headers
     const response = await fetch(url, requestOptions);
-    
+
     // Log response info
     console.log(`API Response: ${response.status} ${response.statusText} from ${url}`);
-    
+
     // Clone the response for debugging if needed
     if (!response.ok) {
       try {
@@ -76,10 +84,10 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}): Pro
         console.error('Failed to read error response body');
       }
     }
-    
+
     return response;
   } catch (error) {
     console.error(`API Request to ${url} failed:`, error);
     throw error;
   }
-}; 
+};

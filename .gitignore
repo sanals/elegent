@@ -38,6 +38,11 @@ electronicstoreapi/uploads/
 
 electronicstore/node_modules/
 electronicstore/dist/
+electronicstore/.env
+electronicstore/.env.local
+electronicstore/.env.development.local
+electronicstore/.env.test.local
+electronicstore/.env.production.local
 
 electronicstoreadmin/node_modules/
 electronicstoreadmin/dist/

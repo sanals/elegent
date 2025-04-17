@@ -28,8 +28,8 @@ const QuickActions: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Button
-              variant={isDarkMode ? "contained" : "outlined"}
-              color={isDarkMode ? "info" : "primary"}
+              variant={isDarkMode ? 'contained' : 'outlined'}
+              color={isDarkMode ? 'info' : 'primary'}
               startIcon={<ViewList />}
               fullWidth
               onClick={() => navigate('/products')}
@@ -37,7 +37,7 @@ const QuickActions: React.FC = () => {
                 borderColor: isDarkMode ? 'primary.main' : undefined,
                 '&:hover': {
                   borderColor: isDarkMode ? 'primary.main' : undefined,
-                }
+                },
               }}
             >
               View Products
@@ -45,7 +45,7 @@ const QuickActions: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Button
-              variant={isDarkMode ? "contained" : "outlined"}
+              variant={isDarkMode ? 'contained' : 'outlined'}
               color="secondary"
               startIcon={<BarChart />}
               fullWidth
@@ -60,4 +60,4 @@ const QuickActions: React.FC = () => {
   );
 };
 
-export default QuickActions; 
+export default QuickActions;
