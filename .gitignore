@@ -56,6 +56,10 @@ electronicstoreadmin/.env.development
 electronicstoreadmin/.env.test
 electronicstoreadmin/.env.production
 
+# SonarQube
+electronicstoreadmin/.scannerwork/
+electronicstoreadmin/.scannerwork
+
 # History folder
 .history/
 .history
