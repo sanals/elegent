@@ -557,8 +557,13 @@ const OutletForm: React.FC<OutletFormProps> = ({ outletId, initialData }) => {
       newErrors.contactNumber = 'Contact number must be 10 digits';
     }
 
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+    // Safe email validation that avoids backtracking issues
+    if (formData.email) {
+      // Simple approach: check for @ with text before and after, and at least one dot after @
+      const emailParts = formData.email.split('@');
+      if (emailParts.length !== 2 || !emailParts[0] || !emailParts[1] || !emailParts[1].includes('.') || emailParts[1].startsWith('.')) {
+        newErrors.email = 'Invalid email format';
+      }
     }
 
     if (!formData.localityId || formData.localityId === 0) {

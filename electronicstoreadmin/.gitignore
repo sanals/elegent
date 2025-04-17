@@ -8,3 +8,13 @@ node_modules
 .env.development
 .env.test
 .env.production
+
+# Misc
+.DS_Store
+
+# Testing
+coverage
+.nyc_output
+
+# SonarQube
+.scannerwork/

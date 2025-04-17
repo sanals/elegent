@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
 import { AuthService } from '../../services/auth.service';
 import { getUserInfoFromToken, isTokenExpired, removeTokens } from '../../utils/token-manager';
 
@@ -107,7 +107,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLoading }}>
+    <AuthContext.Provider 
+      value={useMemo(
+        () => ({ isAuthenticated, user, login, logout, isLoading }),
+        [isAuthenticated, user, isLoading]
+      )}
+    >
       {children}
     </AuthContext.Provider>
   );
