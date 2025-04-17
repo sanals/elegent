@@ -1,10 +1,12 @@
 package com.company.project.config;
 
-import com.company.project.security.AuthEntryPointJwt;
-import com.company.project.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -21,7 +23,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import com.company.project.security.AuthEntryPointJwt;
+import com.company.project.security.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Spring Security Configuration
@@ -34,7 +39,8 @@ import java.util.Arrays;
  * - Session management
  * - Method-level security
  * 
- * This implementation uses stateless JWT authentication with role-based authorization.
+ * This implementation uses stateless JWT authentication with role-based
+ * authorization.
  */
 @Configuration
 @EnableWebSecurity
@@ -45,9 +51,11 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthEntryPointJwt unauthorizedHandler;
-    
+    private final CorsProperties corsProperties;
+
     /**
-     * Configures authentication provider with user details service and password encoder
+     * Configures authentication provider with user details service and password
+     * encoder
      * 
      * @return Configured authentication provider
      */
@@ -58,7 +66,7 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-    
+
     /**
      * Creates authentication manager for handling authentication requests
      * 
@@ -69,7 +77,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-    
+
     /**
      * Configures password encoder for secure password storage
      * 
@@ -83,17 +91,51 @@ public class SecurityConfig {
     }
 
     /**
-     * Configure CORS for Spring Security
+     * Configures role hierarchy for the application
+     * 
+     * This establishes that SUPER_ADMIN inherits all permissions of ADMIN
+     * Users with SUPER_ADMIN role will automatically have all permissions granted
+     * to ADMIN role
+     * 
+     * @return Role hierarchy implementation
+     */
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        // Use the static fromHierarchy method for defining role hierarchy
+        return RoleHierarchyImpl.fromHierarchy("ROLE_SUPER_ADMIN > ROLE_ADMIN");
+    }
+
+    /**
+     * Configures method security expression handler with role hierarchy
+     * 
+     * This is required to make role hierarchy work with @PreAuthorize annotations
+     * 
+     * @return Method security expression handler with role hierarchy
+     */
+    @Bean
+    public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setRoleHierarchy(roleHierarchy());
+        return expressionHandler;
+    }
+
+    /**
+     * Configures CORS settings for cross-origin requests
+     * Uses values from application.yml through CorsProperties
+     * 
+     * @return CORS configuration source
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:3000", "http://localhost:3003"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+
+        // Apply configuration from application.yml using CorsProperties
+        configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
+        configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        
+        configuration.setMaxAge(corsProperties.getMaxAge());
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -119,26 +161,24 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints that don't require authentication
-                        .requestMatchers("/auth/**").permitAll()
-                        // Customer-facing product and category endpoints
-                        .requestMatchers("/products/**").permitAll()
-                        .requestMatchers("/categories/**").permitAll()
-                        // No longer need Swagger UI permissions
-                        .requestMatchers("/users/create").permitAll()
-                        // Health check endpoints
-                        .requestMatchers("/health/**").permitAll()
-                        // Allow access to static images
-                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/auth/**", "/users/create", "/health/**", "/images/**").permitAll()
+                        // Customer-facing product and category endpoints - GET operations only
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/products", "/products",
+                                "/api/v1/products/{id}", "/products/{id}",
+                                "/api/v1/categories", "/categories",
+                                "/api/v1/categories/{id}", "/categories/{id}", "/settings/**", "/outlets/**",
+                                "/states/**", "/cities/**", "/localities/**")
+                        .permitAll()
                         // All other endpoints require authentication
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().authenticated());
 
         // Use the custom authentication provider
         http.authenticationProvider(authenticationProvider());
-        
+
         // Add JWT filter before the standard authentication filter
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-} 
+}

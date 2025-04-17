@@ -9,6 +9,7 @@ export interface Product {
   images: string[];
   status: 'ACTIVE' | 'INACTIVE';
   stock: number;
+  featured: boolean;
   createdAt: string;
   updatedAt: string;
 }

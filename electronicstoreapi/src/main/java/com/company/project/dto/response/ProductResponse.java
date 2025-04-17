@@ -1,14 +1,17 @@
 package com.company.project.dto.response;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.company.project.entity.Product;
+import com.company.project.util.AppConstants;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -24,8 +27,14 @@ public class ProductResponse {
     private List<String> images;
     private Product.Status status;
     private Integer stock;
+    private Boolean featured;
+
+    @JsonFormat(pattern = AppConstants.DEFAULT_DATETIME_FORMAT)
     private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = AppConstants.DEFAULT_DATETIME_FORMAT)
     private LocalDateTime updatedAt;
+
     private String createdBy;
     private String lastModifiedBy;
 
@@ -54,10 +63,11 @@ public class ProductResponse {
                 .images(product.getImages())
                 .status(product.getStatus())
                 .stock(product.getStock())
+                .featured(product.getFeatured())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .createdBy(product.getCreatedBy())
                 .lastModifiedBy(product.getLastModifiedBy())
                 .build();
     }
-} 
+}

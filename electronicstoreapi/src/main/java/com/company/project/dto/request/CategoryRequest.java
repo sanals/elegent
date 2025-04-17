@@ -22,24 +22,4 @@ public class CategoryRequest {
 
     private Category.Status status;
 
-    /**
-     * Create a CategoryRequest from a Category entity
-     * 
-     * @param category The category entity
-     * @return A new CategoryRequest with data from the entity
-     */
-    public static CategoryRequest fromEntity(Category category) {
-        CategoryRequest request = new CategoryRequest();
-        request.setName(category.getName());
-        request.setDescription(category.getDescription());
-        request.setImageUrl(category.getImageUrl());
-
-        if (category.getParentCategory() != null) {
-            request.setParentCategoryId(category.getParentCategory().getId());
-        }
-
-        request.setStatus(category.getStatus());
-
-        return request;
-    }
 }

@@ -44,6 +44,25 @@ spring:
           starttls:
             enable: true
 
+# CORS configuration
+cors:
+  allowed-origins:
+    - http://localhost:3000  # Customer frontend
+    - http://localhost:3003  # Admin dashboard
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - Authorization
+    - Content-Type
+    - X-Requested-With
+    - Accept
+    - Origin
+  max-age: 3600
+
 jwt:
   # Secret key used to sign JWT tokens (must be Base64 encoded)
   secret: V1R5cUI0TUE3RDdTbkhGcXFkSktHV3d0WWVKY3ZXM2U1UEQyNGxLRjN3cQ==

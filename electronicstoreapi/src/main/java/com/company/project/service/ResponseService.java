@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.company.project.dto.response.ApiResponse;
+import com.company.project.dto.response.ProductResponse;
 
 /**
  * Service for standardizing API responses across the application
@@ -74,5 +75,36 @@ public class ResponseService {
      */
     public ApiResponse<Void> createEmptyResponse(String message) {
         return new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), message, null);
+    }
+
+    /**
+     * Generic success response with default message
+     * 
+     * @param <T>  Type of data
+     * @param data Data to be returned
+     * @return Standardized API response with success status
+     */
+    public <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Operation successful", data);
+    }
+
+    /**
+     * Success response specifically for ProductResponse
+     * 
+     * @param product ProductResponse to be returned
+     * @return Standardized API response with ProductResponse
+     */
+    public ApiResponse<ProductResponse> success(ProductResponse product) {
+        return new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Product operation successful", product);
+    }
+
+    /**
+     * Success response specifically for Page of ProductResponse
+     * 
+     * @param products Page of ProductResponse to be returned
+     * @return Standardized API response with Page of ProductResponse
+     */
+    public ApiResponse<Page<ProductResponse>> success(Page<ProductResponse> products) {
+        return new ApiResponse<>("SUCCESS", HttpStatus.OK.value(), "Products retrieved successfully", products);
     }
 }

@@ -1,6 +1,8 @@
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
+  StarBorder as StarBorderIcon,
+  Star as StarIcon,
   ToggleOff as ToggleOffIcon,
   ToggleOn as ToggleOnIcon
 } from '@mui/icons-material';
@@ -95,6 +97,27 @@ const ProductList = () => {
     }
   };
 
+  // Handle toggle featured status
+  const handleToggleFeatured = async (product: ProductResponse) => {
+    try {
+      const newFeaturedStatus = !product?.featured;
+      console.log(`Toggling product ${product?.id} featured status to ${newFeaturedStatus}`);
+
+      const result = await ProductService.toggleProductFeatured(product?.id, newFeaturedStatus);
+
+      if (result && result?.status === 'SUCCESS') {
+        showNotification(`Product ${newFeaturedStatus ? 'added to' : 'removed from'} featured products`, 'success');
+        // Refetch products to ensure our state is synced with the backend
+        fetchProducts();
+      } else {
+        showNotification(`Failed to update featured status: ${result?.message || 'Unknown error'}`, 'error');
+      }
+    } catch (error) {
+      console.error('Error updating featured status:', error);
+      showNotification(`Error updating featured status: ${error instanceof Error ? error?.message : 'Unknown error'}`, 'error');
+    }
+  };
+
   // Define columns for the data table
   const columns = [
     {
@@ -165,6 +188,16 @@ const ProductList = () => {
       onClick: handleToggleStatus,
       color: (item: ProductResponse) => (
         item?.status === 'ACTIVE' ? 'success' : 'default'
+      ),
+    },
+    {
+      icon: (item: ProductResponse) => (
+        item?.featured ? <StarIcon /> : <StarBorderIcon />
+      ),
+      label: 'Toggle Featured Status',
+      onClick: handleToggleFeatured,
+      color: (item: ProductResponse) => (
+        item?.featured ? 'secondary' : 'default'
       ),
     },
     {

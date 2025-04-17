@@ -1,12 +1,9 @@
 package com.company.project.config;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -17,49 +14,57 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import lombok.RequiredArgsConstructor;
+
 /**
- * Web MVC Configuration
+ * Web Configuration
  * 
- * Configures web-related settings including static resource handling
+ * Configures web-related settings including:
+ * - JSON serialization/deserialization
+ * - Static resource handling
+ * - CORS is now handled in SecurityConfig for centralized configuration
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload.dir}")
-    private String uploadDir;
-
     /**
-     * Configures resource handlers for serving static content
+     * Configure message converters for proper JSON handling
      * 
-     * Maps URL paths to physical file system locations
-     */
-    @Override
-    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // Map /images/** URL to the physical file location
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadDir);
-    }
-
-    @Override
-    public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
-
-    /**
-     * Configure Jackson to properly format dates as ISO-8601 strings
+     * @param converters List of HTTP message converters
      */
     @Override
     public void configureMessageConverters(@NonNull List<HttpMessageConverter<?>> converters) {
-        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
-                .modules(new JavaTimeModule())
-                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .dateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(objectMapper);
+        converters.add(converter);
+    }
+
+    /**
+     * Configure static resource handling for uploaded files
+     * 
+     * @param registry Resource handler registry
+     */
+    @Override
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:./uploads/images/");
+    }
+
+    /**
+     * CORS configuration has been moved to SecurityConfig
+     * 
+     * This method is kept as a placeholder to satisfy the interface
+     * but security configuration now handles CORS properly
+     */
+    @Override
+    public void addCorsMappings(@NonNull CorsRegistry registry) {
+        // CORS configuration is now handled in SecurityConfig
+        // This empty implementation ensures WebMvcConfigurer interface is properly
+        // implemented
     }
 }

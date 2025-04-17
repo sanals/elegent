@@ -1,10 +1,7 @@
 package com.company.project.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,12 +11,19 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.company.project.util.AppConstants;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 /**
  * JWT Authentication Filter
  * 
- * Intercepts all HTTP requests and validates JWT tokens in the Authorization header.
+ * Intercepts all HTTP requests and validates JWT tokens in the Authorization
+ * header.
  * If a valid token is found, the user is authenticated in the security context.
  * 
  * This filter only processes access tokens (JWTs), not refresh tokens.
@@ -35,26 +39,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Processes each request to validate JWT token if present
      * 
-     * @param request The HTTP request
-     * @param response The HTTP response
+     * @param request     The HTTP request
+     * @param response    The HTTP response
      * @param filterChain The filter chain
      */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         // Extract Authorization header
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader(AppConstants.AUTH_HEADER);
         // Skip if no Authorization header or not a Bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(AppConstants.TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // Extract the JWT token (remove "Bearer " prefix)
-        final String jwt = authHeader.substring(7);
+        final String jwt = authHeader.substring(AppConstants.TOKEN_PREFIX.length());
         // Extract username from token
         final String username = jwtService.extractUsername(jwt);
 
@@ -66,10 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 // Create authentication token with user details and authorities
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-                );
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
                 // Set details from request
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 // Update security context with authentication
@@ -79,4 +81,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Continue filter chain
         filterChain.doFilter(request, response);
     }
-} 
+}

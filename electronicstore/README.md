@@ -1,4 +1,4 @@
-# Elegant Electrics App
+# Elegent Electric App
 
 ## Requirements
 - Node.js (v14 or higher)

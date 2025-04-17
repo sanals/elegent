@@ -1,7 +1,8 @@
 import {
   ChevronLeft,
   ChevronRight,
-  LocationOn
+  LocationOn,
+  Phone
 } from '@mui/icons-material';
 import {
   Box,
@@ -12,16 +13,17 @@ import {
   Container,
   Grid,
   IconButton,
-  Pagination,
+  Link as MuiLink,
   Paper,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../context/ProductContext';
-import { locations } from '../data/locations';
+import { OutletLocation, OutletService } from '../services/outlet.service';
 
 // Category images mapping
 const categoryImages: Record<string, string> = {
@@ -42,13 +44,28 @@ const HomePage: React.FC = () => {
     totalPages,
     currentPage,
     setPage,
-    fetchProducts
+    fetchProducts,
+    featuredProducts,
+    latestProducts,
+    loadingFeatured,
+    loadingLatest,
+    fetchFeaturedProducts,
+    fetchLatestProducts
   } = useProducts();
 
-  const featuredProducts = products.slice(0, 5); // Get first 5 products as featured
+  // Use dedicated featured products for carousel
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
+
+  // Outlet location state
+  const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
+  const [selectedCityId, setSelectedCityId] = useState<number | ''>('');
+  const [selectedLocalityId, setSelectedLocalityId] = useState<number | ''>('');
+  const [states, setStates] = useState<Array<{ id: number; name: string }>>([]);
+  const [cities, setCities] = useState<Array<{ id: number; name: string }>>([]);
+  const [localities, setLocalities] = useState<Array<{ id: number; name: string; pincode: string }>>([]);
+  const [outlets, setOutlets] = useState<OutletLocation[]>([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
+  const [selectedOutlet, setSelectedOutlet] = useState<OutletLocation | null>(null);
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,7 +84,7 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // Auto-slide functionality
+  // Auto-slide functionality for featured products carousel
   useEffect(() => {
     if (featuredProducts.length === 0) return;
 
@@ -96,10 +113,123 @@ const HomePage: React.FC = () => {
     setPage(value - 1); // API pages are 0-indexed
   };
 
-  const states = Object.keys(locations);
-  const cities = selectedState ? Object.keys(locations[selectedState as keyof typeof locations]) : [];
-  const localities = selectedState && selectedCity ?
-    locations[selectedState as keyof typeof locations][selectedCity] : [];
+  // Load states from API
+  useEffect(() => {
+    const fetchStates = async () => {
+      setLoadingLocations(true);
+      try {
+        const response = await OutletService.getStatesWithOutlets();
+        if (response.status === 'SUCCESS' && response.data) {
+          setStates(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching states:', error);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  // Load cities when state changes
+  useEffect(() => {
+    if (selectedStateId === '') {
+      setCities([]);
+      setLocalities([]);
+      setSelectedCityId('');
+      setSelectedLocalityId('');
+      setOutlets([]);
+      setSelectedOutlet(null);
+      return;
+    }
+
+    const fetchCities = async () => {
+      setLoadingLocations(true);
+      try {
+        const citiesResponse = await OutletService.getCitiesByState(selectedStateId as number);
+
+        if (citiesResponse.status === 'SUCCESS' && citiesResponse.data) {
+          setCities(citiesResponse.data);
+        }
+
+        // Clear any previously selected outlet data
+        setOutlets([]);
+        setSelectedOutlet(null);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchCities();
+  }, [selectedStateId]);
+
+  // Load localities when city changes
+  useEffect(() => {
+    if (selectedCityId === '') {
+      setLocalities([]);
+      setSelectedLocalityId('');
+      setOutlets([]);
+      setSelectedOutlet(null);
+      return;
+    }
+
+    const fetchLocalities = async () => {
+      setLoadingLocations(true);
+      try {
+        const localitiesResponse = await OutletService.getLocalitiesByCity(selectedCityId as number);
+
+        if (localitiesResponse.status === 'SUCCESS' && localitiesResponse.data) {
+          setLocalities(localitiesResponse.data);
+        }
+
+        // Clear any previously selected outlet data
+        setOutlets([]);
+        setSelectedOutlet(null);
+      } catch (error) {
+        console.error('Error fetching localities:', error);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchLocalities();
+  }, [selectedCityId]);
+
+  // Load outlets only when locality is selected
+  useEffect(() => {
+    if (selectedLocalityId === '') {
+      setOutlets([]);
+      setSelectedOutlet(null);
+      return;
+    }
+
+    const fetchOutletsByLocality = async () => {
+      setLoadingLocations(true);
+      try {
+        const response = await OutletService.getOutletsByLocality(selectedLocalityId as number);
+        if (response.status === 'SUCCESS' && response.data) {
+          setOutlets(response.data);
+          // Select the first outlet by default if any
+          if (response.data.length > 0) {
+            setSelectedOutlet(response.data[0]);
+          } else {
+            setSelectedOutlet(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching locality outlets:', error);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchOutletsByLocality();
+  }, [selectedLocalityId]);
+
+  const theme = useTheme();
 
   return (
     <Container maxWidth="lg" sx={{
@@ -107,7 +237,7 @@ const HomePage: React.FC = () => {
       mx: 'auto'
     }}>
       {/* Featured Products Slider */}
-      {loading && featuredProducts.length === 0 ? (
+      {loadingFeatured && featuredProducts.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
           <CircularProgress />
         </Box>
@@ -116,7 +246,7 @@ const HomePage: React.FC = () => {
           <Typography color="error" variant="h6">
             {error}
           </Typography>
-          <Button onClick={() => fetchProducts()} sx={{ mt: 2 }}>
+          <Button onClick={() => fetchFeaturedProducts()} sx={{ mt: 2 }}>
             Try Again
           </Button>
         </Box>
@@ -327,8 +457,7 @@ const HomePage: React.FC = () => {
         variant="h4"
         component="h2"
         sx={{
-          mb: 4,
-          mt: 6,
+          my: 4,
           fontWeight: 'bold',
           textAlign: 'center'
         }}
@@ -336,7 +465,7 @@ const HomePage: React.FC = () => {
         Latest Products
       </Typography>
 
-      {loading ? (
+      {loadingLatest ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
           <CircularProgress />
         </Box>
@@ -345,32 +474,18 @@ const HomePage: React.FC = () => {
           <Typography color="error" variant="h6">
             {error}
           </Typography>
-          <Button onClick={() => fetchProducts()} sx={{ mt: 2 }}>
+          <Button onClick={() => fetchLatestProducts()} sx={{ mt: 2 }}>
             Try Again
           </Button>
         </Box>
       ) : (
-        <>
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            {products?.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product?.id}>
-                <ProductCard product={product} />
-              </Grid>
-            ))}
-          </Grid>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-              <Pagination
-                count={totalPages}
-                page={currentPage + 1}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Box>
-          )}
-        </>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {latestProducts.map((product) => (
+            <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
+              <ProductCard product={product} />
+            </Grid>
+          ))}
+        </Grid>
       )}
 
       {/* Location Section */}
@@ -378,93 +493,195 @@ const HomePage: React.FC = () => {
         textAlign: 'center',
         my: { xs: 4, md: 6 },
         py: 6,
-        bgcolor: 'grey.100',
-        borderRadius: 2
+        bgcolor: theme => theme.palette.mode === 'dark' ? 'background.paper' : 'grey.200',
+        borderRadius: 2,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        color: 'text.primary'
       }}
         className="location-box"
       >
-        <LocationOn sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
+        <LocationOn
+          sx={{
+            fontSize: 40,
+            color: theme => theme.palette.mode === 'dark' ? 'primary.light' : 'primary.main',
+            mb: 2
+          }}
+        />
         <Typography
           variant="h4"
           gutterBottom
           sx={{
             fontWeight: 'bold',
             mb: 3,
+            color: 'text.primary'
           }}
           className="location-heading"
         >
-          LOCATE OUR NEAREST OFFICE
+          LOCATE OUR NEAREST OUTLET
         </Typography>
-        <Grid container spacing={2} maxWidth="md" sx={{ mx: 'auto', px: 2 }}>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ width: '100%' }}>
-              <select
-                value={selectedState}
-                onChange={(e) => {
-                  setSelectedState(e.target.value);
-                  setSelectedCity('');
-                }}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc'
+
+        {loadingLocations ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={2} maxWidth="md" sx={{ mx: 'auto', px: 2, mb: 4 }}>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ width: '100%' }}>
+                  <select
+                    value={selectedStateId}
+                    onChange={(e) => {
+                      setSelectedStateId(e.target.value ? Number(e.target.value) : '');
+                      setSelectedCityId('');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: '4px',
+                      border: '1px solid',
+                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#ccc',
+                      backgroundColor: theme.palette.mode === 'dark' ? '#333' : 'white',
+                      color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
+                    }}
+                  >
+                    <option value="">Select State</option>
+                    {states.map(state => (
+                      <option key={state.id} value={state.id}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ width: '100%' }}>
+                  <select
+                    value={selectedCityId}
+                    onChange={(e) => setSelectedCityId(e.target.value ? Number(e.target.value) : '')}
+                    disabled={!selectedStateId}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: '4px',
+                      border: '1px solid',
+                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#ccc',
+                      backgroundColor: !selectedStateId
+                        ? (theme.palette.mode === 'dark' ? '#222' : '#f5f5f5')
+                        : (theme.palette.mode === 'dark' ? '#333' : 'white'),
+                      color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
+                    }}
+                  >
+                    <option value="">Select City</option>
+                    {cities.map(city => (
+                      <option key={city.id} value={city.id}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </select>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ width: '100%' }}>
+                  <select
+                    value={selectedLocalityId}
+                    onChange={(e) => setSelectedLocalityId(e.target.value ? Number(e.target.value) : '')}
+                    disabled={!selectedCityId}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: '4px',
+                      border: '1px solid',
+                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : '#ccc',
+                      backgroundColor: !selectedCityId
+                        ? (theme.palette.mode === 'dark' ? '#222' : '#f5f5f5')
+                        : (theme.palette.mode === 'dark' ? '#333' : 'white'),
+                      color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
+                    }}
+                  >
+                    <option value="">Select Locality</option>
+                    {localities.map(locality => (
+                      <option key={locality.id} value={locality.id}>
+                        {locality.name} - {locality.pincode}
+                      </option>
+                    ))}
+                  </select>
+                </Box>
+              </Grid>
+            </Grid>
+
+            {/* Show selection guidance when selections are incomplete */}
+            {!selectedLocalityId && (
+              <Typography variant="body1" sx={{ mt: 2, fontStyle: 'italic', color: 'text.secondary' }}>
+                {!selectedStateId
+                  ? 'Please select a state to begin.'
+                  : !selectedCityId
+                    ? 'Please select a city to continue.'
+                    : 'Please select a locality to see available outlets.'}
+              </Typography>
+            )}
+
+            {/* Outlet Details Display - only show when locality is selected and data is loaded */}
+            {selectedOutlet && selectedLocalityId ? (
+              <Box
+                sx={{
+                  maxWidth: 'md',
+                  mx: 'auto',
+                  mt: 3,
+                  p: 3,
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.7)',
+                  borderRadius: 2,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.1)'
                 }}
               >
-                <option value="">Select State</option>
-                {states.map(state => (
-                  <option key={state} value={state}>
-                    {state}
-                  </option>
-                ))}
-              </select>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ width: '100%' }}>
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                disabled={!selectedState}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  backgroundColor: !selectedState ? '#f5f5f5' : 'white'
-                }}
-              >
-                <option value="">Select City</option>
-                {cities.map(city => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ width: '100%' }}>
-              <select
-                disabled={!selectedCity}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  backgroundColor: !selectedCity ? '#f5f5f5' : 'white'
-                }}
-              >
-                <option value="">Select Locality</option>
-                {localities.map(locality => (
-                  <option key={locality} value={locality}>
-                    {locality}
-                  </option>
-                ))}
-              </select>
-            </Box>
-          </Grid>
-        </Grid>
+                <Typography variant="h5" gutterBottom fontWeight="bold">
+                  {selectedOutlet.name}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  {selectedOutlet.address}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 1 }}>
+                  <Phone fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="body1">
+                    {selectedOutlet.contactNumber}
+                  </Typography>
+                </Box>
+                {selectedOutlet.openingTime && selectedOutlet.closingTime && (
+                  <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                    Open: {selectedOutlet.openingTime} - {selectedOutlet.closingTime}
+                  </Typography>
+                )}
+                {selectedOutlet.mapUrl && (
+                  <MuiLink
+                    href={selectedOutlet.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      mt: 2,
+                      display: 'inline-block',
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      py: 1,
+                      px: 2,
+                      borderRadius: 1,
+                      textDecoration: 'none',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'primary.dark',
+                      }
+                    }}
+                  >
+                    View on Map
+                  </MuiLink>
+                )}
+              </Box>
+            ) : selectedLocalityId && outlets.length === 0 ? (
+              <Typography variant="body1" sx={{ mt: 2 }}>
+                No outlets found in this locality. Please select another area.
+              </Typography>
+            ) : null}
+          </>
+        )}
       </Box>
     </Container>
   );

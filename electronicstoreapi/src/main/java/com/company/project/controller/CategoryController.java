@@ -30,6 +30,12 @@ import com.company.project.service.ResponseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controller handling category-related API endpoints
+ * 
+ * Provides endpoints for managing product categories including creation,
+ * retrieval, updates, and deletion. Some operations require admin privileges.
+ */
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
@@ -38,79 +44,115 @@ public class CategoryController {
         private final CategoryService categoryService;
         private final ResponseService responseService;
 
+        /**
+         * Get all categories with pagination
+         * 
+         * @param pageable Pagination information
+         * @return ApiResponse containing page of categories
+         */
         @GetMapping
         public ResponseEntity<ApiResponse<Page<CategoryResponse>>> getAllCategories(
                         @PageableDefault(size = 10) Pageable pageable) {
-                List<Category> categories = categoryService.getAllCategories();
-                List<CategoryResponse> responseList = categories.stream()
-                                .map(CategoryResponse::fromEntity)
-                                .toList();
+                List<CategoryResponse> responseList = categoryService.getAllCategories();
 
                 return ResponseEntity.ok(
                                 responseService.createPageResponse(responseList, pageable,
                                                 "Categories retrieved successfully"));
         }
 
+        /**
+         * Get a category by its ID
+         * 
+         * @param id Category ID
+         * @return ApiResponse containing the requested category
+         */
         @GetMapping("/{id}")
         public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id) {
-                Category category = categoryService.getCategoryById(id);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.getCategoryById(id);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category retrieved successfully"));
         }
 
+        /**
+         * Create a new category
+         * 
+         * @param request Category creation data
+         * @return ApiResponse with created category
+         */
         @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(
                         @Valid @RequestBody CategoryRequest request) {
-                Category category = categoryService.createCategory(request);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.createCategory(request);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(responseService.createCreatedResponse(response, "Category created successfully"));
         }
 
+        /**
+         * Create a new category with image
+         * 
+         * @param request Category creation data with image file
+         * @return ApiResponse with created category including image
+         */
         @PostMapping(value = "/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<CategoryResponse>> createCategoryWithImage(
                         @ModelAttribute CategoryRequest request) {
 
-                Category category = categoryService.createCategory(request);
-                CategoryResponse response = CategoryResponse.fromEntity(category);
+                CategoryResponse response = categoryService.createCategory(request);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(responseService.createCreatedResponse(response,
                                                 "Category created successfully with image"));
         }
 
+        /**
+         * Update an existing category
+         * 
+         * @param id      Category ID to update
+         * @param request Updated category data
+         * @return ApiResponse with updated category
+         */
         @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
                         @PathVariable Long id,
                         @Valid @RequestBody CategoryRequest request) {
 
-                Category updatedCategory = categoryService.updateCategory(id, request);
-                CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
+                CategoryResponse response = categoryService.updateCategory(id, request);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category updated successfully"));
         }
 
+        /**
+         * Update an existing category with image
+         * 
+         * @param id      Category ID to update
+         * @param request Updated category data with image
+         * @return ApiResponse with updated category including image
+         */
         @PutMapping(value = "/{id}/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<CategoryResponse>> updateCategoryWithImage(
                         @PathVariable Long id,
                         @ModelAttribute CategoryRequest request) {
 
-                Category updatedCategory = categoryService.updateCategory(id, request);
-                CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
+                CategoryResponse response = categoryService.updateCategory(id, request);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response,
                                                 "Category updated successfully with image"));
         }
 
+        /**
+         * Delete a category
+         * 
+         * @param id Category ID to delete
+         * @return ApiResponse with success message
+         */
         @DeleteMapping("/{id}")
         @PreAuthorize("hasRole('SUPER_ADMIN')")
         public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
@@ -125,7 +167,7 @@ public class CategoryController {
          * 
          * @param id     Category ID
          * @param status New status value
-         * @return API response with updated category
+         * @return ApiResponse with updated category
          */
         @PutMapping("/{id}/status")
         @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
@@ -133,10 +175,7 @@ public class CategoryController {
                         @PathVariable Long id,
                         @RequestParam Category.Status status) {
 
-                Category category = categoryService.getCategoryById(id);
-                category.setStatus(status);
-                Category updatedCategory = categoryService.updateCategory(id, CategoryRequest.fromEntity(category));
-                CategoryResponse response = CategoryResponse.fromEntity(updatedCategory);
+                CategoryResponse response = categoryService.updateCategoryStatus(id, status);
 
                 return ResponseEntity.ok(
                                 responseService.createSingleResponse(response, "Category status updated successfully"));

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../data/api';
 import { Page } from '../data/models';
 import { Category, Product } from '../types/Product';
@@ -19,6 +20,12 @@ interface ProductContextType {
   setPage: (page: number) => void;
   fetchProducts: (keyword?: string, categoryId?: number) => Promise<void>;
   usingFallbackData: boolean;
+  featuredProducts: Product[];
+  latestProducts: Product[];
+  loadingFeatured: boolean;
+  loadingLatest: boolean;
+  fetchFeaturedProducts: () => Promise<void>;
+  fetchLatestProducts: () => Promise<void>;
 }
 
 const defaultContext: ProductContextType = {
@@ -33,12 +40,21 @@ const defaultContext: ProductContextType = {
   currentPage: 0,
   setPage: () => { },
   fetchProducts: async () => { },
-  usingFallbackData: false
+  usingFallbackData: false,
+  featuredProducts: [],
+  latestProducts: [],
+  loadingFeatured: false,
+  loadingLatest: false,
+  fetchFeaturedProducts: async () => { },
+  fetchLatestProducts: async () => { }
 };
 
 export const ProductContext = createContext<ProductContextType>(defaultContext);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/' || location.pathname === '/home';
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -49,9 +65,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [usingFallbackData, setUsingFallbackData] = useState(false);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [latestProducts, setLatestProducts] = useState<Product[]>([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(false);
+  const [loadingLatest, setLoadingLatest] = useState(false);
 
   // Transform fallback data to match API format
-  const convertFallbackData = () => {
+  const convertFallbackData = useCallback(() => {
     try {
       // Convert local categories to match API format
       const formattedCategories = fallbackCategories.map((cat, index) => ({
@@ -92,45 +112,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       console.error('Error converting fallback data:', err);
       return { formattedCategories: [], formattedProducts: [] };
     }
-  };
-
-  // Fetch categories on mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        console.log('Fetching categories from API...');
-        const categoriesData = await api.getCategories();
-        console.log('Categories data received:', categoriesData);
-        console.log('Categories data type:', Array.isArray(categoriesData) ? 'Array' : typeof categoriesData);
-
-        if (!categoriesData || !Array.isArray(categoriesData)) {
-          console.error('Categories data is not an array, using fallback data instead');
-          const { formattedCategories } = convertFallbackData();
-          setCategories(formattedCategories);
-          setUsingFallbackData(true);
-          return;
-        }
-
-        setCategories(categoriesData);
-        setUsingFallbackData(false);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-        // Use fallback data
-        const { formattedCategories } = convertFallbackData();
-        setCategories(formattedCategories);
-        setUsingFallbackData(true);
-      }
-    };
-
-    fetchCategories();
   }, []);
 
-  // Initial products fetch
-  useEffect(() => {
-    fetchProducts();
-  }, [currentPage]);
-
-  const fetchProducts = async (keyword?: string, categoryId?: number) => {
+  // Define fetchProducts before it's used in any useEffect
+  const fetchProducts = useCallback(async (keyword?: string, categoryId?: number) => {
     setLoading(true);
     setError(null);
 
@@ -173,9 +158,56 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, selectedCategoryId, convertFallbackData]);
 
-  const setFilter = (categoryId: number | null) => {
+  // Fetch categories on mount - categories are needed on all pages
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        console.log('Fetching categories from API...');
+        const categoriesData = await api.getCategories();
+        console.log('Categories data received:', categoriesData);
+
+        if (!categoriesData || !Array.isArray(categoriesData)) {
+          console.error('Categories data is not an array, using fallback data instead');
+          const { formattedCategories } = convertFallbackData();
+          setCategories(formattedCategories);
+          setUsingFallbackData(true);
+          return;
+        }
+
+        setCategories(categoriesData);
+        setUsingFallbackData(false);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        // Use fallback data
+        const { formattedCategories } = convertFallbackData();
+        setCategories(formattedCategories);
+        setUsingFallbackData(true);
+      }
+    };
+
+    fetchCategories();
+  }, [convertFallbackData]);
+
+  // Initial products fetch only when page or category changes (not on initial load)
+  useEffect(() => {
+    // Only fetch products if we're not on the initial state
+    // or if we have a selected category or search keyword
+    if (currentPage > 0 || selectedCategoryId !== null) {
+      fetchProducts();
+    }
+  }, [currentPage, selectedCategoryId, fetchProducts]);
+
+  // Fetch featured and latest products only on homepage
+  useEffect(() => {
+    if (isHomePage) {
+      fetchFeaturedProducts();
+      fetchLatestProducts();
+    }
+  }, [isHomePage]);
+
+  const setFilter = useCallback((categoryId: number | null) => {
     setSelectedCategoryId(categoryId);
     setCurrentPage(0); // Reset to first page when changing filters
 
@@ -200,11 +232,65 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         fetchProducts(undefined, categoryId);
       }
     }
-  };
+  }, [usingFallbackData, convertFallbackData, fetchProducts]);
 
-  const setPage = (page: number) => {
+  const setPage = useCallback((page: number) => {
     setCurrentPage(page);
-  };
+  }, []);
+
+  const fetchFeaturedProducts = useCallback(async () => {
+    setLoadingFeatured(true);
+
+    try {
+      // Use the single API call that handles settings and fetching
+      const featuredProductsData = await api.getFeaturedProductsWithSettings();
+      setFeaturedProducts(featuredProductsData);
+      setUsingFallbackData(false);
+    } catch (err) {
+      console.error('Error fetching featured products:', err);
+
+      // Use fallback data
+      const { formattedProducts } = convertFallbackData();
+
+      // Get a reasonable number of products for fallback
+      // Default to 5 if we can't get settings
+      let featuredCount = 5;
+
+      // Just use the first N products as featured for the fallback
+      setFeaturedProducts(formattedProducts.slice(0, featuredCount));
+      setUsingFallbackData(true);
+    } finally {
+      setLoadingFeatured(false);
+    }
+  }, [convertFallbackData]);
+
+  const fetchLatestProducts = useCallback(async () => {
+    setLoadingLatest(true);
+
+    try {
+      // Use the single API call that handles settings and fetching
+      const latestProductsResponse = await api.getLatestProductsWithSettings();
+      setLatestProducts(latestProductsResponse.content);
+      setUsingFallbackData(false);
+    } catch (err) {
+      console.error('Error fetching latest products:', err);
+
+      // Use fallback data
+      const { formattedProducts } = convertFallbackData();
+
+      // Default to 10 for fallback
+      let latestCount = 10;
+
+      // Sort by createdAt date (descending) for the fallback
+      const sortedProducts = [...formattedProducts].sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setLatestProducts(sortedProducts.slice(0, latestCount));
+      setUsingFallbackData(true);
+    } finally {
+      setLoadingLatest(false);
+    }
+  }, [convertFallbackData]);
 
   return (
     <ProductContext.Provider value={{
@@ -219,7 +305,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       currentPage,
       setPage,
       fetchProducts,
-      usingFallbackData
+      usingFallbackData,
+      featuredProducts,
+      latestProducts,
+      loadingFeatured,
+      loadingLatest,
+      fetchFeaturedProducts,
+      fetchLatestProducts
     }}>
       {children}
     </ProductContext.Provider>

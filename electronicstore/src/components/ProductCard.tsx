@@ -1,20 +1,14 @@
 import {
-  Favorite,
-  FavoriteBorder,
-  ShoppingCart
-} from '@mui/icons-material';
-import {
   Box,
   Card,
   CardContent,
-  CardMedia,
   Chip,
-  IconButton,
   Typography
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { ProductImageCarousel } from '.';
 import { Product } from '../types/Product';
 
 interface ProductCardProps {
@@ -22,18 +16,13 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
   const theme = useTheme();
 
-  const toggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation when clicking the heart icon
-    setIsFavorite(!isFavorite);
-  };
-
-  // Use default image if no images are available
-  const imageUrl = product?.images && product?.images?.length > 0
-    ? product?.images[0]
-    : 'https://picsum.photos/400/300?random=1';
+  // Prepare images array, use fallback if needed
+  const hasImages = product?.images && product?.images?.length > 0;
+  const productImages = hasImages
+    ? product.images
+    : ['https://picsum.photos/400/300?random=1'];
 
   // Format price with 2 decimal places
   const formattedPrice = `₹${product?.price?.toFixed(2)}`;
@@ -88,29 +77,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         />
       ) : null}
 
-      {/* Favorite Button */}
-      <IconButton
-        size="small"
-        onClick={toggleFavorite}
-        sx={{
-          position: 'absolute',
-          top: 10,
-          right: 10,
-          zIndex: 1,
-          bgcolor: 'rgba(255,255,255,0.8)',
-          '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
-        }}
-      >
-        {isFavorite ? <Favorite color="error" /> : <FavoriteBorder />}
-      </IconButton>
-
-      <CardMedia
-        component="img"
-        height="200"
-        image={imageUrl}
-        alt={product?.name}
-        sx={{ objectFit: 'contain', p: 2, bgcolor: '#f7f7f7' }}
-      />
+      {/* Replace CardMedia with ProductImageCarousel */}
+      <Box sx={{ height: 200, bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : '#f7f7f7' }}>
+        <ProductImageCarousel
+          images={productImages}
+          productName={product?.name}
+          aspectRatio="100%"
+          showIndicators={false}
+          enableModal={false}
+          showControls={productImages.length > 1}
+        />
+      </Box>
 
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
         <Typography
@@ -132,23 +109,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Typography>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h6" color="text.primary" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h6" color="text.primary" sx={{ fontWeight: 'bold', width: '100%' }}>
             {formattedPrice}
           </Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              size="small"
-              color="primary"
-              sx={{
-                '&:hover': {
-                  bgcolor: theme => theme.palette.primary.dark
-                }
-              }}
-            >
-              <ShoppingCart fontSize="small" />
-            </IconButton>
-          </Box>
         </Box>
 
         {product?.category && (
