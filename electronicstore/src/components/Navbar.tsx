@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleCategorySelect = (categoryId: number, categoryName: string) => {
+  const handleCategorySelect = (categoryId: number) => {
     navigate(`/category/${categoryId}`);
     handleClose();
   };
@@ -149,7 +149,7 @@ const Navbar: React.FC = () => {
               <ListItem
                 key={category.id}
                 onClick={() => {
-                  handleCategorySelect(category.id, category.name);
+                  handleCategorySelect(category.id);
                   setMobileMenuOpen(false);
                 }}
                 sx={{ cursor: 'pointer' }}
@@ -170,7 +170,7 @@ const Navbar: React.FC = () => {
           {categories.map((category) => (
             <MenuItem
               key={category.id}
-              onClick={() => handleCategorySelect(category.id, category.name)}
+              onClick={() => handleCategorySelect(category.id)}
             >
               {category.name}
             </MenuItem>
