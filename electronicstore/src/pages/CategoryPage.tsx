@@ -1,58 +1,47 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { 
-  Container, 
-  Typography, 
-  Grid, 
+import {
   Box,
   Breadcrumbs,
+  CircularProgress,
+  Container,
+  Grid,
   Link as MuiLink,
-  CircularProgress
+  Typography
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../context/ProductContext';
 
 const CategoryPage: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
-  const { 
-    filteredProducts, 
-    setFilter, 
-    categories, 
-    loading, 
+  const {
+    filteredProducts,
+    setFilter,
+    categories,
+    loading,
     error,
-    fetchProducts 
+    fetchProducts
   } = useProducts();
   const [categoryName, setCategoryName] = useState<string>('');
-  const [initialFilterApplied, setInitialFilterApplied] = useState(false);
 
-  // Memoize the filtering function to prevent unnecessary re-renders
-  const applyFilter = useCallback(() => {
-    if (categoryId && !initialFilterApplied) {
+  // Apply filter when component mounts or categoryId changes
+  useEffect(() => {
+    if (categoryId) {
       const categoryIdNum = parseInt(categoryId, 10);
       setFilter(categoryIdNum);
-      setInitialFilterApplied(true);
-    }
-  }, [categoryId, setFilter, initialFilterApplied]);
 
-  // Apply filter once when component mounts or categoryId changes
-  useEffect(() => {
-    applyFilter();
-  }, [applyFilter]);
-
-  // Update category name when categories are loaded
-  useEffect(() => {
-    if (categoryId && categories.length > 0) {
-      const categoryIdNum = parseInt(categoryId, 10);
-      const category = categories.find(c => c.id === categoryIdNum);
-      if (category) {
-        setCategoryName(category.name);
+      // Update category name when categories are loaded
+      if (categories.length > 0) {
+        const category = categories.find(c => c.id === categoryIdNum);
+        if (category) {
+          setCategoryName(category.name);
+        }
       }
     }
-  }, [categoryId, categories]);
+  }, [categoryId, setFilter, categories]);
 
   return (
-    <Container maxWidth="lg" sx={{ 
+    <Container maxWidth="lg" sx={{
       px: { xs: 1, sm: 2, md: 3 },
       mx: 'auto'
     }}>
@@ -68,7 +57,7 @@ const CategoryPage: React.FC = () => {
       {/* Category Header with Image */}
       <Box sx={{ mb: 4, position: 'relative' }}>
         {categories.length > 0 && categoryId && (
-          <Box sx={{ 
+          <Box sx={{
             position: 'relative',
             height: { xs: '150px', md: '200px' },
             borderRadius: 2,
@@ -78,7 +67,7 @@ const CategoryPage: React.FC = () => {
             <Box
               component="img"
               src={
-                categories.find(c => c.id === parseInt(categoryId))?.imageUrl || 
+                categories.find(c => c.id === parseInt(categoryId))?.imageUrl ||
                 `https://picsum.photos/800/300?random=${categoryId}`
               }
               alt={categoryName}
@@ -96,9 +85,9 @@ const CategoryPage: React.FC = () => {
               background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
               p: 2
             }}>
-              <Typography 
-                variant="h4" 
-                component="h1" 
+              <Typography
+                variant="h4"
+                component="h1"
                 color="white"
                 sx={{
                   textShadow: '1px 1px 3px rgba(0,0,0,0.7)'
@@ -120,34 +109,36 @@ const CategoryPage: React.FC = () => {
           <Typography color="error" variant="h6">
             {error}
           </Typography>
-          <button 
+          <button
             onClick={() => {
-              setInitialFilterApplied(false);
-              applyFilter();
-            }} 
+              if (categoryId) {
+                const categoryIdNum = parseInt(categoryId, 10);
+                setFilter(categoryIdNum);
+              }
+            }}
             style={{ marginTop: '1rem' }}
           >
             Try Again
           </button>
         </Box>
       ) : (
-        <Grid 
-          container 
+        <Grid
+          container
           spacing={{ xs: 1, sm: 2, md: 3 }}
           justifyContent="center"
         >
           {filteredProducts.map((product) => (
-            <Grid 
-              item 
-              key={product.id} 
-              xs={12} 
-              sm={6} 
+            <Grid
+              item
+              key={product.id}
+              xs={12}
+              sm={6}
               md={4}
             >
               <ProductCard product={product} />
             </Grid>
           ))}
-  
+
           {filteredProducts.length === 0 && (
             <Typography variant="body1" color="text.secondary" sx={{ mt: 4 }}>
               No products found in this category.

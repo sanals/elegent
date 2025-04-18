@@ -85,7 +85,7 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
             },
             success: {
                 main: mode === 'light' ? COLORS.SUCCESS : COLORS.SUCCESS_DARK,
-                contrastText: '#000000',
+                contrastText: mode === 'light' ? '#ffffff' : '#000000',
             },
             error: {
                 main: COLORS.ERROR,

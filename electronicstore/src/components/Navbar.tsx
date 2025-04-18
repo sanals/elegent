@@ -18,12 +18,13 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { categories } from '../data/categories';
+import { useProducts } from '../context/ProductContext';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { categories } = useProducts();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,8 +38,8 @@ const Navbar: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleCategorySelect = (category: string) => {
-    navigate(`/category/${category}`);
+  const handleCategorySelect = (categoryId: number, categoryName: string) => {
+    navigate(`/category/${categoryId}`);
     handleClose();
   };
 
@@ -146,9 +147,9 @@ const Navbar: React.FC = () => {
           <List sx={{ width: 250 }}>
             {categories.map((category) => (
               <ListItem
-                key={category.name}
+                key={category.id}
                 onClick={() => {
-                  handleCategorySelect(category.name);
+                  handleCategorySelect(category.id, category.name);
                   setMobileMenuOpen(false);
                 }}
                 sx={{ cursor: 'pointer' }}
@@ -168,8 +169,8 @@ const Navbar: React.FC = () => {
         >
           {categories.map((category) => (
             <MenuItem
-              key={category.name}
-              onClick={() => handleCategorySelect(category.name)}
+              key={category.id}
+              onClick={() => handleCategorySelect(category.id, category.name)}
             >
               {category.name}
             </MenuItem>
