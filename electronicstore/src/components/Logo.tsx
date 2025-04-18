@@ -1,32 +1,23 @@
-import { ElectricBolt } from '@mui/icons-material';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import React from 'react';
+import logoImage from '../assets/images/logo.png';
 
 interface LogoProps {
   variant?: 'full' | 'icon';
   color?: 'primary' | 'white';
 }
 
-const Logo: React.FC<LogoProps> = ({ variant = 'full', color = 'primary' }) => {
+const Logo: React.FC<LogoProps> = ({ variant = 'full' }) => {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <ElectricBolt sx={{
-        fontSize: variant === 'full' ? 32 : 24,
-        color: color === 'white' ? 'white' : 'primary.main'
-      }} />
-      {variant === 'full' && (
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 'bold',
-            color: color === 'white' ? 'white' : 'primary.main',
-            fontSize: { xs: '1.1rem', sm: '1.25rem' }
-          }}
-        >
-          Elegent Electric
-        </Typography>
-      )}
-    </Box>
+    <Box
+      component="img"
+      src={logoImage}
+      alt="Elegent Electric Logo"
+      sx={{
+        height: variant === 'full' ? 40 : 32,
+        width: 'auto'
+      }}
+    />
   );
 };
 
