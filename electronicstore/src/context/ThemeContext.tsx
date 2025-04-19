@@ -23,8 +23,8 @@ const COLORS = {
     DARK_TEXT: '#e6f4ef', // Light greenish white
 
     // Status colors
-    SUCCESS: '#0e7c58', // Darker green for light theme (more visible)
-    SUCCESS_DARK: '#ebe972', // Yellow for dark mode
+    SUCCESS: '#0e7c58', // Yellow for in-stock items
+    SUCCESS_DARK: '#ebe972', // Darker yellow for dark mode
     ERROR: '#f44336', // Red
     WARNING: '#ff9800', // Amber/orange for warning
 
@@ -85,7 +85,7 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
             },
             success: {
                 main: mode === 'light' ? COLORS.SUCCESS : COLORS.SUCCESS_DARK,
-                contrastText: mode === 'light' ? '#ffffff' : '#000000',
+                contrastText: '#000000',
             },
             error: {
                 main: COLORS.ERROR,

@@ -1,17 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  Box,
-  Button,
-  CircularProgress,
-  FormControl,
-  FormHelperText,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  TextField,
-  Typography,
+    Box,
+    Button,
+    CircularProgress,
+    FormControl,
+    FormHelperText,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+    Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -22,11 +22,11 @@ import { useApiRequest } from '../../hooks/useApiRequest';
 import { CategoryService } from '../../services/category.service';
 import { ProductService } from '../../services/product.service';
 import {
-  CategoryResponse,
-  Page,
-  ProductCreateRequest,
-  ProductResponse,
-  ProductUpdateRequest,
+    CategoryResponse,
+    Page,
+    ProductCreateRequest,
+    ProductResponse,
+    ProductUpdateRequest,
 } from '../../types/api-responses';
 import { showNotification } from '../../utils/notification';
 import ImageUpload from './ImageUpload';

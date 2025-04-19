@@ -3,31 +3,31 @@ import { Theme } from '@mui/material/styles';
 // Theme color constants
 export const COLORS = {
   // Primary brand color
-  PRIMARY: '#203120',
-  PRIMARY_DARK: '#1a261a',
-  PRIMARY_LIGHT: '#2d462d',
+  PRIMARY: '#09272f',
+  PRIMARY_DARK: '#051318',
+  PRIMARY_LIGHT: '#0d3440',
 
   // Secondary color for accents
-  SECONDARY: '#558855',
-  SECONDARY_DARK: '#3d633d',
-  SECONDARY_LIGHT: '#6d9f6d',
+  SECONDARY: '#1ca879',
+  SECONDARY_DARK: '#138e64',
+  SECONDARY_LIGHT: '#26c68e',
 
   // Background colors
   LIGHT: {
     BACKGROUND: '#f8f9f6',
     PAPER: '#ffffff',
-    TEXT: '#263126',
+    TEXT: '#09272f',
   },
   DARK: {
-    BACKGROUND: '#0f170f',
-    PAPER: '#192619',
-    TEXT: '#e0e8e0',
+    BACKGROUND: '#051318',
+    PAPER: '#0a2b33',
+    TEXT: '#e6f4ef',
   },
 
   // Status colors
   STATUS: {
-    SUCCESS: '#4caf50',
-    SUCCESS_DARK: '#357a38',
+    SUCCESS: '#0e7c58',
+    SUCCESS_DARK: '#ebe972',
     ERROR: '#f44336',
     ERROR_DARK: '#d32f2f',
     WARNING: '#ff9800',
@@ -39,16 +39,16 @@ export const COLORS = {
   // Action colors
   ACTION: {
     LIGHT: {
-      HOVER: 'rgba(0, 0, 0, 0.04)',
-      SELECTED: 'rgba(0, 0, 0, 0.08)',
+      HOVER: 'rgba(9, 39, 47, 0.04)',
+      SELECTED: 'rgba(9, 39, 47, 0.08)',
       DISABLED: 'rgba(0, 0, 0, 0.26)',
       DISABLED_BACKGROUND: 'rgba(0, 0, 0, 0.12)',
     },
     DARK: {
-      HOVER: 'rgba(255, 255, 255, 0.1)',
-      SELECTED: 'rgba(255, 255, 255, 0.16)',
+      HOVER: 'rgba(28, 168, 121, 0.1)',
+      SELECTED: 'rgba(28, 168, 121, 0.16)',
       DISABLED: 'rgba(255, 255, 255, 0.3)',
-      DISABLED_BACKGROUND: 'rgba(255, 255, 255, 0.12)',
+      DISABLED_BACKGROUND: 'rgba(28, 168, 121, 0.12)',
     },
   },
 };

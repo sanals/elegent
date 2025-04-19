@@ -1,19 +1,19 @@
 import {
-    Delete as DeleteIcon,
-    Edit as EditIcon,
-    ToggleOff as ToggleOffIcon,
-    ToggleOn as ToggleOnIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  ToggleOff as ToggleOffIcon,
+  ToggleOn as ToggleOnIcon,
 } from '@mui/icons-material';
 import {
-    Box,
-    Button,
-    Chip,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Typography,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Typography,
 } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

@@ -54,7 +54,7 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
       },
       success: {
         main: mode === 'light' ? COLORS.STATUS.SUCCESS : COLORS.STATUS.SUCCESS_DARK,
-        contrastText: '#ffffff',
+        contrastText: mode === 'light' ? '#ffffff' : '#000000',
       },
       error: {
         main: mode === 'light' ? COLORS.STATUS.ERROR : COLORS.STATUS.ERROR_DARK,
@@ -62,7 +62,7 @@ export const CustomThemeProvider: React.FC<ThemeProviderProps> = ({ children }) 
       },
       warning: {
         main: mode === 'light' ? COLORS.STATUS.WARNING : COLORS.STATUS.WARNING_DARK,
-        contrastText: '#ffffff',
+        contrastText: mode === 'light' ? '#ffffff' : '#000000',
       },
       info: {
         main: mode === 'light' ? COLORS.STATUS.INFO : COLORS.STATUS.INFO_DARK,
